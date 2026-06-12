@@ -1,7 +1,6 @@
 ---
 name: super-survey
 description: Use when researching product opportunities, markets, open-source projects, competitors, technical feasibility, or business ideas that need multiple evidence-backed rounds and adversarial critique.
-license: MIT
 ---
 
 # Super Survey
@@ -218,10 +217,11 @@ Stop when:
 Before reporting a round as complete:
 
 1. Run `survey_round.py check <survey-dir>`.
-2. Fix missing headings, missing files, or empty-template artifacts.
-3. Confirm `NN-evolver.md` has a concrete `Keep / Narrow / Pivot / Kill` decision.
-4. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
-5. Confirm `index.md` reflects the latest thesis, open questions, source inventory, wiki/graph status, and decision log.
+2. Fix missing files, missing headings, empty required sections, or empty-template artifacts.
+3. Confirm every required section contains substantive content, not only placeholders such as `Status:`, `Notes:`, `Option A:`, or table headers.
+4. Confirm `NN-evolver.md` has a concrete `Keep / Narrow / Pivot / Kill` decision.
+5. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
+6. Confirm `index.md` reflects the latest thesis, open questions, source inventory, wiki/graph status, and decision log.
 
 If the check fails, say the round is still in progress; do not present it as finished.
 

@@ -269,6 +269,13 @@ def labels(language: str) -> dict[str, object]:
     return LABELS[language]
 
 
+def positive_int(value: str) -> int:
+    number = int(value)
+    if number < 1:
+        raise argparse.ArgumentTypeError("round must be a positive integer")
+    return number
+
+
 def metadata_path(survey_dir: Path) -> Path:
     return survey_dir / ".super-survey.json"
 
@@ -316,6 +323,7 @@ def has_heading(text: str, heading: str) -> bool:
 def placeholder_values(language: str) -> set[str]:
     label = labels(language)
     return {
+        "",
         "-",
         label["empty"].strip(),
         str(label["confidence"]),
@@ -325,18 +333,46 @@ def placeholder_values(language: str) -> set[str]:
     }
 
 
+def structural_values(language: str) -> set[str]:
+    label = labels(language)
+    values: set[str] = set()
+    for key in ("source_cols", "evidence_cols", "probe_cols", "persona_cols"):
+        values.update(col.strip() for col in str(label[key]).split("|"))
+    values.update(str(probe) for probe in label["probes"])
+    values.update(str(persona) for persona in label["personas"])
+    return values
+
+
+def is_substantive_line(line: str, language: str) -> bool:
+    stripped = line.strip()
+    placeholders = placeholder_values(language)
+    if not stripped or stripped.startswith("#") or stripped in placeholders:
+        return False
+    if re.fullmatch(r"-\s*(Status|Notes|Option [A-Z]|Round \d+):\s*", stripped):
+        return False
+    if stripped.startswith("|") and stripped.endswith("|"):
+        cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+        if cells and all(re.fullmatch(r"-+", cell) for cell in cells):
+            return False
+        ignored = placeholders | structural_values(language)
+        return any(cell not in ignored for cell in cells)
+    return True
+
+
 def file_has_substance(path: Path, language: str) -> bool:
     text = path.read_text(encoding="utf-8")
-    placeholders = placeholder_values(language)
-    body_lines = [
-        line.strip()
-        for line in text.splitlines()
-        if line.strip()
-        and not line.startswith("#")
-        and not line.startswith("|")
-        and line.strip() not in placeholders
-    ]
-    return bool(body_lines)
+    return sum(1 for line in text.splitlines() if is_substantive_line(line, language)) > 1
+
+
+def section_body(text: str, heading: str) -> str | None:
+    match = re.search(
+        rf"^## {re.escape(heading)}\s*$\n(?P<body>.*?)(?=^## |\Z)",
+        text,
+        flags=re.MULTILINE | re.DOTALL,
+    )
+    if not match:
+        return None
+    return match.group("body")
 
 
 def init_survey(args: argparse.Namespace) -> None:
@@ -611,6 +647,10 @@ def check_required_file(errors: list[str], path: Path, headings: list[str], lang
     for heading in headings:
         if not has_heading(text, heading):
             errors.append(f"{path.name}: missing heading '## {heading}'")
+            continue
+        body = section_body(text, heading)
+        if body is not None and not any(is_substantive_line(line, language) for line in body.splitlines()):
+            errors.append(f"{path.name}: section '## {heading}' appears to be empty")
     if not file_has_substance(path, language):
         errors.append(f"{path.name}: appears to be only an empty template")
 
@@ -663,7 +703,7 @@ def main() -> None:
 
     p_round = sub.add_parser("round", help="create round templates")
     p_round.add_argument("survey_dir")
-    p_round.add_argument("round", type=int)
+    p_round.add_argument("round", type=positive_int)
     p_round.add_argument("--language", choices=LANGUAGES)
     p_round.set_defaults(func=create_round)
 
