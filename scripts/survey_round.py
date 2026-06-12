@@ -31,6 +31,8 @@ LABELS = {
             "User Question",
             "Superpowers Brainstorming Gate",
             "Decision To Make",
+            "Research Lens",
+            "Decision Evidence Standard",
             "Target Customer",
             "Success Criteria",
             "Disqualifying Conditions",
@@ -63,14 +65,17 @@ LABELS = {
         "redteam_headings": [
             "Strongest Objections",
             "Incumbent Response",
+            "Alternative Explanations Or Substitutes",
             "Data And Access Risks",
             "Legal, ToS, Privacy, Or Compliance Risks",
             "Monetization And Distribution Risks",
+            "Kill Criteria Checked",
             "Falsification Tests",
         ],
         "synthesis_headings": [
             "Updated Conclusion",
             "Confidence",
+            "Decision Rationale",
             "What Changed",
             "Remaining Unknowns",
             "Evolved Next Research Target",
@@ -85,10 +90,20 @@ LABELS = {
             "Evidence Needed Next",
         ],
         "source_cols": "Source | URL | Date Checked | Notes",
-        "evidence_cols": "Claim | Evidence | Source | Confidence",
+        "evidence_cols": "Claim | Evidence | Source | Source Type | Freshness | Confidence | Contradictions",
         "probe_cols": "Probe | Answer | Strength",
         "persona_cols": "Persona | Verdict | Reason",
-        "probes": ["Buyer", "Pain", "Trigger", "Data", "Distribution", "Incumbent", "Compliance", "Falsifier"],
+        "probes": [
+            "Buyer",
+            "Pain",
+            "Trigger",
+            "Data",
+            "Distribution",
+            "Incumbent",
+            "Compliance",
+            "Alternative",
+            "Falsifier",
+        ],
         "personas": [
             "Skeptical buyer",
             "Incumbent strategist",
@@ -115,6 +130,8 @@ LABELS = {
             "用户问题",
             "Superpowers Brainstorming 门",
             "需要做出的决策",
+            "研究镜头",
+            "决策证据标准",
             "目标客户",
             "成功标准",
             "放弃条件",
@@ -147,14 +164,17 @@ LABELS = {
         "redteam_headings": [
             "最强反对意见",
             "头部竞品反应",
+            "替代解释或替代方案",
             "数据与访问风险",
             "法律、平台条款、隐私或合规风险",
             "变现与分发风险",
+            "已检查的放弃条件",
             "证伪测试",
         ],
         "synthesis_headings": [
             "更新后的结论",
             "置信度",
+            "决策依据",
             "本轮变化",
             "剩余未知",
             "进化后的下一轮目标",
@@ -169,10 +189,10 @@ LABELS = {
             "下一轮所需证据",
         ],
         "source_cols": "来源 | URL | 检查日期 | 备注",
-        "evidence_cols": "主张 | 证据 | 来源 | 置信度",
+        "evidence_cols": "主张 | 证据 | 来源 | 来源类型 | 新鲜度 | 置信度 | 矛盾证据",
         "probe_cols": "探针 | 回答 | 强度",
         "persona_cols": "角色 | 判断 | 理由",
-        "probes": ["买方", "痛点", "触发事件", "数据", "分发", "既有玩家", "合规", "证伪条件"],
+        "probes": ["买方", "痛点", "触发事件", "数据", "分发", "既有玩家", "合规", "替代解释", "证伪条件"],
         "personas": ["怀疑的买方", "头部竞品策略负责人", "分发现实主义者", "合规审查者", "构建/运营负责人"],
     },
     "ja": {
@@ -193,6 +213,8 @@ LABELS = {
             "ユーザーの問い",
             "Superpowers Brainstorming ゲート",
             "判断すべきこと",
+            "調査レンズ",
+            "判断に必要な証拠基準",
             "対象顧客",
             "成功基準",
             "中止条件",
@@ -225,14 +247,17 @@ LABELS = {
         "redteam_headings": [
             "最も強い反論",
             "既存大手の反応",
+            "代替説明または代替手段",
             "データとアクセスのリスク",
             "法律、規約、プライバシー、コンプライアンスのリスク",
             "収益化と流通のリスク",
+            "確認済みの中止条件",
             "反証テスト",
         ],
         "synthesis_headings": [
             "更新された結論",
             "信頼度",
+            "判断根拠",
             "今回変わったこと",
             "残る不明点",
             "進化した次回調査目標",
@@ -247,10 +272,20 @@ LABELS = {
             "次に必要な証拠",
         ],
         "source_cols": "情報源 | URL | 確認日 | メモ",
-        "evidence_cols": "主張 | 証拠 | 情報源 | 信頼度",
+        "evidence_cols": "主張 | 証拠 | 情報源 | 情報源タイプ | 鮮度 | 信頼度 | 矛盾する証拠",
         "probe_cols": "プローブ | 回答 | 強度",
         "persona_cols": "ペルソナ | 判断 | 理由",
-        "probes": ["買い手", "痛み", "きっかけ", "データ", "流通", "既存企業", "コンプライアンス", "反証条件"],
+        "probes": [
+            "買い手",
+            "痛み",
+            "きっかけ",
+            "データ",
+            "流通",
+            "既存企業",
+            "コンプライアンス",
+            "代替説明",
+            "反証条件",
+        ],
         "personas": ["懐疑的な買い手", "既存大手の戦略担当", "流通の現実主義者", "コンプライアンス審査者", "構築/運用担当"],
     },
 }
@@ -420,6 +455,14 @@ def init_survey(args: argparse.Namespace) -> None:
 
 ## {headings[7]}
 
+-
+
+## {headings[8]}
+
+-
+
+## {headings[9]}
+
 - Round 1:
 """,
     )
@@ -556,6 +599,14 @@ def create_round(args: argparse.Namespace) -> None:
 ## {headings[5]}
 
 - 
+
+## {headings[6]}
+
+-
+
+## {headings[7]}
+
+-
 """,
     )
     headings = label["synthesis_headings"]
@@ -586,6 +637,10 @@ def create_round(args: argparse.Namespace) -> None:
 ## {headings[5]}
 
 - 
+
+## {headings[6]}
+
+-
 """,
     )
     headings = label["evolver_headings"]

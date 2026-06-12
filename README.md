@@ -90,11 +90,12 @@ npx skills add GoatGit/super-survey --list
 A complete round must include:
 
 - current target and decision criteria
-- current evidence with source dates or URLs where applicable
+- a research lens and decision evidence standard that guide source selection without forcing a narrow category
+- current claim-level evidence with source type, freshness, confidence, and contradictions
 - a brainstorming checkpoint
 - findings separated from interpretation
-- red-team critique
-- synthesis with confidence and unknowns
+- red-team critique with substitutes, alternative explanations, and kill criteria checked
+- synthesis with confidence, decision rationale, and unknowns
 - lightweight evolver output with `Keep / Narrow / Pivot / Kill`
 - updated `index.md` with wiki or graph indexing status
 

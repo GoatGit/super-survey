@@ -15,14 +15,16 @@ Every survey round must:
 
 0. Use Superpowers brainstorming as a recurring checkpoint, not only a kickoff gate.
 1. State the current research target and decision criteria.
-2. Gather evidence from current sources when facts may have changed.
-3. Re-enter a brainstorming checkpoint to reframe the problem and compare next moves.
-4. Separate findings from interpretation.
-5. Include a red-team challenge: why the idea may fail, why evidence may be weak, and what competitors or constraints invalidate the thesis.
-6. Synthesize a clearer conclusion with confidence level and remaining unknowns.
-7. Run the lightweight evolver to sharpen or kill the next-round target.
-8. Update an index and attempt wiki/graph indexing, or record why it was unavailable.
-9. Write the round artifacts to disk before giving a final answer.
+2. Choose a generic research lens and evidence standard without forcing the work into a narrow fixed category.
+3. Gather evidence from current sources when facts may have changed.
+4. Re-enter a brainstorming checkpoint to reframe the problem and compare next moves.
+5. Separate findings from interpretation.
+6. Include a red-team challenge: why the idea may fail, why evidence may be weak, what alternative explanations or substitutes exist, and what constraints invalidate the thesis.
+7. Check explicit kill criteria before recommending another round.
+8. Synthesize a clearer conclusion with confidence level, decision rationale, and remaining unknowns.
+9. Run the lightweight evolver to sharpen or kill the next-round target.
+10. Update an index and attempt wiki/graph indexing, or record why it was unavailable.
+11. Write the round artifacts to disk before giving a final answer.
 
 Do not stop after collecting links. The value of this skill is sharper judgment after each loop.
 
@@ -85,6 +87,8 @@ Write `00-brief.md` with:
 - User question
 - Superpowers Brainstorming Gate
 - Practical decision to make
+- Research lens
+- Decision evidence standard
 - Target user/customer
 - Success criteria
 - Disqualifying conditions
@@ -110,7 +114,7 @@ index.md
 
 - Research question for this round
 - Source list with dates/URLs where applicable
-- Evidence table
+- Claim-level evidence table with source type, freshness, confidence, and contradictions
 - Notes on data quality and freshness
 
 `NN-brainstorm.md` should contain:
@@ -126,7 +130,9 @@ index.md
 
 - Strongest objections
 - Better-funded incumbent response
+- Alternative explanations or substitutes
 - Data, legal, distribution, trust, and monetization risks
+- Kill criteria checked
 - Reasons users may not care
 - What would make the thesis false
 
@@ -134,9 +140,26 @@ index.md
 
 - Updated conclusion
 - Confidence: low / medium / high
+- Decision rationale: why the recommendation follows from the evidence
 - What changed from prior round
 - Best next question
 - Recommended next action
+
+### 2.5 Research Lens
+
+Use a research lens as a lightweight emphasis guide, not a hard decision-type branch. A survey can combine lenses when needed.
+
+Pick or write 1-3 lenses that best match the question:
+
+- **Buyer / user lens**: who has the problem, budget, authority, urgency, and switching cost?
+- **Workflow lens**: what repeated job, trigger, inputs, outputs, and failure modes matter?
+- **Market / competitor lens**: what substitutes, incumbents, pricing, distribution, and moats matter?
+- **Technical lens**: what feasibility, performance, integration, data, reliability, and maintenance risks matter?
+- **Policy / trust lens**: what legal, ToS, privacy, compliance, safety, or reputational constraints matter?
+- **Open-source lens**: what license, maintainers, release cadence, issues, adoption, API stability, and ecosystem risks matter?
+- **Custom lens**: define the lens when the survey does not fit the examples above.
+
+Do not force every survey into a predefined category. The lens only determines which evidence deserves extra attention; the common research loop still applies.
 
 `NN-evolver.md` should contain the output of the built-in lightweight evolver:
 
@@ -219,9 +242,13 @@ Before reporting a round as complete:
 1. Run `survey_round.py check <survey-dir>`.
 2. Fix missing files, missing headings, empty required sections, or empty-template artifacts.
 3. Confirm every required section contains substantive content, not only placeholders such as `Status:`, `Notes:`, `Option A:`, or table headers.
-4. Confirm `NN-evolver.md` has a concrete `Keep / Narrow / Pivot / Kill` decision.
-5. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
-6. Confirm `index.md` reflects the latest thesis, open questions, source inventory, wiki/graph status, and decision log.
+4. Confirm `00-brief.md` has a research lens and decision evidence standard specific enough to guide source selection.
+5. Confirm `NN-research.md` records source type, freshness, confidence, and contradictions for important claims.
+6. Confirm `NN-redteam.md` checks substitutes, alternative explanations, and explicit kill criteria.
+7. Confirm `NN-synthesis.md` states decision rationale, not only a conclusion.
+8. Confirm `NN-evolver.md` has a concrete `Keep / Narrow / Pivot / Kill` decision.
+9. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
+10. Confirm `index.md` reflects the latest thesis, open questions, source inventory, wiki/graph status, and decision log.
 
 If the check fails, say the round is still in progress; do not present it as finished.
 

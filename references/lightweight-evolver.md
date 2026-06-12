@@ -27,6 +27,7 @@ List the current thesis in one sentence. Then answer:
 | Distribution | How does the first user discover and trust it? |
 | Incumbent | Who can copy or block this? |
 | Compliance | What law, ToS, privacy, or platform rule can break it? |
+| Alternative | What substitute or non-product explanation could explain the signal? |
 | Falsifier | What evidence would make us stop? |
 
 Mark each answer as strong, weak, or unknown.
@@ -53,6 +54,8 @@ Choose exactly one:
 - **Kill**: stop researching unless the user brings new evidence.
 
 Do not choose `Keep` if buyer, data, and distribution are all weak or unknown.
+
+Before choosing, check whether an explicit kill criterion was met. If yes, choose `Kill` or `Pivot` unless new evidence changes the constraint.
 
 ## Step 4: Generate Next Target
 
@@ -84,6 +87,9 @@ Name the next round's evidence requirements:
 - Pricing or willingness-to-pay signals
 - Legal/ToS/compliance checks
 - Small validation test if possible
+- Kill criteria or stopping evidence to check first
+
+If the next evidence requirement needs interviews, experiments, legal review, or implementation rather than more desk research, say so and recommend stopping the survey loop.
 
 ## Output Template
 

@@ -91,6 +91,27 @@ Can this target customer pay for this workflow?
         self.assertFalse((survey_dir / "00-research.md").exists())
         self.assertFalse((survey_dir / "-1-research.md").exists())
 
+    def test_templates_include_generic_research_framework_fields(self) -> None:
+        survey_dir = self.init_round()
+
+        brief = (survey_dir / "00-brief.md").read_text(encoding="utf-8")
+        research = (survey_dir / "01-research.md").read_text(encoding="utf-8")
+        redteam = (survey_dir / "01-redteam.md").read_text(encoding="utf-8")
+        synthesis = (survey_dir / "01-synthesis.md").read_text(encoding="utf-8")
+        evolver = (survey_dir / "01-evolver.md").read_text(encoding="utf-8")
+
+        self.assertIn("## Research Lens", brief)
+        self.assertIn("## Decision Evidence Standard", brief)
+        self.assertIn("## Initial Assumptions", brief)
+        self.assertIn("## Planned Rounds", brief)
+        self.assertIn("Source Type", research)
+        self.assertIn("Freshness", research)
+        self.assertIn("Contradictions", research)
+        self.assertIn("## Alternative Explanations Or Substitutes", redteam)
+        self.assertIn("## Kill Criteria Checked", redteam)
+        self.assertIn("## Decision Rationale", synthesis)
+        self.assertIn("Alternative", evolver)
+
     def test_check_passes_when_every_required_section_has_substance(self) -> None:
         survey_dir = self.init_round()
         (survey_dir / "00-brief.md").write_text(
@@ -107,6 +128,14 @@ Completed: decision, buyer, and stopping criteria recorded.
 ## Decision To Make
 
 Decide whether to continue.
+
+## Research Lens
+
+Use a general product opportunity lens with policy and willingness-to-pay checks.
+
+## Decision Evidence Standard
+
+Require current primary sources for policy claims and direct signals for payment claims.
 
 ## Target Customer
 
@@ -174,9 +203,9 @@ Can users pay for this workflow?
 
 ## Evidence Table
 
-| Claim | Evidence | Source | Confidence |
-|---|---|---|---|
-| Users repeat the task | Forum posts and product pages | Example | Medium |
+| Claim | Evidence | Source | Source Type | Freshness | Confidence | Contradictions |
+|---|---|---|---|---|---|---|
+| Users repeat the task | Forum posts and product pages | Example | Secondary | Checked this round | Medium | No direct payment proof |
 
 ## Findings
 
@@ -228,6 +257,10 @@ Users may not trust automation.
 
 Job boards can block the workflow.
 
+## Alternative Explanations Or Substitutes
+
+Users may prefer manual spreadsheets or existing job trackers.
+
 ## Data And Access Risks
 
 Data access can change without notice.
@@ -239,6 +272,10 @@ Terms may restrict automated submission.
 ## Monetization And Distribution Risks
 
 Paid acquisition could erase margin.
+
+## Kill Criteria Checked
+
+No verified kill criterion was found, but policy risk remains unresolved.
 
 ## Falsification Tests
 
@@ -256,6 +293,10 @@ Continue only with a narrower workflow.
 ## Confidence
 
 Medium.
+
+## Decision Rationale
+
+Continue because demand signals exist, but narrow around policy risk.
 
 ## What Changed
 
