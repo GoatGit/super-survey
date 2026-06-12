@@ -31,6 +31,12 @@ surveys/YYYY-MM-DD-topic-slug/
 
 ## Install
 
+Install directly with the Skills CLI:
+
+```bash
+npx skills add GoatGit/super-survey
+```
+
 Copy this repository into your Codex skills directory:
 
 ```bash
@@ -63,6 +69,22 @@ python3 scripts/survey_round.py check surveys/2026-06-13-ai-recruiting-agent
 
 `check` fails when required files are missing, headings are missing, any required section is empty, or artifacts still look like templates. Round numbers must be positive integers.
 
+## skills.sh Readiness
+
+This repository is structured for Skills CLI discovery and skills.sh indexing:
+
+- root-level `SKILL.md` with `name` and `description` frontmatter
+- `agents/openai.yaml` UI metadata
+- bundled helper script under `scripts/`
+- supporting references under `references/`
+- MIT license, tests, and multilingual README files
+
+Validate discovery:
+
+```bash
+npx skills add GoatGit/super-survey --list
+```
+
 ## Quality Gates
 
 A complete round must include:
@@ -77,6 +99,22 @@ A complete round must include:
 - updated `index.md` with wiki or graph indexing status
 
 The preferred optional wiki backend is `pin-llm-wiki`. If no initialized wiki backend exists, Super Survey records Markdown-only indexing status in `index.md`.
+
+## Inspiration: Karpathy's autoresearch
+
+Super Survey's lightweight evolver is inspired by Andrej Karpathy's [autoresearch](https://github.com/karpathy/autoresearch), with respect and attribution. Autoresearch gives an AI agent a real training setup, lets it modify code, run short experiments, check whether a metric improved, keep or discard the change, and repeat.
+
+Super Survey adapts that loop to product, market, technical, and open-source research:
+
+| Dimension | Karpathy autoresearch | Super Survey evolver |
+|---|---|---|
+| Goal | Improve a model or code path through experiments | Sharpen a research thesis into an actionable decision |
+| Input | Training code, fixed evaluation, experiment logs | Evidence, sources, constraints, red-team critique |
+| Feedback | A comparable scalar metric such as validation loss | Structured judgment: evidence strength, risks, confidence |
+| Decision | Keep or discard a code change | Keep, Narrow, Pivot, or Kill a thesis |
+| Output | Better code/model plus experiment history | A narrower next-round research target plus evidence needs |
+
+In short: autoresearch is metric-driven optimization; Super Survey is judgment-driven narrowing. When a survey has a measurable benchmark, Super Survey can borrow more of the autoresearch style. When the question is about buyer intent, compliance, distribution, or strategic risk, the loop stays evidence-first and decision-oriented instead of pretending every answer can be reduced to one number.
 
 ## Development
 

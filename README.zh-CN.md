@@ -31,6 +31,12 @@ surveys/YYYY-MM-DD-topic-slug/
 
 ## 安装
 
+用 Skills CLI 直接安装：
+
+```bash
+npx skills add GoatGit/super-survey
+```
+
 复制到 Codex skills 目录：
 
 ```bash
@@ -63,6 +69,22 @@ python3 scripts/survey_round.py check surveys/2026-06-13-ai-招聘助手
 
 `check` 会在缺文件、缺标题、任一必填章节为空、或内容仍像空模板时失败。轮次必须是正整数。
 
+## skills.sh 收录准备
+
+这个仓库已按 Skills CLI 发现和 skills.sh 索引的方式组织：
+
+- 根目录 `SKILL.md`，包含 `name` 和 `description` frontmatter
+- `agents/openai.yaml` UI 元数据
+- `scripts/` 下的辅助脚本
+- `references/` 下的参考资料
+- MIT 许可证、测试和多语言 README 文件
+
+验证发现能力：
+
+```bash
+npx skills add GoatGit/super-survey --list
+```
+
 ## 质量门
 
 完整的一轮必须包含：
@@ -77,6 +99,22 @@ python3 scripts/survey_round.py check surveys/2026-06-13-ai-招聘助手
 - 更新后的 `index.md`，记录 wiki 或 graph 索引状态
 
 首选可选知识库后端是 `pin-llm-wiki`。如果项目没有初始化知识库后端，Super Survey 会在 `index.md` 里记录 Markdown-only 索引状态。
+
+## 灵感来源：Karpathy 的 autoresearch
+
+Super Survey 的轻量进化器受到 Andrej Karpathy 的 [autoresearch](https://github.com/karpathy/autoresearch) 启发，并向这个思路致敬。autoresearch 的核心是让 AI agent 在真实训练环境中修改代码、短跑实验、检查指标是否改善、保留或丢弃改动，然后继续循环。
+
+Super Survey 把这个循环改造到产品、市场、技术和开源调研里：
+
+| 维度 | Karpathy autoresearch | Super Survey 进化器 |
+|---|---|---|
+| 目标 | 通过实验改进模型或代码路径 | 把调研论点推进到可行动决策 |
+| 输入 | 训练代码、固定评测、实验日志 | 证据、来源、约束、反方挑战 |
+| 反馈 | 可比较的单一指标，例如 validation loss | 结构化判断：证据强度、风险、置信度 |
+| 决策 | 保留或丢弃代码改动 | 保留、收窄、转向或放弃论点 |
+| 输出 | 更好的代码/模型和实验历史 | 更窄的下一轮调研目标和所需证据 |
+
+简言之：autoresearch 是指标驱动的优化；Super Survey 是判断驱动的收窄。当调研对象有明确 benchmark 时，Super Survey 可以更接近 autoresearch 的方式；当问题涉及买方意愿、合规、分发或战略风险时，它会保持证据优先和决策导向，而不是假装所有问题都能压成一个数字。
 
 ## 开发
 

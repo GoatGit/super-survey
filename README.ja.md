@@ -31,6 +31,12 @@ surveys/YYYY-MM-DD-topic-slug/
 
 ## インストール
 
+Skills CLI で直接インストールします:
+
+```bash
+npx skills add GoatGit/super-survey
+```
+
 Codex skills ディレクトリへコピーします:
 
 ```bash
@@ -63,6 +69,22 @@ python3 scripts/survey_round.py check surveys/2026-06-13-ai採用エージェン
 
 `check` は、必要ファイルの欠落、見出しの欠落、必須セクションの空欄、または空テンプレートのままの成果物を検出すると失敗します。ラウンド番号は正の整数である必要があります。
 
+## skills.sh 収録準備
+
+このリポジトリは、Skills CLI の発見と skills.sh のインデックスに向けた構成になっています:
+
+- ルート階層の `SKILL.md` に `name` と `description` frontmatter を配置
+- `agents/openai.yaml` の UI メタデータ
+- `scripts/` 配下の補助スクリプト
+- `references/` 配下の参考資料
+- MIT ライセンス、テスト、多言語 README ファイル
+
+発見できることを検証:
+
+```bash
+npx skills add GoatGit/super-survey --list
+```
+
 ## 品質ゲート
 
 完了したラウンドには次が必要です:
@@ -77,6 +99,22 @@ python3 scripts/survey_round.py check surveys/2026-06-13-ai採用エージェン
 - wiki または graph インデックス状態を記録した更新済み `index.md`
 
 推奨される任意の wiki バックエンドは `pin-llm-wiki` です。初期化済みの wiki バックエンドがない場合、Super Survey は `index.md` に Markdown-only のインデックス状態を記録します。
+
+## インスピレーション: Karpathy の autoresearch
+
+Super Survey の軽量エボルバーは、敬意と帰属を込めて Andrej Karpathy の [autoresearch](https://github.com/karpathy/autoresearch) から着想を得ています。autoresearch の中心的な考え方は、AI agent に実際の学習環境を与え、コードを変更させ、短い実験を走らせ、指標が改善したかを確認し、変更を保持または破棄して反復することです。
+
+Super Survey は、このループをプロダクト、市場、技術、オープンソース調査向けに適用しています:
+
+| 観点 | Karpathy autoresearch | Super Survey エボルバー |
+|---|---|---|
+| 目的 | 実験を通じてモデルまたはコードを改善する | 調査仮説を実行可能な判断へ近づける |
+| 入力 | 学習コード、固定評価、実験ログ | 証拠、情報源、制約、レッドチーム批判 |
+| フィードバック | validation loss など比較可能な単一指標 | 証拠の強さ、リスク、信頼度にもとづく構造化判断 |
+| 判断 | コード変更を保持または破棄する | 仮説を維持、絞り込み、ピボット、または中止する |
+| 出力 | 改善されたコード/モデルと実験履歴 | より絞られた次回調査目標と必要な証拠 |
+
+要するに、autoresearch は指標駆動の最適化であり、Super Survey は判断駆動の絞り込みです。調査対象に明確な benchmark がある場合、Super Survey は autoresearch に近い形を取れます。一方で、買い手の意欲、コンプライアンス、流通、戦略リスクが中心の問いでは、すべてを一つの数値に還元したふりをせず、証拠優先かつ意思決定志向のループを保ちます。
 
 ## 開発
 
