@@ -1,0 +1,4 @@
+interface:
+  display_name: "Super Survey"
+  short_description: "Multi-round research with red-team critique"
+  default_prompt: "Use $super-survey to research this product opportunity through multiple evidence-backed rounds."
