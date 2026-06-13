@@ -2,7 +2,7 @@
 
 语言：[English](README.md) | 中文 | [日本語](README.ja.md)
 
-Super Survey 是一个可复用的 Codex 技能，用于多轮产品、市场、技术和开源项目调研。它把模糊问题转化为有证据、反方挑战、综合判断和下一轮更具体问题的 Markdown 产物。
+Super Survey 是一个可复用的 agent skill 和调研工作流，用于多轮产品、市场、技术和开源项目调研。它把模糊问题转化为有证据、反方挑战、综合判断和下一轮更具体问题的 Markdown 产物。它面向兼容 Skills 的 agent，也可以直接通过内置 CLI 使用。
 
 ## 项目用途
 
@@ -26,6 +26,7 @@ surveys/YYYY-MM-DD-topic-slug/
 ├── 01-synthesis.md
 ├── 01-evolver.md
 ├── index.md
+├── report.md
 └── .super-survey.json
 ```
 
@@ -37,7 +38,7 @@ surveys/YYYY-MM-DD-topic-slug/
 npx skills add GoatGit/super-survey
 ```
 
-复制到 Codex skills 目录：
+Codex 用户也可以复制到 Codex skills 目录：
 
 ```bash
 mkdir -p ~/.codex/skills
@@ -98,8 +99,39 @@ npx skills add GoatGit/super-survey --list
 - 带置信度、决策依据和未知项的综合结论
 - 轻量进化器输出，并明确 `保留 / 收窄 / 转向 / 放弃`
 - 更新后的 `index.md`，记录 wiki 或 graph 索引状态
+- 独立的 `report.md`，作为完整最终报告
 
 首选可选知识库后端是 `pin-llm-wiki`。如果项目没有初始化知识库后端，Super Survey 会在 `index.md` 里记录 Markdown-only 索引状态。
+
+Super Survey 可以把搜索、深度报告、VOC/客户研究、竞品分析、brainstorming 和 wiki 沉淀等子任务路由给可选 companion skills。这些 companion 负责收集或包装证据；最终判断闭环仍由 Super Survey 负责。
+
+## 调用流程
+
+```mermaid
+flowchart TD
+    A[用户调研问题] --> B[00-brief.md<br/>决策、研究镜头、证据标准]
+    B --> C[本轮调研<br/>来源和 claim-level 证据]
+    C --> D{需要 companion skill?}
+    D -->|当前来源| D1[搜索工具<br/>Tavily / web search]
+    D -->|长篇报告| D2[Deep Research]
+    D -->|VOC / 用户语言| D3[Customer 或 Reddit research]
+    D -->|竞品| D4[Competitive research]
+    D -->|知识沉淀| D5[pin-llm-wiki / llm-wiki]
+    D -->|不需要| E[Brainstorming 检查点]
+    D1 --> C
+    D2 --> C
+    D3 --> C
+    D4 --> C
+    D5 --> I[index.md]
+    C --> E[Brainstorming 检查点]
+    E --> F[反方挑战<br/>风险、替代方案、放弃条件]
+    F --> G[综合结论<br/>置信度和决策依据]
+    G --> H[进化器<br/>保留 / 收窄 / 转向 / 放弃]
+    H --> I[index.md<br/>来源、决策、wiki 状态]
+    H -->|继续| C
+    H -->|停止| J[report.md<br/>完整最终报告]
+    J --> K[最终回答<br/>决策导向摘要]
+```
 
 ## 灵感来源：Karpathy 的 autoresearch
 
@@ -136,7 +168,7 @@ python3 -m py_compile scripts/survey_round.py
 ## 目录结构
 
 ```text
-SKILL.md                         # Codex 技能说明
+SKILL.md                         # agent skill 说明
 scripts/survey_round.py           # 调研产物生成器和校验器
 references/lightweight-evolver.md # 轻量进化器流程
 references/research-quality.md    # 证据质量参考

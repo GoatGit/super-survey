@@ -47,6 +47,14 @@ LABELS = {
             "Wiki / Graph Index Status",
             "Decision Log",
         ],
+        "report_headings": [
+            "Executive Summary",
+            "Key Findings",
+            "Comparison Or Analysis",
+            "Recommendation",
+            "Limitations",
+            "Source Notes",
+        ],
         "research_headings": [
             "Research Question",
             "Source List",
@@ -146,6 +154,14 @@ LABELS = {
             "Wiki / Graph 索引状态",
             "决策日志",
         ],
+        "report_headings": [
+            "执行摘要",
+            "关键发现",
+            "对比或分析",
+            "建议",
+            "局限性",
+            "来源备注",
+        ],
         "research_headings": [
             "本轮问题",
             "来源列表",
@@ -228,6 +244,14 @@ LABELS = {
             "情報源一覧",
             "Wiki / Graph インデックス状態",
             "意思決定ログ",
+        ],
+        "report_headings": [
+            "エグゼクティブサマリー",
+            "主要な発見",
+            "比較または分析",
+            "推奨事項",
+            "制約",
+            "情報源メモ",
         ],
         "research_headings": [
             "今回の調査問い",
@@ -496,6 +520,36 @@ def init_survey(args: argparse.Namespace) -> None:
 - 
 """,
     )
+    headings = label["report_headings"]
+    write_once(
+        survey_dir / "report.md",
+        f"""# {args.topic}
+
+## {headings[0]}
+
+-
+
+## {headings[1]}
+
+-
+
+## {headings[2]}
+
+-
+
+## {headings[3]}
+
+-
+
+## {headings[4]}
+
+-
+
+## {headings[5]}
+
+-
+""",
+    )
     print(survey_dir)
 
 
@@ -723,6 +777,7 @@ def check_survey(args: argparse.Namespace) -> None:
 
     check_required_file(errors, survey_dir / "00-brief.md", list(label["brief_headings"]), language)
     check_required_file(errors, survey_dir / "index.md", list(label["index_headings"]), language)
+    check_required_file(errors, survey_dir / "report.md", list(label["report_headings"]), language)
 
     rounds = detect_rounds(survey_dir)
     if not rounds:

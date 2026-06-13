@@ -52,6 +52,7 @@ class SurveyRoundCliTest(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("00-brief.md: appears to be only an empty template", result.stdout)
         self.assertIn("01-brainstorm.md: appears to be only an empty template", result.stdout)
+        self.assertIn("report.md: appears to be only an empty template", result.stdout)
 
     def test_check_rejects_files_with_empty_required_sections(self) -> None:
         survey_dir = self.init_round()
@@ -99,6 +100,7 @@ Can this target customer pay for this workflow?
         redteam = (survey_dir / "01-redteam.md").read_text(encoding="utf-8")
         synthesis = (survey_dir / "01-synthesis.md").read_text(encoding="utf-8")
         evolver = (survey_dir / "01-evolver.md").read_text(encoding="utf-8")
+        report = (survey_dir / "report.md").read_text(encoding="utf-8")
 
         self.assertIn("## Research Lens", brief)
         self.assertIn("## Decision Evidence Standard", brief)
@@ -111,6 +113,8 @@ Can this target customer pay for this workflow?
         self.assertIn("## Kill Criteria Checked", redteam)
         self.assertIn("## Decision Rationale", synthesis)
         self.assertIn("Alternative", evolver)
+        self.assertIn("## Executive Summary", report)
+        self.assertIn("## Recommendation", report)
 
     def test_check_passes_when_every_required_section_has_substance(self) -> None:
         survey_dir = self.init_round()
@@ -185,6 +189,35 @@ Not built: no initialized wiki backend.
 ## Decision Log
 
 Continue one narrowed round.
+""",
+            encoding="utf-8",
+        )
+        (survey_dir / "report.md").write_text(
+            """# AI recruiting agent
+
+## Executive Summary
+
+Continue with a narrower policy-first validation path.
+
+## Key Findings
+
+Demand signals exist, but payment and policy evidence are incomplete.
+
+## Comparison Or Analysis
+
+Manual workflows and job trackers are the main substitutes.
+
+## Recommendation
+
+Run a policy-first round before building.
+
+## Limitations
+
+No direct buyer interviews were conducted.
+
+## Source Notes
+
+Sources were checked during this round and remain directional.
 """,
             encoding="utf-8",
         )

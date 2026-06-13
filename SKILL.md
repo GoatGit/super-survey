@@ -24,13 +24,40 @@ Every survey round must:
 8. Synthesize a clearer conclusion with confidence level, decision rationale, and remaining unknowns.
 9. Run the lightweight evolver to sharpen or kill the next-round target.
 10. Update an index and attempt wiki/graph indexing, or record why it was unavailable.
-11. Write the round artifacts to disk before giving a final answer.
+11. Write or update the final `report.md` before giving a final answer.
+12. Write the round artifacts to disk before giving a final answer.
 
 Do not stop after collecting links. The value of this skill is sharper judgment after each loop.
 
 Empty templates are not artifacts. A round is incomplete until each file contains substantive findings, critique, synthesis, and evolved next-target content.
 
+`index.md` is a navigation and decision log. It is not the final report. The final complete deliverable must be `report.md`, written in the selected artifact language and updated before the user-facing answer.
+
 ## Workflow
+
+### Optional Companion Skills
+
+Super Survey is the research loop owner. It may route specific subtasks to companion skills when they are available, but they are optional and must not become hard dependencies. If a companion is missing, continue with the common Super Survey workflow and record the fallback in the relevant artifact.
+
+Recommended companion routing:
+
+| Need | Prefer | Record where |
+|---|---|---|
+| Brainstorming checkpoints, reframing, next-move comparison | `superpowers:brainstorming` or equivalent brainstorming workflow | `00-brief.md`, `NN-brainstorm.md` |
+| Current web search, recent facts, source discovery | `tavily-search`, built-in web search, or another current-source search tool | `NN-research.md` Source List and Data Quality Notes |
+| Long citation-backed report, extensive source triangulation | `deep-research` or equivalent deep research/reporting skill | `NN-research.md`, `NN-synthesis.md`, `index.md` |
+| Customer voice / VOC / Reddit or review mining | customer-research, reddit-research, or equivalent VOC workflow | `NN-research.md` Evidence Table and `NN-redteam.md` alternatives |
+| Competitor matrix, positioning map, SWOT | competitive-research or equivalent competitor-analysis workflow | `NN-research.md`, optional competitor notes, `NN-synthesis.md` |
+| Long-term source and knowledge persistence | `pin-llm-wiki`, `llm-wiki`, or another document/wiki indexer | `index.md` Wiki / Graph Index Status |
+| Reusable marketing or growth ideas after the research conclusion | `marketing-ideas` or equivalent ideation skill | `NN-synthesis.md` Recommended Next Action |
+
+Use companions to gather or package evidence, not to bypass Super Survey's judgment loop. The final round still must include findings, red-team critique, synthesis, evolver decision, and persisted artifacts. Never claim a companion skill ran unless it actually ran.
+
+Recommended optional setup:
+
+- Install or enable Superpowers brainstorming when available; if absent, record `Assumed` and perform a lightweight written checkpoint inside the survey artifacts.
+- Install or enable `pin-llm-wiki` or `llm-wiki` when long-term knowledge accumulation matters; if absent, maintain Markdown-only `index.md`.
+- Install or enable a current-source search skill/tool when the survey depends on recent market, policy, pricing, API, repository, or company facts.
 
 ### 0. Superpowers Brainstorming Loop
 
@@ -95,7 +122,7 @@ Write `00-brief.md` with:
 - Initial assumptions
 - Planned research rounds
 
-If the user only wants a quick answer, still create a lightweight `00-brief.md` and one synthesis file.
+If the user only wants a quick answer, still create a lightweight `00-brief.md`, one synthesis file, and `report.md`.
 
 ### 2. Research Round
 
@@ -108,6 +135,7 @@ NN-redteam.md
 NN-synthesis.md
 NN-evolver.md
 index.md
+report.md
 ```
 
 `NN-research.md` should contain:
@@ -144,6 +172,15 @@ index.md
 - What changed from prior round
 - Best next question
 - Recommended next action
+
+`report.md` should be a complete, standalone report that a user can read without opening every round artifact. It should contain:
+
+- Executive summary
+- Key findings
+- Comparison or analysis
+- Recommendation
+- Limitations
+- Source notes
 
 ### 2.5 Research Lens
 
@@ -249,6 +286,7 @@ Before reporting a round as complete:
 8. Confirm `NN-evolver.md` has a concrete `Keep / Narrow / Pivot / Kill` decision.
 9. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
 10. Confirm `index.md` reflects the latest thesis, open questions, source inventory, wiki/graph status, and decision log.
+11. Confirm `report.md` is complete, standalone, and updated with the latest synthesis.
 
 If the check fails, say the round is still in progress; do not present it as finished.
 
@@ -269,6 +307,7 @@ Read `references/research-quality.md` when the task is high-stakes, market-facin
 Final user-facing responses should be concise and decision-oriented:
 
 - Where the files were written
+- Link or path to `report.md`
 - Current conclusion
 - Strongest objection
 - What changed after red-team critique
@@ -286,3 +325,4 @@ Use the same language as the user's request unless they ask otherwise. When writ
 - **One-time brainstorming**: brainstorming appears only in `00-brief.md`. Fix by adding `NN-brainstorm.md` for each round and using it to choose the next move.
 - **False graph claim**: index tooling was mentioned but not run. Fix by saying only `index.md` was updated.
 - **Template theater**: files exist but contain placeholders. Fix before final response.
+- **Index-as-report**: `index.md` is updated but no standalone final report exists. Fix by writing `report.md` before answering.

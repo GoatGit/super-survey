@@ -2,7 +2,7 @@
 
 言語: [English](README.md) | [中文](README.zh-CN.md) | 日本語
 
-Super Survey は、プロダクト、市場、技術、オープンソース調査のための再利用可能な Codex スキルです。曖昧な調査対象を、証拠、レッドチーム批判、統合判断、次回のより具体的な問いを含む Markdown 成果物に変換します。
+Super Survey は、プロダクト、市場、技術、オープンソース調査のための再利用可能な agent skill 兼調査ワークフローです。曖昧な調査対象を、証拠、レッドチーム批判、統合判断、次回のより具体的な問いを含む Markdown 成果物に変換します。Skills 互換の agent 向けに設計されており、同梱 CLI から直接使うこともできます。
 
 ## 概要
 
@@ -26,6 +26,7 @@ surveys/YYYY-MM-DD-topic-slug/
 ├── 01-synthesis.md
 ├── 01-evolver.md
 ├── index.md
+├── report.md
 └── .super-survey.json
 ```
 
@@ -37,7 +38,7 @@ Skills CLI で直接インストールします:
 npx skills add GoatGit/super-survey
 ```
 
-Codex skills ディレクトリへコピーします:
+Codex ユーザーは Codex skills ディレクトリへコピーすることもできます:
 
 ```bash
 mkdir -p ~/.codex/skills
@@ -98,8 +99,39 @@ npx skills add GoatGit/super-survey --list
 - 信頼度、判断根拠、未解決事項を含む統合結論
 - `維持 / 絞り込み / ピボット / 中止` を明示した軽量エボルバー出力
 - wiki または graph インデックス状態を記録した更新済み `index.md`
+- 完全な最終レポートとして独立した `report.md`
 
 推奨される任意の wiki バックエンドは `pin-llm-wiki` です。初期化済みの wiki バックエンドがない場合、Super Survey は `index.md` に Markdown-only のインデックス状態を記録します。
+
+Super Survey は、検索、深いレポート作成、VOC/顧客調査、競合分析、brainstorming、wiki への蓄積などのサブタスクを任意の companion skills にルーティングできます。これらの companion は証拠の収集や整形を担当し、最終的な判断ループは Super Survey が担います。
+
+## 呼び出しフロー
+
+```mermaid
+flowchart TD
+    A[ユーザーの調査問い] --> B[00-brief.md<br/>判断、調査レンズ、証拠基準]
+    B --> C[ラウンド調査<br/>情報源と claim-level 証拠]
+    C --> D{companion skill が必要?}
+    D -->|現在の情報源| D1[検索ツール<br/>Tavily / web search]
+    D -->|長いレポート| D2[Deep Research]
+    D -->|VOC / ユーザーの言葉| D3[Customer または Reddit research]
+    D -->|競合| D4[Competitive research]
+    D -->|知識の蓄積| D5[pin-llm-wiki / llm-wiki]
+    D -->|不要| E[Brainstorming チェックポイント]
+    D1 --> C
+    D2 --> C
+    D3 --> C
+    D4 --> C
+    D5 --> I[index.md]
+    C --> E[Brainstorming チェックポイント]
+    E --> F[レッドチーム批判<br/>リスク、代替手段、中止条件]
+    F --> G[統合結論<br/>信頼度と判断根拠]
+    G --> H[エボルバー<br/>維持 / 絞り込み / ピボット / 中止]
+    H --> I[index.md<br/>情報源、判断、wiki 状態]
+    H -->|継続| C
+    H -->|停止| J[report.md<br/>完全な最終レポート]
+    J --> K[最終回答<br/>判断志向の要約]
+```
 
 ## インスピレーション: Karpathy の autoresearch
 
@@ -136,7 +168,7 @@ python3 -m py_compile scripts/survey_round.py
 ## プロジェクト構成
 
 ```text
-SKILL.md                         # Codex スキル指示
+SKILL.md                         # agent skill 指示
 scripts/survey_round.py           # 調査成果物の生成・検証 CLI
 references/lightweight-evolver.md # 軽量エボルバーの手順
 references/research-quality.md    # 証拠品質リファレンス

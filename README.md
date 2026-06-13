@@ -2,7 +2,7 @@
 
 Language: English | [中文](README.zh-CN.md) | [日本語](README.ja.md)
 
-Super Survey is a reusable Codex skill for multi-round product, market, technical, and open-source research. It turns a vague research target into evidence-backed Markdown artifacts with red-team critique, synthesis, and a sharper next-round question.
+Super Survey is a reusable agent skill and research workflow for multi-round product, market, technical, and open-source research. It turns a vague research target into evidence-backed Markdown artifacts with red-team critique, synthesis, and a sharper next-round question. It is designed for Skills-compatible agents and can also be used directly through its bundled CLI.
 
 ## What It Does
 
@@ -26,6 +26,7 @@ surveys/YYYY-MM-DD-topic-slug/
 ├── 01-synthesis.md
 ├── 01-evolver.md
 ├── index.md
+├── report.md
 └── .super-survey.json
 ```
 
@@ -37,7 +38,7 @@ Install directly with the Skills CLI:
 npx skills add GoatGit/super-survey
 ```
 
-Copy this repository into your Codex skills directory:
+Codex users can also copy this repository into the Codex skills directory:
 
 ```bash
 mkdir -p ~/.codex/skills
@@ -98,8 +99,39 @@ A complete round must include:
 - synthesis with confidence, decision rationale, and unknowns
 - lightweight evolver output with `Keep / Narrow / Pivot / Kill`
 - updated `index.md` with wiki or graph indexing status
+- standalone `report.md` as the complete final report
 
 The preferred optional wiki backend is `pin-llm-wiki`. If no initialized wiki backend exists, Super Survey records Markdown-only indexing status in `index.md`.
+
+Super Survey can route subtasks to optional companion skills for search, deep reports, VOC/customer research, competitor analysis, brainstorming, and wiki persistence. These companions gather or package evidence; Super Survey remains responsible for the final judgment loop.
+
+## Workflow
+
+```mermaid
+flowchart TD
+    A[User research question] --> B[00-brief.md<br/>decision, lens, evidence standard]
+    B --> C[Round research<br/>sources and claim-level evidence]
+    C --> D{Need companion skill?}
+    D -->|Current sources| D1[Search tool<br/>Tavily / web search]
+    D -->|Long report| D2[Deep Research]
+    D -->|VOC / user language| D3[Customer or Reddit research]
+    D -->|Competitors| D4[Competitive research]
+    D -->|Knowledge persistence| D5[pin-llm-wiki / llm-wiki]
+    D -->|No| E[Brainstorm checkpoint]
+    D1 --> C
+    D2 --> C
+    D3 --> C
+    D4 --> C
+    D5 --> I[index.md]
+    C --> E[Brainstorm checkpoint]
+    E --> F[Red-team critique<br/>risks, substitutes, kill criteria]
+    F --> G[Synthesis<br/>confidence and rationale]
+    G --> H[Evolver<br/>Keep / Narrow / Pivot / Kill]
+    H --> I[index.md<br/>sources, decisions, wiki status]
+    H -->|Continue| C
+    H -->|Stop| J[report.md<br/>complete final report]
+    J --> K[Final answer<br/>decision-oriented summary]
+```
 
 ## Inspiration: Karpathy's autoresearch
 
@@ -136,7 +168,7 @@ The project intentionally keeps runtime dependencies to the Python standard libr
 ## Project Layout
 
 ```text
-SKILL.md                         # Codex skill instructions
+SKILL.md                         # agent skill instructions
 scripts/survey_round.py           # survey artifact generator and validator
 references/lightweight-evolver.md # evolver process reference
 references/research-quality.md    # evidence and quality reference
