@@ -101,7 +101,7 @@ A complete round must include:
 - updated `index.md` with wiki or graph indexing status
 - standalone `report.md` as the complete final report
 
-The preferred optional wiki backend is `pin-llm-wiki`. If no initialized wiki backend exists, Super Survey records Markdown-only indexing status in `index.md`.
+The preferred optional wiki companion is `Astro-Han/karpathy-llm-wiki`. `lewislulu/llm-wiki-skill`, local `llm-wiki`, and `pin-llm-wiki` remain useful fallbacks when they better match the environment. If no initialized wiki backend exists, Super Survey records Markdown-only indexing status in `index.md`.
 
 Super Survey can route subtasks to optional companion skills for search, deep reports, VOC/customer research, competitor analysis, brainstorming, and wiki persistence. These companions gather or package evidence; Super Survey remains responsible for the final judgment loop.
 
@@ -116,7 +116,7 @@ flowchart TD
     D -->|Long report| D2[Deep Research]
     D -->|VOC / user language| D3[Customer or Reddit research]
     D -->|Competitors| D4[Competitive research]
-    D -->|Knowledge persistence| D5[pin-llm-wiki / llm-wiki]
+    D -->|Knowledge persistence| D5[Astro-Han/karpathy-llm-wiki<br/>or llm-wiki fallback]
     D -->|No| E[Brainstorm checkpoint]
     D1 --> C
     D2 --> C

@@ -48,7 +48,7 @@ Recommended companion routing:
 | Long citation-backed report, extensive source triangulation | `deep-research` or equivalent deep research/reporting skill | `NN-research.md`, `NN-synthesis.md`, `index.md` |
 | Customer voice / VOC / Reddit or review mining | customer-research, reddit-research, or equivalent VOC workflow | `NN-research.md` Evidence Table and `NN-redteam.md` alternatives |
 | Competitor matrix, positioning map, SWOT | competitive-research or equivalent competitor-analysis workflow | `NN-research.md`, optional competitor notes, `NN-synthesis.md` |
-| Long-term source and knowledge persistence | `pin-llm-wiki`, `llm-wiki`, or another document/wiki indexer | `index.md` Wiki / Graph Index Status |
+| Long-term source and knowledge persistence | `Astro-Han/karpathy-llm-wiki`, `lewislulu/llm-wiki-skill`, `llm-wiki`, `pin-llm-wiki`, or another document/wiki indexer | `index.md` Wiki / Graph Index Status |
 | Reusable marketing or growth ideas after the research conclusion | `marketing-ideas` or equivalent ideation skill | `NN-synthesis.md` Recommended Next Action |
 
 Use companions to gather or package evidence, not to bypass Super Survey's judgment loop. The final round still must include findings, red-team critique, synthesis, evolver decision, and persisted artifacts. Never claim a companion skill ran unless it actually ran.
@@ -56,7 +56,7 @@ Use companions to gather or package evidence, not to bypass Super Survey's judgm
 Recommended optional setup:
 
 - Install or enable Superpowers brainstorming when available; if absent, record `Assumed` and perform a lightweight written checkpoint inside the survey artifacts.
-- Install or enable `pin-llm-wiki` or `llm-wiki` when long-term knowledge accumulation matters; if absent, maintain Markdown-only `index.md`.
+- Install or enable a Karpathy-style LLM Wiki when long-term knowledge accumulation matters. Prefer `Astro-Han/karpathy-llm-wiki`; use `lewislulu/llm-wiki-skill`, local `llm-wiki`, or `pin-llm-wiki` as alternatives when they better match the environment. If absent, maintain Markdown-only `index.md`.
 - Install or enable a current-source search skill/tool when the survey depends on recent market, policy, pricing, API, repository, or company facts.
 
 ### 0. Superpowers Brainstorming Loop
@@ -242,15 +242,20 @@ Always maintain `index.md` with:
 
 After each round, attempt one of these in order:
 
-1. **Preferred: `pin-llm-wiki` project wiki.**
+1. **Preferred: Karpathy-style LLM Wiki.**
+   - Prefer `Astro-Han/karpathy-llm-wiki` when the environment supports GitHub-based companion installation or an equivalent local checkout.
+   - Use it to persist the survey summary, high-value source URLs, and cross-linked notes, then record the command/result in `index.md`.
+   - If it is unavailable, record `Not built: Astro-Han/karpathy-llm-wiki unavailable in this environment`.
+2. **Fallback: other LLM Wiki skill.**
+   - Use `lewislulu/llm-wiki-skill` or a local `llm-wiki` skill/tool when they are installed and the user wants global knowledge accumulation.
+   - Ingest the survey summary or source list, then record the command/result in `index.md`.
+3. **Fallback: `pin-llm-wiki` project wiki.**
    - If `.pin-llm-wiki.yml` exists in the current project, queue or ingest the round's important source URLs with `pin-llm-wiki`, then record the command/result in `index.md`.
    - If `pin-llm-wiki` is installed but the project is not initialized, record `Not built: pin-llm-wiki installed but .pin-llm-wiki.yml is missing; run pin-llm-wiki init first`.
-2. **Fallback: `llm-wiki` personal wiki.**
-   - If a personal `llm-wiki` skill/tool is available and the user wants global knowledge accumulation, ingest the survey summary or source list there, then record the command/result.
-3. **Fallback: other graph/document indexer.**
+4. **Fallback: other graph/document indexer.**
    - If a document graph tool is available, index the survey directory and record the command/result.
-4. **Fallback: Markdown only.**
-   - If no wiki/indexer is available, update `index.md` and record `Not built: no initialized pin-llm-wiki, llm-wiki, or document graph indexer available`.
+5. **Fallback: Markdown only.**
+   - If no wiki/indexer is available, update `index.md` and record `Not built: no initialized Karpathy-style LLM Wiki, llm-wiki, pin-llm-wiki, or document graph indexer available`.
 
 Never claim a wiki or graph was built unless the indexing command actually ran. If only `index.md` was updated, say that directly.
 

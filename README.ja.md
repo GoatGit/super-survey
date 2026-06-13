@@ -101,7 +101,7 @@ npx skills add GoatGit/super-survey --list
 - wiki または graph インデックス状態を記録した更新済み `index.md`
 - 完全な最終レポートとして独立した `report.md`
 
-推奨される任意の wiki バックエンドは `pin-llm-wiki` です。初期化済みの wiki バックエンドがない場合、Super Survey は `index.md` に Markdown-only のインデックス状態を記録します。
+推奨される任意の wiki companion は `Astro-Han/karpathy-llm-wiki` です。`lewislulu/llm-wiki-skill`、ローカルの `llm-wiki`、`pin-llm-wiki` は、環境に合う場合のフォールバックとして有用です。初期化済みの wiki バックエンドがない場合、Super Survey は `index.md` に Markdown-only のインデックス状態を記録します。
 
 Super Survey は、検索、深いレポート作成、VOC/顧客調査、競合分析、brainstorming、wiki への蓄積などのサブタスクを任意の companion skills にルーティングできます。これらの companion は証拠の収集や整形を担当し、最終的な判断ループは Super Survey が担います。
 
@@ -116,7 +116,7 @@ flowchart TD
     D -->|長いレポート| D2[Deep Research]
     D -->|VOC / ユーザーの言葉| D3[Customer または Reddit research]
     D -->|競合| D4[Competitive research]
-    D -->|知識の蓄積| D5[pin-llm-wiki / llm-wiki]
+    D -->|知識の蓄積| D5[Astro-Han/karpathy-llm-wiki<br/>or llm-wiki fallback]
     D -->|不要| E[Brainstorming チェックポイント]
     D1 --> C
     D2 --> C

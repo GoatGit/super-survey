@@ -101,7 +101,7 @@ npx skills add GoatGit/super-survey --list
 - 更新后的 `index.md`，记录 wiki 或 graph 索引状态
 - 独立的 `report.md`，作为完整最终报告
 
-首选可选知识库后端是 `pin-llm-wiki`。如果项目没有初始化知识库后端，Super Survey 会在 `index.md` 里记录 Markdown-only 索引状态。
+首选可选知识库 companion 是 `Astro-Han/karpathy-llm-wiki`。`lewislulu/llm-wiki-skill`、本地 `llm-wiki` 和 `pin-llm-wiki` 仍可作为更适合当前环境时的后备方案。如果项目没有初始化知识库后端，Super Survey 会在 `index.md` 里记录 Markdown-only 索引状态。
 
 Super Survey 可以把搜索、深度报告、VOC/客户研究、竞品分析、brainstorming 和 wiki 沉淀等子任务路由给可选 companion skills。这些 companion 负责收集或包装证据；最终判断闭环仍由 Super Survey 负责。
 
@@ -116,7 +116,7 @@ flowchart TD
     D -->|长篇报告| D2[Deep Research]
     D -->|VOC / 用户语言| D3[Customer 或 Reddit research]
     D -->|竞品| D4[Competitive research]
-    D -->|知识沉淀| D5[pin-llm-wiki / llm-wiki]
+    D -->|知识沉淀| D5[Astro-Han/karpathy-llm-wiki<br/>或 llm-wiki 后备]
     D -->|不需要| E[Brainstorming 检查点]
     D1 --> C
     D2 --> C
