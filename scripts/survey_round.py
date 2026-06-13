@@ -101,6 +101,12 @@ LABELS = {
         "evidence_cols": "Claim | Evidence | Source | Source Type | Freshness | Confidence | Contradictions",
         "probe_cols": "Probe | Answer | Strength",
         "persona_cols": "Persona | Verdict | Reason",
+        "search_tool_notes": [
+            "Search Tool Used: tavily-search / fallback web search / other",
+            "Tavily Fallback Reason: none / not installed / not authenticated / failed / insufficient results / unsuitable source surface",
+            "Query And Filter Notes: queries, domains, date filters, source-type filters",
+        ],
+        "planned_rounds_note": "- Round 1:\n- Continue with Round 2+ while unresolved unknowns are desk-researchable; there is no implicit two-round cap.",
         "probes": [
             "Buyer",
             "Pain",
@@ -208,6 +214,12 @@ LABELS = {
         "evidence_cols": "主张 | 证据 | 来源 | 来源类型 | 新鲜度 | 置信度 | 矛盾证据",
         "probe_cols": "探针 | 回答 | 强度",
         "persona_cols": "角色 | 判断 | 理由",
+        "search_tool_notes": [
+            "使用的搜索工具：tavily-search / fallback web search / other",
+            "Tavily fallback 原因：无 / 未安装 / 未认证 / 失败 / 结果不足 / 不适合所需来源",
+            "查询与过滤备注：查询词、域名、日期过滤、来源类型过滤",
+        ],
+        "planned_rounds_note": "- Round 1:\n- 如果剩余未知仍可通过桌面调研解决，继续 Round 2+；不存在默认两轮上限。",
         "probes": ["买方", "痛点", "触发事件", "数据", "分发", "既有玩家", "合规", "替代解释", "证伪条件"],
         "personas": ["怀疑的买方", "头部竞品策略负责人", "分发现实主义者", "合规审查者", "构建/运营负责人"],
     },
@@ -299,6 +311,12 @@ LABELS = {
         "evidence_cols": "主張 | 証拠 | 情報源 | 情報源タイプ | 鮮度 | 信頼度 | 矛盾する証拠",
         "probe_cols": "プローブ | 回答 | 強度",
         "persona_cols": "ペルソナ | 判断 | 理由",
+        "search_tool_notes": [
+            "使用した検索ツール: tavily-search / fallback web search / other",
+            "Tavily fallback 理由: なし / 未インストール / 未認証 / 失敗 / 結果不足 / 必要な情報源に不向き",
+            "クエリとフィルタのメモ: クエリ、ドメイン、日付フィルタ、情報源タイプ",
+        ],
+        "planned_rounds_note": "- Round 1:\n- 未解決事項が desk research で減らせる間は Round 2+ を続ける。暗黙の 2 ラウンド上限はない。",
         "probes": [
             "買い手",
             "痛み",
@@ -399,6 +417,8 @@ def structural_values(language: str) -> set[str]:
         values.update(col.strip() for col in str(label[key]).split("|"))
     values.update(str(probe) for probe in label["probes"])
     values.update(str(persona) for persona in label["personas"])
+    values.update(str(note) for note in label["search_tool_notes"])
+    values.update(str(note) for note in str(label["planned_rounds_note"]).splitlines())
     return values
 
 
@@ -406,6 +426,8 @@ def is_substantive_line(line: str, language: str) -> bool:
     stripped = line.strip()
     placeholders = placeholder_values(language)
     if not stripped or stripped.startswith("#") or stripped in placeholders:
+        return False
+    if stripped in structural_values(language):
         return False
     if re.fullmatch(r"-\s*(Status|Notes|Option [A-Z]|Round \d+):\s*", stripped):
         return False
@@ -444,6 +466,7 @@ def init_survey(args: argparse.Namespace) -> None:
     write_metadata(survey_dir, args.topic, language)
 
     headings = label["brief_headings"]
+    planned_rounds_note = str(label["planned_rounds_note"])
     write_once(
         survey_dir / "00-brief.md",
         f"""# {label['brief_title']}: {args.topic}
@@ -487,7 +510,7 @@ def init_survey(args: argparse.Namespace) -> None:
 
 ## {headings[9]}
 
-- Round 1:
+{planned_rounds_note}
 """,
     )
     headings = label["index_headings"]
@@ -567,6 +590,7 @@ def create_round(args: argparse.Namespace) -> None:
     prefix = f"{int(args.round):02d}"
 
     headings = label["research_headings"]
+    search_tool_notes = "\n".join(f"- {note}" for note in label["search_tool_notes"])
     write_once(
         survey_dir / f"{prefix}-research.md",
         f"""# {round_title(label, int(args.round), str(label['research']))}
@@ -589,7 +613,7 @@ def create_round(args: argparse.Namespace) -> None:
 
 ## {headings[4]}
 
-- 
+{search_tool_notes}
 """,
     )
     headings = label["brainstorm_headings"]

@@ -23,9 +23,10 @@ Every survey round must:
 7. Check explicit kill criteria before recommending another round.
 8. Synthesize a clearer conclusion with confidence level, decision rationale, and remaining unknowns.
 9. Run the lightweight evolver to sharpen or kill the next-round target.
-10. Update an index and attempt wiki/graph indexing, or record why it was unavailable.
-11. Write or update the final `report.md` before giving a final answer.
-12. Write the round artifacts to disk before giving a final answer.
+10. Decide whether to continue using the continuation rules; do not assume a two-round cap.
+11. Update an index and attempt wiki/graph indexing, or record why it was unavailable.
+12. Write or update the final `report.md` before giving a final answer.
+13. Write the round artifacts to disk before giving a final answer.
 
 Do not stop after collecting links. The value of this skill is sharper judgment after each loop.
 
@@ -44,7 +45,7 @@ Recommended companion routing:
 | Need | Prefer | Record where |
 |---|---|---|
 | Brainstorming checkpoints, reframing, next-move comparison | `superpowers:brainstorming` or equivalent brainstorming workflow | `00-brief.md`, `NN-brainstorm.md` |
-| Current web search, recent facts, source discovery | `tavily-search`, built-in web search, or another current-source search tool | `NN-research.md` Source List and Data Quality Notes |
+| Current web search, recent facts, source discovery | `tavily-search` first; built-in web search or another current-source search tool only as fallback | `NN-research.md` Source List and Data Quality Notes |
 | Long citation-backed report, extensive source triangulation | `deep-research` or equivalent deep research/reporting skill | `NN-research.md`, `NN-synthesis.md`, `index.md` |
 | Customer voice / VOC / Reddit or review mining | customer-research, reddit-research, or equivalent VOC workflow | `NN-research.md` Evidence Table and `NN-redteam.md` alternatives |
 | Competitor matrix, positioning map, SWOT | competitive-research or equivalent competitor-analysis workflow | `NN-research.md`, optional competitor notes, `NN-synthesis.md` |
@@ -57,7 +58,30 @@ Recommended optional setup:
 
 - Install or enable Superpowers brainstorming when available; if absent, record `Assumed` and perform a lightweight written checkpoint inside the survey artifacts.
 - Install or enable a Karpathy-style LLM Wiki when long-term knowledge accumulation matters. Prefer `Astro-Han/karpathy-llm-wiki`; use `lewislulu/llm-wiki-skill`, local `llm-wiki`, or `pin-llm-wiki` as alternatives when they better match the environment. If absent, maintain Markdown-only `index.md`.
-- Install or enable a current-source search skill/tool when the survey depends on recent market, policy, pricing, API, repository, or company facts.
+- Install or enable `tavily-search` when the survey depends on recent market, policy, pricing, API, repository, or company facts.
+
+### Tavily-First Current Source Search
+
+When facts may have changed, use `tavily-search` as the default current-source discovery path.
+
+Before using built-in web search or another search tool, first try Tavily unless the user explicitly asks not to use it. A valid fallback requires one of these conditions:
+
+- `tvly` is not installed.
+- Tavily is not authenticated.
+- The Tavily command fails or times out.
+- Tavily returns clearly insufficient results for the needed source type.
+- The task needs a source surface Tavily does not cover well.
+
+When falling back, record the reason in `NN-research.md` under Data Quality Notes. Do not silently replace Tavily with another search path.
+
+Record search execution in `NN-research.md`:
+
+- Search tool used: `tavily-search`, fallback web search, or another named tool.
+- Query examples or domains searched.
+- Fallback reason, if any.
+- Any freshness limits, date filters, domain filters, or source-type filters.
+
+This is a tool-selection rule, not a research-type branch. It applies across product, market, technical, policy, open-source, and custom lenses whenever current sources matter.
 
 ### 0. Superpowers Brainstorming Loop
 
@@ -122,6 +146,8 @@ Write `00-brief.md` with:
 - Initial assumptions
 - Planned research rounds
 
+There is no implicit maximum of two rounds. If the user does not specify a fixed round count, write the plan as a continuation policy: start with Round 1, then keep creating `02-*`, `03-*`, and later rounds while the continuation rules say another round could materially change the decision.
+
 If the user only wants a quick answer, still create a lightweight `00-brief.md`, one synthesis file, and `report.md`.
 
 ### 2. Research Round
@@ -143,7 +169,7 @@ report.md
 - Research question for this round
 - Source list with dates/URLs where applicable
 - Claim-level evidence table with source type, freshness, confidence, and contradictions
-- Notes on data quality and freshness
+- Notes on data quality, freshness, and whether Tavily or a fallback search path was used
 
 `NN-brainstorm.md` should contain:
 
@@ -263,12 +289,16 @@ Never claim a wiki or graph was built unless the indexing command actually ran. 
 
 ### 5. Decide Whether To Continue
 
+Super Survey supports arbitrary positive round numbers. The helper accepts `round <survey-dir> 3`, `round <survey-dir> 4`, and so on. Never stop at Round 2 merely because two rounds have been completed.
+
 Continue another round when:
 
 - The conclusion depends on unresolved facts.
 - The red-team found serious unanswered objections.
 - The target is still too broad to act on.
 - A next-round question could materially change the decision.
+- The latest synthesis lists remaining unknowns that can still be reduced by desk research, current-source search, competitor checks, policy review, source triangulation, or repository analysis.
+- The evolver says `Keep`, `Narrow`, or `Pivot` and names evidence that is publicly or tool-accessibly obtainable.
 
 Stop when:
 
@@ -276,6 +306,8 @@ Stop when:
 - The idea is disqualified.
 - More research would not change the decision without external validation.
 - The user asked for a fixed number of rounds.
+
+Stopping after one or two rounds is allowed only when the synthesis explains why another desk-research round would not materially change the decision, or why the next evidence requires external validation such as interviews, experiments, purchase data, private financials, or future company disclosures. If the stop reason is weak, create the next round instead of finalizing.
 
 ### 6. Quality Gate
 
@@ -285,19 +317,22 @@ Before reporting a round as complete:
 2. Fix missing files, missing headings, empty required sections, or empty-template artifacts.
 3. Confirm every required section contains substantive content, not only placeholders such as `Status:`, `Notes:`, `Option A:`, or table headers.
 4. Confirm `00-brief.md` has a research lens and decision evidence standard specific enough to guide source selection.
-5. Confirm `NN-research.md` records source type, freshness, confidence, and contradictions for important claims.
+5. Confirm `NN-research.md` records source type, freshness, confidence, contradictions, search tool used, and Tavily fallback reason if Tavily was not used for current-source discovery.
 6. Confirm `NN-redteam.md` checks substitutes, alternative explanations, and explicit kill criteria.
 7. Confirm `NN-synthesis.md` states decision rationale, not only a conclusion.
 8. Confirm `NN-evolver.md` has a concrete `Keep / Narrow / Pivot / Kill` decision.
 9. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
 10. Confirm `index.md` reflects the latest thesis, open questions, source inventory, wiki/graph status, and decision log.
 11. Confirm `report.md` is complete, standalone, and updated with the latest synthesis.
+12. Confirm that stopping is justified by explicit stop criteria, not by reaching Round 2.
 
 If the check fails, say the round is still in progress; do not present it as finished.
 
 ## Evidence Standard
 
 Use current sources for market, legal, pricing, platform policy, repository activity, APIs, company facts, and competitor claims. Mark inference explicitly.
+
+For current-source discovery, default to `tavily-search` and document any fallback.
 
 Use this confidence scale:
 
@@ -331,3 +366,4 @@ Use the same language as the user's request unless they ask otherwise. When writ
 - **False graph claim**: index tooling was mentioned but not run. Fix by saying only `index.md` was updated.
 - **Template theater**: files exist but contain placeholders. Fix before final response.
 - **Index-as-report**: `index.md` is updated but no standalone final report exists. Fix by writing `report.md` before answering.
+- **Two-round autopilot**: the survey stops after Round 2 even though unresolved unknowns remain desk-researchable. Fix by creating Round 3+ and documenting why each later round continues or stops.

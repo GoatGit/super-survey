@@ -92,18 +92,19 @@ npx skills add GoatGit/super-survey --list
 
 - 現在の調査対象と判断基準
 - 情報源選定を導く調査レンズと判断に必要な証拠基準。ただし狭いカテゴリに固定しない
-- 情報源タイプ、鮮度、信頼度、矛盾する証拠を含む claim-level の証拠
+- 情報源タイプ、鮮度、信頼度、矛盾する証拠、使用した検索ツールを含む claim-level の証拠
 - brainstorming チェックポイント
 - 発見と解釈の分離
 - 代替手段、代替説明、確認済みの中止条件を含むレッドチーム批判
 - 信頼度、判断根拠、未解決事項を含む統合結論
 - `維持 / 絞り込み / ピボット / 中止` を明示した軽量エボルバー出力
+- 明示的な継続/停止判断。暗黙の 2 ラウンド上限はありません
 - wiki または graph インデックス状態を記録した更新済み `index.md`
 - 完全な最終レポートとして独立した `report.md`
 
 推奨される任意の wiki companion は `Astro-Han/karpathy-llm-wiki` です。`lewislulu/llm-wiki-skill`、ローカルの `llm-wiki`、`pin-llm-wiki` は、環境に合う場合のフォールバックとして有用です。初期化済みの wiki バックエンドがない場合、Super Survey は `index.md` に Markdown-only のインデックス状態を記録します。
 
-Super Survey は、検索、深いレポート作成、VOC/顧客調査、競合分析、brainstorming、wiki への蓄積などのサブタスクを任意の companion skills にルーティングできます。これらの companion は証拠の収集や整形を担当し、最終的な判断ループは Super Survey が担います。
+Super Survey は、検索、深いレポート作成、VOC/顧客調査、競合分析、brainstorming、wiki への蓄積などのサブタスクを任意の companion skills にルーティングできます。現在の情報源発見では `tavily-search` を先に試し、fallback があれば記録します。これらの companion は証拠の収集や整形を担当し、最終的な判断ループは Super Survey が担います。
 
 ## 呼び出しフロー
 
@@ -112,7 +113,7 @@ flowchart TD
     A[ユーザーの調査問い] --> B[00-brief.md<br/>判断、調査レンズ、証拠基準]
     B --> C[ラウンド調査<br/>情報源と claim-level 証拠]
     C --> D{companion skill が必要?}
-    D -->|現在の情報源| D1[検索ツール<br/>Tavily / web search]
+    D -->|現在の情報源| D1[Tavily first<br/>fallback web search]
     D -->|長いレポート| D2[Deep Research]
     D -->|VOC / ユーザーの言葉| D3[Customer または Reddit research]
     D -->|競合| D4[Competitive research]
@@ -128,7 +129,7 @@ flowchart TD
     F --> G[統合結論<br/>信頼度と判断根拠]
     G --> H[エボルバー<br/>維持 / 絞り込み / ピボット / 中止]
     H --> I[index.md<br/>情報源、判断、wiki 状態]
-    H -->|継続| C
+    H -->|継続 Round 2+<br/>暗黙の上限なし| C
     H -->|停止| J[report.md<br/>完全な最終レポート]
     J --> K[最終回答<br/>判断志向の要約]
 ```

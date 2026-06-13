@@ -92,18 +92,19 @@ A complete round must include:
 
 - current target and decision criteria
 - a research lens and decision evidence standard that guide source selection without forcing a narrow category
-- current claim-level evidence with source type, freshness, confidence, and contradictions
+- current claim-level evidence with source type, freshness, confidence, contradictions, and search tool used
 - a brainstorming checkpoint
 - findings separated from interpretation
 - red-team critique with substitutes, alternative explanations, and kill criteria checked
 - synthesis with confidence, decision rationale, and unknowns
 - lightweight evolver output with `Keep / Narrow / Pivot / Kill`
+- explicit continue/stop decision; there is no implicit two-round cap
 - updated `index.md` with wiki or graph indexing status
 - standalone `report.md` as the complete final report
 
 The preferred optional wiki companion is `Astro-Han/karpathy-llm-wiki`. `lewislulu/llm-wiki-skill`, local `llm-wiki`, and `pin-llm-wiki` remain useful fallbacks when they better match the environment. If no initialized wiki backend exists, Super Survey records Markdown-only indexing status in `index.md`.
 
-Super Survey can route subtasks to optional companion skills for search, deep reports, VOC/customer research, competitor analysis, brainstorming, and wiki persistence. These companions gather or package evidence; Super Survey remains responsible for the final judgment loop.
+Super Survey can route subtasks to optional companion skills for search, deep reports, VOC/customer research, competitor analysis, brainstorming, and wiki persistence. For current-source discovery, it should try `tavily-search` first and document any fallback. These companions gather or package evidence; Super Survey remains responsible for the final judgment loop.
 
 ## Workflow
 
@@ -112,7 +113,7 @@ flowchart TD
     A[User research question] --> B[00-brief.md<br/>decision, lens, evidence standard]
     B --> C[Round research<br/>sources and claim-level evidence]
     C --> D{Need companion skill?}
-    D -->|Current sources| D1[Search tool<br/>Tavily / web search]
+    D -->|Current sources| D1[Tavily first<br/>fallback web search]
     D -->|Long report| D2[Deep Research]
     D -->|VOC / user language| D3[Customer or Reddit research]
     D -->|Competitors| D4[Competitive research]
@@ -128,7 +129,7 @@ flowchart TD
     F --> G[Synthesis<br/>confidence and rationale]
     G --> H[Evolver<br/>Keep / Narrow / Pivot / Kill]
     H --> I[index.md<br/>sources, decisions, wiki status]
-    H -->|Continue| C
+    H -->|Continue Round 2+<br/>no implicit cap| C
     H -->|Stop| J[report.md<br/>complete final report]
     J --> K[Final answer<br/>decision-oriented summary]
 ```

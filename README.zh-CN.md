@@ -92,18 +92,19 @@ npx skills add GoatGit/super-survey --list
 
 - 当前调研目标和决策标准
 - 研究镜头和决策证据标准，用来指导来源选择，但不把调研硬塞进狭窄类别
-- claim-level 证据，并记录来源类型、新鲜度、置信度和矛盾证据
+- claim-level 证据，并记录来源类型、新鲜度、置信度、矛盾证据和使用的搜索工具
 - brainstorming 检查点
 - 发现与解释分离
 - 包含替代方案、替代解释和已检查放弃条件的反方挑战
 - 带置信度、决策依据和未知项的综合结论
 - 轻量进化器输出，并明确 `保留 / 收窄 / 转向 / 放弃`
+- 明确继续/停止决策；不存在默认两轮上限
 - 更新后的 `index.md`，记录 wiki 或 graph 索引状态
 - 独立的 `report.md`，作为完整最终报告
 
 首选可选知识库 companion 是 `Astro-Han/karpathy-llm-wiki`。`lewislulu/llm-wiki-skill`、本地 `llm-wiki` 和 `pin-llm-wiki` 仍可作为更适合当前环境时的后备方案。如果项目没有初始化知识库后端，Super Survey 会在 `index.md` 里记录 Markdown-only 索引状态。
 
-Super Survey 可以把搜索、深度报告、VOC/客户研究、竞品分析、brainstorming 和 wiki 沉淀等子任务路由给可选 companion skills。这些 companion 负责收集或包装证据；最终判断闭环仍由 Super Survey 负责。
+Super Survey 可以把搜索、深度报告、VOC/客户研究、竞品分析、brainstorming 和 wiki 沉淀等子任务路由给可选 companion skills。当前来源发现应优先尝试 `tavily-search`，并记录任何 fallback。这些 companion 负责收集或包装证据；最终判断闭环仍由 Super Survey 负责。
 
 ## 调用流程
 
@@ -112,7 +113,7 @@ flowchart TD
     A[用户调研问题] --> B[00-brief.md<br/>决策、研究镜头、证据标准]
     B --> C[本轮调研<br/>来源和 claim-level 证据]
     C --> D{需要 companion skill?}
-    D -->|当前来源| D1[搜索工具<br/>Tavily / web search]
+    D -->|当前来源| D1[Tavily 优先<br/>fallback web search]
     D -->|长篇报告| D2[Deep Research]
     D -->|VOC / 用户语言| D3[Customer 或 Reddit research]
     D -->|竞品| D4[Competitive research]
@@ -128,7 +129,7 @@ flowchart TD
     F --> G[综合结论<br/>置信度和决策依据]
     G --> H[进化器<br/>保留 / 收窄 / 转向 / 放弃]
     H --> I[index.md<br/>来源、决策、wiki 状态]
-    H -->|继续| C
+    H -->|继续 Round 2+<br/>无默认上限| C
     H -->|停止| J[report.md<br/>完整最终报告]
     J --> K[最终回答<br/>决策导向摘要]
 ```
