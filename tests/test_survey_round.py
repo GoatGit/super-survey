@@ -156,15 +156,17 @@ Evidence is directional, not decisive.
         self.assertIn("Alternative", evolver)
         self.assertIn("## Report Quality Gate", evolver)
         self.assertIn("## Executive Summary", report)
-        self.assertIn("## Methodology And Source Quality", report)
-        self.assertIn("## Evidence Table", report)
-        self.assertIn("## Red-Team Critique", report)
-        self.assertIn("## Options Or Scenarios", report)
-        self.assertIn("## Action Plan", report)
-        self.assertIn("## Open Questions And Next Round", report)
+        self.assertIn("## Reader's Path", report)
+        self.assertIn("## Main Narrative", report)
+        self.assertIn("## Decision Logic", report)
+        self.assertIn("## What Could Change This Conclusion", report)
+        self.assertIn("## Next Actions", report)
+        self.assertIn("## Appendix: Evidence Register", report)
+        self.assertIn("## Appendix: Method And Source Quality", report)
+        self.assertLess(report.index("## Main Narrative"), report.index("## Appendix: Evidence Register"))
         self.assertIn("## Report Quality Score", report)
         self.assertIn("Score Breakdown", report)
-        self.assertIn("## Recommendation", report)
+        self.assertIn("## Final Recommendation", report)
 
     def test_legacy_report_schema_warns_but_does_not_fail(self) -> None:
         survey_dir = self.init_round()
@@ -244,7 +246,8 @@ Sources were checked during this round and remain directional.
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         report = (survey_dir / "report.md").read_text(encoding="utf-8")
-        self.assertIn("## Research Question And Scope", report)
+        self.assertIn("## Reader's Path", report)
+        self.assertIn("## Appendix: Evidence Register", report)
         self.assertIn('"report_schema_version": 2', metadata.read_text(encoding="utf-8"))
 
     def test_v2_report_rejects_thin_content(self) -> None:
@@ -254,31 +257,31 @@ Sources were checked during this round and remain directional.
 
 ## Executive Summary
 Thin.
-## Research Question And Scope
+## Reader's Path
 Thin.
-## Methodology And Source Quality
+## Main Narrative
 Thin.
-## Key Findings
+## Decision Logic
 Thin.
-## Evidence Table
+## Final Recommendation
 Thin.
-## Analysis
+## What Could Change This Conclusion
 Thin.
-## Red-Team Critique
+## Next Actions
 Thin.
-## Options Or Scenarios
+## Limits Of This Report
 Thin.
-## Recommendation
+## Appendix: Evidence Register
 Thin.
-## Action Plan
+## Appendix: Method And Source Quality
 Thin.
-## Open Questions And Next Round
+## Appendix: Red-Team Notes
+Thin.
+## Appendix: Options Or Scenarios
 Thin.
 ## Report Quality Score
 Thin.
-## Limitations
-Thin.
-## Source Notes
+## Appendix: Source Notes
 Thin.
 """,
             encoding="utf-8",
@@ -296,8 +299,8 @@ Thin.
         report = (survey_dir / "report.md").read_text(encoding="utf-8")
         report = report.replace("\n## Report Quality Score\n\n", "\n## ")
         report = report.replace(
-            "Total Score: 92 / 100.\nScore Breakdown: scope 14, sources 19, evidence 18, analysis 18, actionability 14, structure 9.\nPass / Continue Decision: pass; finalize the report because no decision-changing unknown remains desk-researchable.\nLowest-Scoring Areas: evidence completeness and analysis depth remain monitored, but both are above the pass threshold.\nNext Round Focus: none for desk research; move to user interviews if further validation is needed.\n\n## Limitations",
-            "Limitations",
+            "Total Score: 92 / 100.\nScore Breakdown: scope 14, sources 19, evidence 18, analysis 18, actionability 14, structure 9.\nPass / Continue Decision: pass; finalize the report because no decision-changing unknown remains desk-researchable.\nLowest-Scoring Areas: evidence completeness and analysis depth remain monitored, but both are above the pass threshold.\nNext Round Focus: none for desk research; move to user interviews if further validation is needed.\n\n## Appendix: Source Notes",
+            "Appendix: Source Notes",
         )
         (survey_dir / "report.md").write_text(report, encoding="utf-8")
 
@@ -429,55 +432,63 @@ Continue one narrowed round.
 Continue with a narrower policy-first validation path.
 Confidence is medium because demand is visible but policy and payment remain unresolved.
 
-## Research Question And Scope
+## Reader's Path
 
-Assess whether a job-search copilot is worth further validation for active US software engineers.
-The report does not claim the product is ready to build.
+Read the executive summary for the decision, the narrative for the reasoning, and the appendices for audit details.
+This report supports a go/no-go validation decision for active US software engineers.
 
-## Methodology And Source Quality
+## Main Narrative
 
-Use current source discovery, official policy pages, competitor pages, and confidence labels.
-Primary policy pages carry more weight than forum anecdotes.
+The opportunity is visible because job seekers repeat the same painful workflow across many applications.
+The first pass found demand signals, but it also made policy risk the central issue rather than a side note.
+That changes the recommendation from building a broad automation agent to validating a narrower assisted workflow.
 
-## Key Findings
+## Decision Logic
 
-Demand signals exist, but payment and policy evidence are incomplete.
-The strongest positive signal is repeated manual effort across applications.
+The recommendation follows from three linked judgments.
+First, repeated manual effort creates plausible demand.
+Second, platform restrictions can destroy the core workflow if ignored.
+Third, payment evidence is not yet strong enough to justify full implementation.
 
-## Evidence Table
+## Final Recommendation
+
+Run a policy-first validation round before building.
+Do not start full implementation until the compliance boundary and willingness to pay are clearer.
+
+## What Could Change This Conclusion
+
+The conclusion would improve if official terms allow the assisted workflow and users commit to paid trials.
+It would worsen if official terms block automation or users prefer spreadsheets and existing job trackers.
+
+## Next Actions
+
+Collect official terms, compare competitors, and interview five active job seekers.
+Record willingness to pay, the exact tasks users would delegate, and the fallback workflow if automation is limited.
+
+## Limits Of This Report
+
+No direct buyer interviews were conducted.
+No live policy review by counsel was performed, so legal risk remains directional.
+
+## Appendix: Evidence Register
 
 Claim: users repeat the workflow. Evidence: public workflow signals. Confidence: medium. Contradictions: direct payment proof is missing.
 Claim: platform risk matters. Evidence: job boards can restrict automation. Confidence: medium.
 
-## Analysis
+## Appendix: Method And Source Quality
 
-Manual workflows and job trackers are the main substitutes.
-The opportunity is attractive only if the workflow avoids prohibited automation.
+Use current source discovery, official policy pages, competitor pages, and confidence labels.
+Primary policy pages carry more weight than forum anecdotes.
 
-## Red-Team Critique
+## Appendix: Red-Team Notes
 
 The strongest objection is platform policy risk and weak trust in automation.
 Users may also prefer simple spreadsheets if outcome quality is not provable.
 
-## Options Or Scenarios
+## Appendix: Options Or Scenarios
 
 Option A: continue policy validation. Option B: stop if terms block the workflow.
 Option C: pivot to a personal job-search CRM if automation is too risky.
-
-## Recommendation
-
-Run a policy-first round before building.
-Do not start full implementation until the compliance boundary is clear.
-
-## Action Plan
-
-Collect official terms, compare competitors, and interview five active job seekers.
-Record willingness to pay and the exact tasks users would delegate.
-
-## Open Questions And Next Round
-
-Next round should test compliance, willingness to pay, and fallback workflows.
-If official terms block the workflow, the next round should pivot or kill.
 
 ## Report Quality Score
 
@@ -487,12 +498,7 @@ Score Breakdown: scope 14, sources 19, evidence 18, analysis 18, actionability 1
 Lowest-Scoring Areas: evidence completeness and analysis depth remain monitored, but both are above the pass threshold.
 Next Round Focus: none for desk research; move to user interviews if further validation is needed.
 
-## Limitations
-
-No direct buyer interviews were conducted.
-No live policy review by counsel was performed.
-
-## Source Notes
+## Appendix: Source Notes
 
 Sources were checked during this round and remain directional.
 Future rounds should record URLs, dates checked, and contradictions.

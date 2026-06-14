@@ -202,24 +202,29 @@ report.md
 - Best next question
 - Recommended next action
 
-`report.md` should be a complete, standalone report that a user can read without opening every round artifact. It should contain:
+`report.md` should be a complete, standalone report that a user can read smoothly without opening every round artifact. It is not an audit checklist. Put the human-readable argument first and move dense evidence, source, method, red-team, scenario, and scoring material into appendices.
 
-- Executive summary with the answer, confidence, and decision status
-- Research question and scope, including audience, assumptions, non-goals, and decision criteria
-- Methodology and source quality, including search tools used, source freshness, source types, and confidence rules
-- Key findings with source names or citations, not unsupported assertions
-- Claim-level evidence table or structured evidence summary with confidence and contradictions
-- Analysis that synthesizes across rounds, compares alternatives, explains tradeoffs, and states what changed
-- Red-team critique with strongest objections, substitutes, kill criteria, and falsification tests
-- Options, scenarios, or alternatives with pros, cons, trigger conditions, and expected implications
-- Recommendation with rationale, who should act, who should not act, and confidence
-- Action plan with concrete next steps, monitoring metrics, stop/continue conditions, and owner/timeframe where useful
-- Open questions and next-round decision, including whether another round is required and why
-- Report quality score with total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus
-- Limitations covering missing data, uncertainty, freshness, and external validation needs
-- Source notes with source inventory, dates checked, and companion/wiki/indexing notes
+The readable body should contain:
 
-For non-trivial surveys, `report.md` must be longer and more complete than `NN-synthesis.md`. It should integrate all rounds rather than copy the latest synthesis. A report that only contains a few bullets under executive summary, findings, recommendation, limitations, and sources is incomplete.
+- Executive summary with the answer, confidence, key reason, strongest caveat, and next action.
+- Reader's path: who the report is for, what decision it supports, and what to read first.
+- Main narrative: the situation, why it matters, what changed across rounds, and why the conclusion follows.
+- Decision logic: the reasoning chain, tradeoffs, and why alternatives were rejected.
+- Final recommendation: who should act, who should not act, conditions, and confidence.
+- What could change the conclusion: upgrade/downgrade/pivot/kill triggers.
+- Next actions with concrete steps, monitoring metrics, stop/continue triggers, and owner/timeframe where useful.
+- Limits of the report: missing data, uncertainty, freshness, and external validation needs.
+
+Appendices should contain:
+
+- Evidence register with claim-level evidence, confidence, contradictions, freshness, and source names.
+- Method and source quality, including search tools used, source types, confidence rules, and fallback notes.
+- Red-team notes with strongest objections, substitutes, kill criteria, and falsification tests.
+- Options or scenarios with pros, cons, trigger conditions, and expected implications.
+- Report quality score with total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
+- Source notes with source inventory, dates checked, URLs, and companion/wiki/indexing notes.
+
+For non-trivial surveys, `report.md` must be longer and more complete than `NN-synthesis.md`, but length alone is not quality. It should read like a coherent memo with supporting appendices, not a pile of evidence tables. A report that only contains a few bullets is incomplete; a report that opens with long source tables before explaining the judgment is also incomplete.
 
 New surveys use report schema v2. Legacy reports with the older six-section structure remain readable and may pass `check` with warnings, but should be upgraded with `survey_round.py upgrade-report <survey-dir>` and then expanded before final delivery. `upgrade-report` appends missing v2 sections and updates metadata; it does not write the report for you.
 
@@ -316,7 +321,7 @@ Score `report.md` on a 100-point rubric before finalizing:
 | Evidence completeness | 20 | Claim-level evidence, contradictions, confidence, source freshness, and enough coverage for the decision |
 | Analysis and red-team quality | 20 | Synthesis across evidence, alternatives, objections, kill criteria, and falsification tests |
 | Actionability | 15 | Concrete recommendation, next actions, owners/timeframes when useful, monitoring and stop/continue triggers |
-| Structure and readability | 10 | Standalone report, clear headings, readable tables, no template residue |
+| Structure and readability | 10 | Standalone narrative first, appendices second, clear headings, readable tables, no template residue |
 
 Use these thresholds:
 
@@ -357,7 +362,7 @@ Before reporting a round as complete:
 8. Confirm `NN-evolver.md` has a concrete `Keep / Narrow / Pivot / Kill` decision.
 9. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
 10. Confirm `index.md` reflects the latest thesis, open questions, source inventory, wiki/graph status, and decision log.
-11. Confirm `report.md` is complete, standalone, updated with the latest synthesis, and includes the full report sections: scope, methodology/source quality, key findings, evidence, analysis, red-team critique, options/scenarios, recommendation, action plan, open questions/next round, report quality score, limitations, and source notes.
+11. Confirm `report.md` is complete, standalone, updated with the latest synthesis, and reads as a coherent report: executive summary, reader's path, main narrative, decision logic, final recommendation, change triggers, next actions, limits, then appendices for evidence, method/source quality, red-team notes, scenarios, quality score, and source notes.
 12. Confirm the `Report Quality Score` section includes total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
 13. If score is below 80, create another round focused on the weakest dimensions. If score is 80-89, stop only with an explicit no-decision-changing-unknowns statement. If score is 90+, stop only when the next action is clear.
 14. If `check` reports a legacy report warning, run `upgrade-report` and fill the appended sections before presenting the report as final.
@@ -404,4 +409,5 @@ Use the same language as the user's request unless they ask otherwise. When writ
 - **Template theater**: files exist but contain placeholders. Fix before final response.
 - **Index-as-report**: `index.md` is updated but no standalone final report exists. Fix by writing `report.md` before answering.
 - **Thin final report**: `report.md` repeats only a short synthesis and omits methodology, evidence table, red-team critique, scenarios, action plan, or open questions. Fix by expanding it into a standalone report.
+- **Audit-table report**: `report.md` starts with dense source tables, claim registers, or checklist sections and never becomes readable. Fix by writing a narrative body first and moving audit material into appendices.
 - **Round-count autopilot**: the survey stops because it reached a familiar count, while the report score is weak or unknowns remain desk-researchable. Fix by scoring the report and creating the next round around the lowest-scoring dimensions.

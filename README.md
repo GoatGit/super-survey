@@ -101,7 +101,7 @@ A complete round must include:
 - lightweight evolver output with `Keep / Narrow / Pivot / Kill`
 - explicit continue/stop decision driven by report quality, not a fixed round count
 - updated `index.md` with wiki or graph indexing status
-- standalone `report.md` as the complete final report, including scope, methodology/source quality, evidence, analysis, red-team critique, options/scenarios, recommendation, action plan, open questions, report quality score, limitations, and source notes
+- standalone `report.md` as the complete final report: readable narrative first, appendices for evidence/source/method/red-team/scenario details second
 
 `report.md` uses a 100-point quality gate:
 
@@ -115,6 +115,8 @@ A complete round must include:
 | Structure and readability | 10 |
 
 `>=90` can finalize when no decision-changing desk-research unknown remains. `80-89` is conditional and must explicitly explain why no further desk research would change the decision. `<80` must continue another round focused on the lowest-scoring dimensions.
+
+The final report should read like a human memo, not an audit table. Start with the answer, reader's path, main narrative, decision logic, recommendation, change triggers, next actions, and limits. Put evidence registers, source quality, red-team notes, scenarios, quality score, and source inventory in appendices so rigor is preserved without breaking readability.
 
 The evolver runs before the report quality score. It is a round-level step that converts the latest synthesis and red-team critique into `Keep / Narrow / Pivot / Kill` plus a sharper next-round focus. The quality score is a report-level gate applied to the updated `report.md`. If the score fails, the next round uses the report's lowest-scoring dimensions and the evolver's focus as input.
 
