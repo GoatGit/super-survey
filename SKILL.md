@@ -364,18 +364,17 @@ Score `report.md` on a 100-point rubric before finalizing:
 
 Mode-specific thresholds are stricter for deeper work. `quick` can pass at 80 when the user only needs directional triage. `standard` should pass at 90. `deep` should pass at 95 and use larger source/claim/evidence coverage. Do not lower the standard mode just because a report is short; choose `quick` explicitly when speed matters more than completeness.
 
-Evolver gate:
+Machine continuation gate:
 
-- `Kill`: may stop the current thesis, but `report.md` must state the kill reason, triggered kill criteria, key evidence, and residual uncertainty.
-- `Keep`: normally continues unless the report passes the selected mode threshold and explicitly says no desk-researchable decision-changing unknown remains.
-- `Narrow`: normally continues with the narrower target. It may stop only if `report.md` explicitly explains that the evolver's next evidence is external-only, such as interviews, experiments, paid trials, private data, legal opinion, or future disclosures.
-- `Pivot`: normally continues with the new direction. It may stop only if the report's decision is specifically to pivot and `report.md` explains that the next evidence is external-only.
+- Stop only when both raw gates pass: `report.md` score is at or above the selected mode threshold, and the latest `NN-evolver.md` decision is `Kill`.
+- `Keep`, `Narrow`, or `Pivot` always require another round. Do not use `report.md` explanations such as "future disclosure", "external validation", or "no decision-changing unknowns" to override the evolver's raw decision.
+- `Kill` means the current thesis can stop when the report score also passes. The report should still explain the kill rationale for readers, but `check` does not parse that prose as a stopping signal.
 
-Report score gate:
+Report score thresholds:
 
-- `>= 90`: pass. Stop only if the report says no decision-changing unknown remains desk-researchable.
-- `80-89`: conditional. Stop only if the report explicitly states that no decision-changing unknowns remain and the next useful evidence requires external validation.
-- `< 80`: fail. Continue with another round focused on the lowest-scoring dimensions.
+- `quick`: score must be `>= 80`.
+- `standard`: score must be `>= 90`.
+- `deep`: score must be `>= 95`.
 
 Continue another round when:
 
@@ -384,17 +383,15 @@ Continue another round when:
 - The target is still too broad to act on.
 - A next-round question could materially change the decision.
 - The latest synthesis lists remaining unknowns that can still be reduced by desk research, current-source search, competitor checks, policy review, source triangulation, or repository analysis.
-- The evolver says `Keep`, `Narrow`, or `Pivot` and names evidence that is publicly or tool-accessibly obtainable.
+- The evolver says `Keep`, `Narrow`, or `Pivot`.
 - `report.md` scores below the selected mode's pass threshold and the weak dimensions are improvable by another evidence pass.
 
 Stop when:
 
-- `Kill`: the current thesis is disqualified and the report states the kill reason.
-- `Pass`: the report score passes the selected mode threshold, the next action is clear, and no desk-researchable decision-changing unknown remains.
-- `External Validation Needed`: the remaining key evidence requires interviews, experiments, purchase data, private financials, legal opinion, future disclosures, or another external validation path.
+- `Kill + pass`: the latest evolver decision is `Kill` and the report score passes the selected mode threshold.
 - The user asked for a fixed number of rounds.
 
-Stopping after any number of rounds is allowed only when the quality score and synthesis explain why another desk-research round would not materially change the decision, or why the next evidence requires external validation such as interviews, experiments, purchase data, private financials, or future company disclosures. If the stop reason is weak, create the next round instead of finalizing.
+Do not let report prose decide whether to stop. `report.md` can explain uncertainty, future disclosure needs, and external validation needs for the reader, but `check` relies only on the score threshold and the latest evolver decision.
 
 ### 6. Quality Gate
 
@@ -416,9 +413,9 @@ Before reporting a round as complete:
 14. Confirm the `Report Quality Score` section includes total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
 15. Confirm the report body obeys prose-first rules and does not put evidence tables before the first appendix.
 16. If score is below the selected mode's threshold, create another round focused on the weakest dimensions.
-17. If the evolver says `Keep`, `Narrow`, or `Pivot` and names desk-researchable evidence, create another round unless `report.md` explicitly explains why that evolver evidence is external-only or no longer decision-changing.
-18. If the evolver says `Kill`, stop only when `report.md` states the kill reason and triggered kill criteria.
-19. Stop only when both gates pass: the mode/report gate and the evolver gate.
+17. If the evolver says `Keep`, `Narrow`, or `Pivot`, create another round.
+18. If the evolver says `Kill`, stop only when the report score also passes the selected mode threshold.
+19. Stop only when both gates pass: the mode/report score gate and the raw evolver decision gate.
 20. If `check` reports a legacy report warning, run `upgrade-report` and fill the appended sections before presenting the report as final.
 21. Treat companion routing notes as auditable: the artifact must say which tool was used, what failed if fallback happened, and where the result was recorded.
 22. Confirm wiki persistence was attempted and `index.md` records `Wiki Tool Attempted`, `Wiki Ingest Result`, `Wiki Fallback Reason`, and `Wiki Artifact Path`.

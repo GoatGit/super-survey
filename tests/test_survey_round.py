@@ -405,33 +405,36 @@ Thin.
         result = run_cli("check", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
-        self.assertIn("score below 80 must continue", result.stdout)
+        self.assertIn("standard mode requires report score >= 90", result.stdout)
 
-    def test_report_conditional_score_requires_no_decision_changing_unknowns(self) -> None:
+    def test_report_below_mode_pass_score_fails_even_with_stop_language(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(
             survey_dir,
             report_score=84,
             continuation_decision="Pass / Continue Decision: conditionally stop because the next action is clear.",
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
         )
 
         result = run_cli("check", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
-        self.assertIn("score 80-89 must state that no decision-changing unknowns remain", result.stdout)
+        self.assertIn("standard mode requires report score >= 90", result.stdout)
 
-    def test_report_pass_score_still_requires_no_decision_changing_unknowns(self) -> None:
+    def test_report_pass_score_does_not_require_report_stop_explanation(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(
             survey_dir,
             report_score=90,
             continuation_decision="Pass / Continue Decision: stop because the next action is clear.",
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
         )
 
         result = run_cli("check", str(survey_dir))
 
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("passing report must state that no decision-changing unknowns remain", result.stdout)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_evolver_narrow_with_desk_research_evidence_requires_continuation(self) -> None:
         survey_dir = self.init_round()
@@ -447,7 +450,7 @@ Thin.
         self.assertEqual(result.returncode, 1)
         self.assertIn("evolver decision Narrow requires another round", result.stdout)
 
-    def test_evolver_narrow_can_stop_when_report_explains_external_validation(self) -> None:
+    def test_evolver_narrow_cannot_stop_even_when_report_explains_external_validation(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(
             survey_dir,
@@ -460,9 +463,32 @@ Thin.
 
         result = run_cli("check", str(survey_dir))
 
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("evolver decision Narrow requires another round", result.stdout)
 
-    def test_evolver_kill_requires_report_kill_reason(self) -> None:
+    def test_evolver_narrow_mixed_desk_and_future_evidence_requires_continuation(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            continuation_decision=(
+                "Pass / Continue Decision: pass; finalize the report because no decision-changing unknown remains desk-researchable, "
+                "and the evolver next evidence requires external validation through future disclosures."
+            ),
+            evolver_decision="收窄",
+            evolver_evidence_needed=(
+                "Exchange PDF filings and financial statement breakdown.\n"
+                "2026Q2/Q3 gross margin, expense ratio, operating cash flow, and inventory changes.\n"
+                "DCF / scenario valuation model.\n"
+                "未来披露。"
+            ),
+        )
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("evolver decision Narrow requires another round", result.stdout)
+
+    def test_evolver_kill_allows_stop_when_report_score_passes(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(
             survey_dir,
@@ -475,8 +501,7 @@ Thin.
 
         result = run_cli("check", str(survey_dir))
 
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("evolver decision Kill requires report.md to state the kill reason", result.stdout)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_validate_evidence_rejects_duplicate_claim_ids(self) -> None:
         survey_dir = self.init_round()
@@ -507,7 +532,11 @@ Thin.
 
     def test_check_passes_when_every_required_section_has_substance(self) -> None:
         survey_dir = self.init_round()
-        self._write_substantive_required_files(survey_dir)
+        self._write_substantive_required_files(
+            survey_dir,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
 
         result = run_cli("check", str(survey_dir))
 

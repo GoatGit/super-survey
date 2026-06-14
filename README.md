@@ -137,11 +137,11 @@ A complete round must include:
 | Actionability | 15 |
 | Structure and readability | 10 |
 
-`>=90` can finalize when no decision-changing desk-research unknown remains. `80-89` is conditional and must explicitly explain why no further desk research would change the decision. `<80` must continue another round focused on the lowest-scoring dimensions.
+Mode thresholds are hard gates: `quick >=80`, `standard >=90`, and `deep >=95`. A report below the selected threshold must continue another round focused on the weakest dimensions.
 
 The final report should read like a human memo, not an audit table. Start with the answer, reader's path, main narrative, decision logic, recommendation, change triggers, next actions, and limits. Put evidence registers, source quality, red-team notes, scenarios, quality score, and source inventory in appendices so rigor is preserved without breaking readability.
 
-The evolver runs before the report quality score. It is a round-level gate that converts the latest synthesis and red-team critique into `Keep / Narrow / Pivot / Kill` plus a sharper next-round focus. The quality score is a report-level gate applied to the updated `report.md`. A survey may stop only when both gates pass: the report meets the selected mode threshold, and the evolver either kills the thesis with a clear kill reason or has no desk-researchable next evidence left. If the evolver says `Keep`, `Narrow`, or `Pivot` and names desk-researchable evidence, continue another round unless `report.md` explicitly explains why that evidence is external-only or no longer decision-changing.
+The evolver runs before the report quality score. It is a round-level gate that converts the latest synthesis and red-team critique into `Keep / Narrow / Pivot / Kill` plus a sharper next-round focus. A survey may stop only when both raw gates pass: the report meets the selected mode threshold, and the latest evolver decision is `Kill`. If the evolver says `Keep`, `Narrow`, or `Pivot`, continue another round. `check` does not use `report.md` prose such as "future disclosure" or "external validation" to override the raw evolver decision.
 
 Wiki persistence is a required attempt for every completed survey round. Prefer `karpathy-llm-wiki` / `Astro-Han/karpathy-llm-wiki`; fall back to local `llm-wiki`, then `pin-llm-wiki` when project config exists, then another indexer, then Markdown-only `index.md`. `index.md` must record `Wiki Tool Attempted`, `Wiki Ingest Result`, `Wiki Fallback Reason`, and `Wiki Artifact Path`.
 
