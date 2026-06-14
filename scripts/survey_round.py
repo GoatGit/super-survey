@@ -5,12 +5,17 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import functools
 import json
 import re
 import sys
 from pathlib import Path
 
 LANGUAGES = ("en", "zh", "ja")
+REPORT_SCHEMA_VERSION = 2
+MIN_REPORT_SUBSTANTIVE_LINES = 20
+REPORT_PASS_SCORE = 90
+REPORT_CONDITIONAL_SCORE = 80
 
 LABELS = {
     "en": {
@@ -49,12 +54,29 @@ LABELS = {
         ],
         "report_headings": [
             "Executive Summary",
+            "Research Question And Scope",
+            "Methodology And Source Quality",
+            "Key Findings",
+            "Evidence Table",
+            "Analysis",
+            "Red-Team Critique",
+            "Options Or Scenarios",
+            "Recommendation",
+            "Action Plan",
+            "Open Questions And Next Round",
+            "Report Quality Score",
+            "Limitations",
+            "Source Notes",
+        ],
+        "legacy_report_headings": [
+            "Executive Summary",
             "Key Findings",
             "Comparison Or Analysis",
             "Recommendation",
             "Limitations",
             "Source Notes",
         ],
+        "report_quality_heading": "Report Quality Score",
         "research_headings": [
             "Research Question",
             "Source List",
@@ -94,6 +116,7 @@ LABELS = {
             "Probe Results",
             "Persona Judgments",
             "Decision",
+            "Report Quality Gate",
             "Next Research Target",
             "Evidence Needed Next",
         ],
@@ -106,7 +129,23 @@ LABELS = {
             "Tavily Fallback Reason: none / not installed / not authenticated / failed / insufficient results / unsuitable source surface",
             "Query And Filter Notes: queries, domains, date filters, source-type filters",
         ],
-        "planned_rounds_note": "- Round 1:\n- Continue with Round 2+ while unresolved unknowns are desk-researchable; there is no implicit two-round cap.",
+        "planned_rounds_note": "- Round 1:\n- Continue while report quality is below the pass threshold or unresolved decision-changing unknowns remain desk-researchable. Stop because quality passes, not because a fixed round count was reached.",
+        "report_template_notes": [
+            "Decision answer and confidence",
+            "Question boundary, audience, assumptions, and non-goals",
+            "Search tools used, source freshness, source types, and confidence rules",
+            "Most important findings with citations or source names",
+            "Claim-level evidence summary with confidence and contradictions",
+            "Synthesis across rounds, comparisons, tradeoffs, and what changed",
+            "Strongest objections, substitutes, kill criteria, and falsification tests",
+            "Options, scenarios, or alternatives with pros, cons, and trigger conditions",
+            "Final recommendation with rationale and who should or should not act",
+            "Concrete next actions, monitoring metrics, and stop/continue conditions",
+            "Remaining unknowns and whether another round is required",
+            "Total Score, Score Breakdown, pass/continue decision, lowest-scoring areas, and next-round focus",
+            "Known limitations, missing data, and freshness caveats",
+            "Source inventory with dates checked and companion/indexing notes",
+        ],
         "probes": [
             "Buyer",
             "Pain",
@@ -162,12 +201,29 @@ LABELS = {
         ],
         "report_headings": [
             "执行摘要",
+            "调研问题与范围",
+            "方法与来源质量",
+            "关键发现",
+            "证据表",
+            "分析",
+            "反方挑战",
+            "选项或情景",
+            "建议",
+            "行动计划",
+            "开放问题与下一轮",
+            "报告质量评分",
+            "局限性",
+            "来源备注",
+        ],
+        "legacy_report_headings": [
+            "执行摘要",
             "关键发现",
             "对比或分析",
             "建议",
             "局限性",
             "来源备注",
         ],
+        "report_quality_heading": "报告质量评分",
         "research_headings": [
             "本轮问题",
             "来源列表",
@@ -207,6 +263,7 @@ LABELS = {
             "探针结果",
             "角色判断",
             "决策",
+            "报告质量门",
             "下一轮调研目标",
             "下一轮所需证据",
         ],
@@ -219,7 +276,23 @@ LABELS = {
             "Tavily fallback 原因：无 / 未安装 / 未认证 / 失败 / 结果不足 / 不适合所需来源",
             "查询与过滤备注：查询词、域名、日期过滤、来源类型过滤",
         ],
-        "planned_rounds_note": "- Round 1:\n- 如果剩余未知仍可通过桌面调研解决，继续 Round 2+；不存在默认两轮上限。",
+        "planned_rounds_note": "- Round 1:\n- 当报告质量分未通过门限，或仍有可通过桌面调研降低的决策性未知时继续。停止应因为质量通过，而不是因为达到固定轮数。",
+        "report_template_notes": [
+            "决策答案和置信度",
+            "问题边界、读者、假设和不覆盖事项",
+            "使用的搜索工具、来源新鲜度、来源类型和置信规则",
+            "带来源名或引用线索的最重要发现",
+            "claim-level 证据摘要，包含置信度和矛盾证据",
+            "跨轮综合、对比、取舍和本轮变化",
+            "最强反对意见、替代方案、放弃条件和证伪测试",
+            "选项、情景或替代路径，并写明优缺点和触发条件",
+            "最终建议、依据，以及适合/不适合行动的人群",
+            "具体下一步、监控指标和停止/继续条件",
+            "剩余未知，以及是否需要下一轮",
+            "总分、分项得分、通过/继续决策、最低分维度和下一轮重点",
+            "已知局限、缺失数据和时效性提醒",
+            "来源清单、检查日期和 companion/indexing 备注",
+        ],
         "probes": ["买方", "痛点", "触发事件", "数据", "分发", "既有玩家", "合规", "替代解释", "证伪条件"],
         "personas": ["怀疑的买方", "头部竞品策略负责人", "分发现实主义者", "合规审查者", "构建/运营负责人"],
     },
@@ -259,12 +332,29 @@ LABELS = {
         ],
         "report_headings": [
             "エグゼクティブサマリー",
+            "調査問いと範囲",
+            "方法と情報源品質",
+            "主要な発見",
+            "証拠テーブル",
+            "分析",
+            "レッドチーム批判",
+            "選択肢またはシナリオ",
+            "推奨事項",
+            "行動計画",
+            "未解決の問いと次回ラウンド",
+            "レポート品質スコア",
+            "制約",
+            "情報源メモ",
+        ],
+        "legacy_report_headings": [
+            "エグゼクティブサマリー",
             "主要な発見",
             "比較または分析",
             "推奨事項",
             "制約",
             "情報源メモ",
         ],
+        "report_quality_heading": "レポート品質スコア",
         "research_headings": [
             "今回の調査問い",
             "情報源リスト",
@@ -304,6 +394,7 @@ LABELS = {
             "プローブ結果",
             "ペルソナ判断",
             "判断",
+            "レポート品質ゲート",
             "次回調査目標",
             "次に必要な証拠",
         ],
@@ -316,7 +407,23 @@ LABELS = {
             "Tavily fallback 理由: なし / 未インストール / 未認証 / 失敗 / 結果不足 / 必要な情報源に不向き",
             "クエリとフィルタのメモ: クエリ、ドメイン、日付フィルタ、情報源タイプ",
         ],
-        "planned_rounds_note": "- Round 1:\n- 未解決事項が desk research で減らせる間は Round 2+ を続ける。暗黙の 2 ラウンド上限はない。",
+        "planned_rounds_note": "- Round 1:\n- レポート品質スコアが合格基準未満、または desk research で減らせる意思決定上の不明点が残る間は継続する。固定ラウンド数ではなく品質合格で停止する。",
+        "report_template_notes": [
+            "判断内容と信頼度",
+            "問いの範囲、読者、前提、対象外",
+            "使用した検索ツール、情報源の鮮度、情報源タイプ、信頼度基準",
+            "情報源名または引用手がかりを含む重要な発見",
+            "claim-level の証拠要約、信頼度、矛盾する証拠",
+            "ラウンド横断の統合、比較、トレードオフ、変化点",
+            "最も強い反論、代替手段、中止条件、反証テスト",
+            "選択肢、シナリオ、代替案と、それぞれの長所、短所、発動条件",
+            "最終推奨、根拠、行動すべき人/すべきでない人",
+            "具体的な次の行動、監視指標、停止/継続条件",
+            "残る不明点と次回ラウンドの要否",
+            "総合スコア、内訳、合格/継続判断、最低スコア領域、次回ラウンドの焦点",
+            "既知の制約、欠落データ、鮮度に関する注意",
+            "情報源一覧、確認日、companion/indexing メモ",
+        ],
         "probes": [
             "買い手",
             "痛み",
@@ -362,24 +469,54 @@ def write_metadata(survey_dir: Path, topic: str, language: str) -> None:
     if path.exists():
         return
     path.write_text(
-        json.dumps({"topic": topic, "language": language}, ensure_ascii=False, indent=2) + "\n",
+        json.dumps(
+            {"topic": topic, "language": language, "report_schema_version": REPORT_SCHEMA_VERSION},
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
         encoding="utf-8",
     )
+
+
+def read_metadata(survey_dir: Path) -> dict[str, object]:
+    path = metadata_path(survey_dir)
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+    if isinstance(data, dict):
+        return data
+    return {}
+
+
+def update_metadata(survey_dir: Path, **updates: object) -> None:
+    data = read_metadata(survey_dir)
+    data.update(updates)
+    path = metadata_path(survey_dir)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def read_language(survey_dir: Path, override: str | None = None) -> str:
     if override:
         return override
-    path = metadata_path(survey_dir)
-    if path.exists():
-        try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-            language = data.get("language")
-            if language in LANGUAGES:
-                return language
-        except json.JSONDecodeError:
-            pass
+    data = read_metadata(survey_dir)
+    language = data.get("language")
+    if language in LANGUAGES:
+        return str(language)
     return "en"
+
+
+def report_schema_version(survey_dir: Path) -> int:
+    data = read_metadata(survey_dir)
+    value = data.get("report_schema_version")
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str) and value.isdigit():
+        return int(value)
+    return 1
 
 
 def table(cols: str) -> str:
@@ -410,7 +547,8 @@ def placeholder_values(language: str) -> set[str]:
     }
 
 
-def structural_values(language: str) -> set[str]:
+@functools.lru_cache(maxsize=None)
+def structural_values(language: str) -> frozenset[str]:
     label = labels(language)
     values: set[str] = set()
     for key in ("source_cols", "evidence_cols", "probe_cols", "persona_cols"):
@@ -419,7 +557,8 @@ def structural_values(language: str) -> set[str]:
     values.update(str(persona) for persona in label["personas"])
     values.update(str(note) for note in label["search_tool_notes"])
     values.update(str(note) for note in str(label["planned_rounds_note"]).splitlines())
-    return values
+    values.update(str(note) for note in label["report_template_notes"])
+    return frozenset(values)
 
 
 def is_substantive_line(line: str, language: str) -> bool:
@@ -428,6 +567,8 @@ def is_substantive_line(line: str, language: str) -> bool:
     if not stripped or stripped.startswith("#") or stripped in placeholders:
         return False
     if stripped in structural_values(language):
+        return False
+    if stripped.startswith("- ") and stripped[2:].strip() in structural_values(language):
         return False
     if re.fullmatch(r"-\s*(Status|Notes|Option [A-Z]|Round \d+):\s*", stripped):
         return False
@@ -445,6 +586,11 @@ def file_has_substance(path: Path, language: str) -> bool:
     return sum(1 for line in text.splitlines() if is_substantive_line(line, language)) > 1
 
 
+def substantive_line_count(path: Path, language: str) -> int:
+    text = path.read_text(encoding="utf-8")
+    return sum(1 for line in text.splitlines() if is_substantive_line(line, language))
+
+
 def section_body(text: str, heading: str) -> str | None:
     match = re.search(
         rf"^## {re.escape(heading)}\s*$\n(?P<body>.*?)(?=^## |\Z)",
@@ -454,6 +600,127 @@ def section_body(text: str, heading: str) -> str | None:
     if not match:
         return None
     return match.group("body")
+
+
+def required_report_headings(label: dict[str, object], schema_version: int) -> list[str]:
+    if schema_version >= REPORT_SCHEMA_VERSION:
+        return list(label["report_headings"])
+    return list(label["legacy_report_headings"])
+
+
+def required_evolver_headings(label: dict[str, object], schema_version: int) -> list[str]:
+    headings = list(label["evolver_headings"])
+    if schema_version >= REPORT_SCHEMA_VERSION:
+        return headings
+    quality_heading = {
+        "en": "Report Quality Gate",
+        "zh": "报告质量门",
+        "ja": "レポート品質ゲート",
+    }
+    return [heading for heading in headings if heading not in quality_heading.values()]
+
+
+def has_any_heading(text: str, heading: str) -> bool:
+    return has_heading(text, heading)
+
+
+def report_has_v2_headings(path: Path, label: dict[str, object]) -> bool:
+    if not path.exists():
+        return False
+    text = path.read_text(encoding="utf-8")
+    return all(has_any_heading(text, heading) for heading in label["report_headings"])
+
+
+def parse_report_score(text: str, heading: str) -> int | None:
+    body = section_body(text, heading)
+    if body is None:
+        return None
+    patterns = (
+        r"Total Score\s*[:：]\s*(\d{1,3})\s*/\s*100",
+        r"总分\s*[:：]\s*(\d{1,3})\s*/\s*100",
+        r"総合スコア\s*[:：]\s*(\d{1,3})\s*/\s*100",
+        r"Score\s*[:：]\s*(\d{1,3})\s*/\s*100",
+    )
+    for pattern in patterns:
+        match = re.search(pattern, body, flags=re.IGNORECASE)
+        if match:
+            score = int(match.group(1))
+            if 0 <= score <= 100:
+                return score
+    return None
+
+
+def mentions_continuation(body: str) -> bool:
+    continuation_terms = (
+        "continue",
+        "another round",
+        "继续",
+        "継続",
+    )
+    return any(term.lower() in body.lower() for term in continuation_terms)
+
+
+def mentions_no_decision_changing_unknowns(body: str) -> bool:
+    normalized = body.lower()
+    phrases = (
+        "no decision-changing unknown",
+        "no desk-researchable decision-changing unknown",
+        "no unresolved decision-changing unknown",
+        "没有决策性未知",
+        "没有可通过桌面调研",
+        "无决策性未知",
+        "意思決定上の不明点は残っていない",
+        "desk research で減らせる意思決定上の不明点は残っていない",
+    )
+    return any(phrase.lower() in normalized for phrase in phrases)
+
+
+def validate_report_quality(
+    errors: list[str],
+    warnings: list[str],
+    report_path: Path,
+    label: dict[str, object],
+    language: str,
+    schema_version: int,
+) -> None:
+    if not report_path.exists():
+        return
+
+    if schema_version < REPORT_SCHEMA_VERSION:
+        if not report_has_v2_headings(report_path, label):
+            warnings.append("report.md: legacy report schema detected; run 'upgrade-report' and expand the new sections")
+            return
+
+    line_count = substantive_line_count(report_path, language)
+    if line_count < MIN_REPORT_SUBSTANTIVE_LINES:
+        errors.append(
+            f"report.md: complete report must contain at least {MIN_REPORT_SUBSTANTIVE_LINES} substantive lines"
+        )
+
+    text = report_path.read_text(encoding="utf-8")
+    thin_sections: list[str] = []
+    for heading in label["report_headings"]:
+        body = section_body(text, str(heading))
+        if body is None:
+            continue
+        section_lines = [line for line in body.splitlines() if is_substantive_line(line, language)]
+        if len(section_lines) < 1:
+            thin_sections.append(str(heading))
+    if thin_sections:
+        errors.append("report.md: sections need substantive content: " + ", ".join(thin_sections))
+
+    score_heading = str(label["report_quality_heading"])
+    score_body = section_body(text, score_heading) or ""
+    score = parse_report_score(text, score_heading)
+    if score is None:
+        errors.append("report.md: Report Quality Score must include a parseable 'Total Score: N / 100'")
+        return
+    if score < REPORT_CONDITIONAL_SCORE and not mentions_continuation(score_body):
+        errors.append("report.md: score below 80 must continue with a next-round focus")
+    if REPORT_CONDITIONAL_SCORE <= score < REPORT_PASS_SCORE and not mentions_no_decision_changing_unknowns(score_body):
+        errors.append(
+            "report.md: score 80-89 must state that no decision-changing unknowns remain before stopping"
+        )
 
 
 def init_survey(args: argparse.Namespace) -> None:
@@ -544,33 +811,15 @@ def init_survey(args: argparse.Namespace) -> None:
 """,
     )
     headings = label["report_headings"]
+    report_template_sections = "\n\n".join(
+        f"## {heading}\n\n- {note}"
+        for heading, note in zip(label["report_headings"], label["report_template_notes"], strict=True)
+    )
     write_once(
         survey_dir / "report.md",
         f"""# {args.topic}
 
-## {headings[0]}
-
--
-
-## {headings[1]}
-
--
-
-## {headings[2]}
-
--
-
-## {headings[3]}
-
--
-
-## {headings[4]}
-
--
-
-## {headings[5]}
-
--
+{report_template_sections}
 """,
     )
     print(survey_dir)
@@ -754,6 +1003,13 @@ def create_round(args: argparse.Namespace) -> None:
 
 ## {headings[5]}
 
+- Current report quality score:
+- Lowest-scoring dimensions:
+- Pass / continue reason:
+- Next-round focus if score is below threshold:
+
+## {headings[6]}
+
 - 
 """,
     )
@@ -788,9 +1044,33 @@ def check_required_file(errors: list[str], path: Path, headings: list[str], lang
         errors.append(f"{path.name}: appears to be only an empty template")
 
 
+def check_research_tool_notes(
+    errors: list[str],
+    warnings: list[str],
+    path: Path,
+    label: dict[str, object],
+    schema_version: int,
+) -> None:
+    if not path.exists():
+        return
+    text = path.read_text(encoding="utf-8")
+    body = section_body(text, str(label["research_headings"][-1]))
+    if body is None:
+        return
+    expected_notes = [str(note).split(":")[0].split("：")[0] for note in label["search_tool_notes"][:2]]
+    missing = [note for note in expected_notes if note and note not in body]
+    if missing:
+        message = f"{path.name}: Data Quality Notes must record search tool and Tavily fallback status"
+        if schema_version < REPORT_SCHEMA_VERSION:
+            warnings.append(message)
+        else:
+            errors.append(message)
+
+
 def check_survey(args: argparse.Namespace) -> None:
     survey_dir = Path(args.survey_dir).expanduser().resolve()
     errors: list[str] = []
+    warnings: list[str] = []
 
     if not survey_dir.exists():
         print(f"ERROR: survey directory does not exist: {survey_dir}", file=sys.stderr)
@@ -798,10 +1078,13 @@ def check_survey(args: argparse.Namespace) -> None:
 
     language = read_language(survey_dir, args.language)
     label = labels(language)
+    schema_version = report_schema_version(survey_dir)
 
     check_required_file(errors, survey_dir / "00-brief.md", list(label["brief_headings"]), language)
     check_required_file(errors, survey_dir / "index.md", list(label["index_headings"]), language)
-    check_required_file(errors, survey_dir / "report.md", list(label["report_headings"]), language)
+    report_path = survey_dir / "report.md"
+    check_required_file(errors, report_path, required_report_headings(label, schema_version), language)
+    validate_report_quality(errors, warnings, report_path, label, language, schema_version)
 
     rounds = detect_rounds(survey_dir)
     if not rounds:
@@ -809,11 +1092,13 @@ def check_survey(args: argparse.Namespace) -> None:
 
     for round_number in rounds:
         prefix = f"{round_number:02d}"
-        check_required_file(errors, survey_dir / f"{prefix}-research.md", list(label["research_headings"]), language)
+        research_path = survey_dir / f"{prefix}-research.md"
+        check_required_file(errors, research_path, list(label["research_headings"]), language)
+        check_research_tool_notes(errors, warnings, research_path, label, schema_version)
         check_required_file(errors, survey_dir / f"{prefix}-brainstorm.md", list(label["brainstorm_headings"]), language)
         check_required_file(errors, survey_dir / f"{prefix}-redteam.md", list(label["redteam_headings"]), language)
         check_required_file(errors, survey_dir / f"{prefix}-synthesis.md", list(label["synthesis_headings"]), language)
-        check_required_file(errors, survey_dir / f"{prefix}-evolver.md", list(label["evolver_headings"]), language)
+        check_required_file(errors, survey_dir / f"{prefix}-evolver.md", required_evolver_headings(label, schema_version), language)
 
     if errors:
         print("Super Survey check failed:")
@@ -821,7 +1106,44 @@ def check_survey(args: argparse.Namespace) -> None:
             print(f"- {error}")
         raise SystemExit(1)
 
+    if warnings:
+        print("Super Survey check warnings:")
+        for warning in warnings:
+            print(f"- {warning}")
+
     print(f"Super Survey check passed: {survey_dir} ({language})")
+
+
+def append_missing_report_sections(report_path: Path, label: dict[str, object]) -> bool:
+    if not report_path.exists():
+        return False
+    text = report_path.read_text(encoding="utf-8")
+    additions: list[str] = []
+    for heading, note in zip(label["report_headings"], label["report_template_notes"], strict=True):
+        if not has_heading(text, str(heading)):
+            additions.append(f"## {heading}\n\n- {note}")
+    if not additions:
+        return False
+    separator = "" if text.endswith("\n") else "\n"
+    report_path.write_text(text + separator + "\n".join(additions) + "\n", encoding="utf-8")
+    return True
+
+
+def upgrade_report(args: argparse.Namespace) -> None:
+    survey_dir = Path(args.survey_dir).expanduser().resolve()
+    if not survey_dir.exists():
+        print(f"ERROR: survey directory does not exist: {survey_dir}", file=sys.stderr)
+        raise SystemExit(2)
+    language = read_language(survey_dir, args.language)
+    label = labels(language)
+    report_path = survey_dir / "report.md"
+    if not report_path.exists():
+        print(f"ERROR: report.md does not exist: {report_path}", file=sys.stderr)
+        raise SystemExit(2)
+    changed = append_missing_report_sections(report_path, label)
+    update_metadata(survey_dir, language=language, report_schema_version=REPORT_SCHEMA_VERSION)
+    status = "updated" if changed else "already current"
+    print(f"report.md {status}: {report_path}")
 
 
 def main() -> None:
@@ -845,6 +1167,11 @@ def main() -> None:
     p_check.add_argument("survey_dir")
     p_check.add_argument("--language", choices=LANGUAGES)
     p_check.set_defaults(func=check_survey)
+
+    p_upgrade = sub.add_parser("upgrade-report", help="append missing v2 report sections")
+    p_upgrade.add_argument("survey_dir")
+    p_upgrade.add_argument("--language", choices=LANGUAGES)
+    p_upgrade.set_defaults(func=upgrade_report)
 
     args = parser.parse_args()
     args.func(args)

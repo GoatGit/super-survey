@@ -23,7 +23,7 @@ Every survey round must:
 7. Check explicit kill criteria before recommending another round.
 8. Synthesize a clearer conclusion with confidence level, decision rationale, and remaining unknowns.
 9. Run the lightweight evolver to sharpen or kill the next-round target.
-10. Decide whether to continue using the continuation rules; do not assume a two-round cap.
+10. Decide whether to continue using the report quality score and continuation rules; never stop because a fixed round count was reached.
 11. Update an index and attempt wiki/graph indexing, or record why it was unavailable.
 12. Write or update the final `report.md` before giving a final answer.
 13. Write the round artifacts to disk before giving a final answer.
@@ -32,7 +32,7 @@ Do not stop after collecting links. The value of this skill is sharper judgment 
 
 Empty templates are not artifacts. A round is incomplete until each file contains substantive findings, critique, synthesis, and evolved next-target content.
 
-`index.md` is a navigation and decision log. It is not the final report. The final complete deliverable must be `report.md`, written in the selected artifact language and updated before the user-facing answer.
+`index.md` is a navigation and decision log. It is not the final report. The final complete deliverable must be a full `report.md`, written in the selected artifact language and updated before the user-facing answer. Do not treat `report.md` as a short chat summary.
 
 ## Workflow
 
@@ -124,12 +124,15 @@ surveys/YYYY-MM-DD-topic-slug/
 Use the helper when useful:
 
 ```bash
-python3 ~/.codex/skills/super-survey/scripts/survey_round.py init "AI recruiting agent"
-python3 ~/.codex/skills/super-survey/scripts/survey_round.py init "AI recruiting agent" --language zh
-python3 ~/.codex/skills/super-survey/scripts/survey_round.py init "AI recruiting agent" --language ja
-python3 ~/.codex/skills/super-survey/scripts/survey_round.py round surveys/2026-06-12-ai-recruiting-agent 1
-python3 ~/.codex/skills/super-survey/scripts/survey_round.py check surveys/2026-06-12-ai-recruiting-agent
+python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent"
+python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent" --language zh
+python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent" --language ja
+python3 <skill-dir>/scripts/survey_round.py round surveys/2026-06-12-ai-recruiting-agent 1
+python3 <skill-dir>/scripts/survey_round.py check surveys/2026-06-12-ai-recruiting-agent
+python3 <skill-dir>/scripts/survey_round.py upgrade-report surveys/2026-06-12-ai-recruiting-agent
 ```
+
+Resolve `<skill-dir>` to the directory containing this `SKILL.md`; do not assume a Codex-only install path.
 
 Supported artifact languages: `en`, `zh`, and `ja`. Use the user's language by default. The helper stores the language in `.super-survey.json`; `round` and `check` reuse it automatically.
 
@@ -144,9 +147,9 @@ Write `00-brief.md` with:
 - Success criteria
 - Disqualifying conditions
 - Initial assumptions
-- Planned research rounds
+- Planned research rounds or continuation policy
 
-There is no implicit maximum of two rounds. If the user does not specify a fixed round count, write the plan as a continuation policy: start with Round 1, then keep creating `02-*`, `03-*`, and later rounds while the continuation rules say another round could materially change the decision.
+Do not plan around a fixed default such as two or three rounds. If the user does not specify a fixed round count, write the plan as a quality-driven continuation policy: start with the first round, score the report, then continue while the score is below threshold or decision-changing unknowns remain reducible through desk research or available tools.
 
 If the user only wants a quick answer, still create a lightweight `00-brief.md`, one synthesis file, and `report.md`.
 
@@ -201,12 +204,24 @@ report.md
 
 `report.md` should be a complete, standalone report that a user can read without opening every round artifact. It should contain:
 
-- Executive summary
-- Key findings
-- Comparison or analysis
-- Recommendation
-- Limitations
-- Source notes
+- Executive summary with the answer, confidence, and decision status
+- Research question and scope, including audience, assumptions, non-goals, and decision criteria
+- Methodology and source quality, including search tools used, source freshness, source types, and confidence rules
+- Key findings with source names or citations, not unsupported assertions
+- Claim-level evidence table or structured evidence summary with confidence and contradictions
+- Analysis that synthesizes across rounds, compares alternatives, explains tradeoffs, and states what changed
+- Red-team critique with strongest objections, substitutes, kill criteria, and falsification tests
+- Options, scenarios, or alternatives with pros, cons, trigger conditions, and expected implications
+- Recommendation with rationale, who should act, who should not act, and confidence
+- Action plan with concrete next steps, monitoring metrics, stop/continue conditions, and owner/timeframe where useful
+- Open questions and next-round decision, including whether another round is required and why
+- Report quality score with total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus
+- Limitations covering missing data, uncertainty, freshness, and external validation needs
+- Source notes with source inventory, dates checked, and companion/wiki/indexing notes
+
+For non-trivial surveys, `report.md` must be longer and more complete than `NN-synthesis.md`. It should integrate all rounds rather than copy the latest synthesis. A report that only contains a few bullets under executive summary, findings, recommendation, limitations, and sources is incomplete.
+
+New surveys use report schema v2. Legacy reports with the older six-section structure remain readable and may pass `check` with warnings, but should be upgraded with `survey_round.py upgrade-report <survey-dir>` and then expanded before final delivery. `upgrade-report` appends missing v2 sections and updates metadata; it does not write the report for you.
 
 ### 2.5 Research Lens
 
@@ -229,6 +244,7 @@ Do not force every survey into a predefined category. The lens only determines w
 - Probe questions and answers
 - Persona judgments
 - Keep / pivot / kill decision
+- Report quality gate: current score, weakest dimensions, pass/fail reason, and next-round focus
 - Next-round target
 - Evidence needed next
 
@@ -287,9 +303,26 @@ Never claim a wiki or graph was built unless the indexing command actually ran. 
 
 `code-review-graph` is not a substitute for the survey wiki. Use it only when the survey target is a code repository and code structure analysis is needed.
 
-### 5. Decide Whether To Continue
+### 5. Report Quality Score And Continuation
 
-Super Survey supports arbitrary positive round numbers. The helper accepts `round <survey-dir> 3`, `round <survey-dir> 4`, and so on. Never stop at Round 2 merely because two rounds have been completed.
+Super Survey supports arbitrary positive round numbers, but the number itself is not the stopping rule. The helper accepts `round <survey-dir> 3`, `round <survey-dir> 4`, and later rounds when the report quality gate says another pass is needed.
+
+Score `report.md` on a 100-point rubric before finalizing:
+
+| Dimension | Points | What Good Looks Like |
+|---|---:|---|
+| Problem and scope definition | 15 | Clear decision, audience, assumptions, non-goals, and success/failure criteria |
+| Source and method quality | 20 | Current sources where needed, primary sources preferred, search tools/fallbacks recorded |
+| Evidence completeness | 20 | Claim-level evidence, contradictions, confidence, source freshness, and enough coverage for the decision |
+| Analysis and red-team quality | 20 | Synthesis across evidence, alternatives, objections, kill criteria, and falsification tests |
+| Actionability | 15 | Concrete recommendation, next actions, owners/timeframes when useful, monitoring and stop/continue triggers |
+| Structure and readability | 10 | Standalone report, clear headings, readable tables, no template residue |
+
+Use these thresholds:
+
+- `>= 90`: pass. Stop only if the report says no decision-changing unknown remains desk-researchable.
+- `80-89`: conditional. Stop only if the report explicitly states that no decision-changing unknowns remain and the next useful evidence requires external validation.
+- `< 80`: fail. Continue with another round focused on the lowest-scoring dimensions.
 
 Continue another round when:
 
@@ -299,15 +332,16 @@ Continue another round when:
 - A next-round question could materially change the decision.
 - The latest synthesis lists remaining unknowns that can still be reduced by desk research, current-source search, competitor checks, policy review, source triangulation, or repository analysis.
 - The evolver says `Keep`, `Narrow`, or `Pivot` and names evidence that is publicly or tool-accessibly obtainable.
+- `report.md` scores below 90 and the weak dimensions are improvable by another evidence pass.
 
 Stop when:
 
-- The next action is clear.
+- The report score passes the threshold and the next action is clear.
 - The idea is disqualified.
 - More research would not change the decision without external validation.
 - The user asked for a fixed number of rounds.
 
-Stopping after one or two rounds is allowed only when the synthesis explains why another desk-research round would not materially change the decision, or why the next evidence requires external validation such as interviews, experiments, purchase data, private financials, or future company disclosures. If the stop reason is weak, create the next round instead of finalizing.
+Stopping after any number of rounds is allowed only when the quality score and synthesis explain why another desk-research round would not materially change the decision, or why the next evidence requires external validation such as interviews, experiments, purchase data, private financials, or future company disclosures. If the stop reason is weak, create the next round instead of finalizing.
 
 ### 6. Quality Gate
 
@@ -323,8 +357,11 @@ Before reporting a round as complete:
 8. Confirm `NN-evolver.md` has a concrete `Keep / Narrow / Pivot / Kill` decision.
 9. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
 10. Confirm `index.md` reflects the latest thesis, open questions, source inventory, wiki/graph status, and decision log.
-11. Confirm `report.md` is complete, standalone, and updated with the latest synthesis.
-12. Confirm that stopping is justified by explicit stop criteria, not by reaching Round 2.
+11. Confirm `report.md` is complete, standalone, updated with the latest synthesis, and includes the full report sections: scope, methodology/source quality, key findings, evidence, analysis, red-team critique, options/scenarios, recommendation, action plan, open questions/next round, report quality score, limitations, and source notes.
+12. Confirm the `Report Quality Score` section includes total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
+13. If score is below 80, create another round focused on the weakest dimensions. If score is 80-89, stop only with an explicit no-decision-changing-unknowns statement. If score is 90+, stop only when the next action is clear.
+14. If `check` reports a legacy report warning, run `upgrade-report` and fill the appended sections before presenting the report as final.
+15. Treat companion routing notes as auditable: the artifact must say which tool was used, what failed if fallback happened, and where the result was recorded.
 
 If the check fails, say the round is still in progress; do not present it as finished.
 
@@ -366,4 +403,5 @@ Use the same language as the user's request unless they ask otherwise. When writ
 - **False graph claim**: index tooling was mentioned but not run. Fix by saying only `index.md` was updated.
 - **Template theater**: files exist but contain placeholders. Fix before final response.
 - **Index-as-report**: `index.md` is updated but no standalone final report exists. Fix by writing `report.md` before answering.
-- **Two-round autopilot**: the survey stops after Round 2 even though unresolved unknowns remain desk-researchable. Fix by creating Round 3+ and documenting why each later round continues or stops.
+- **Thin final report**: `report.md` repeats only a short synthesis and omits methodology, evidence table, red-team critique, scenarios, action plan, or open questions. Fix by expanding it into a standalone report.
+- **Round-count autopilot**: the survey stops because it reached a familiar count, while the report score is weak or unknowns remain desk-researchable. Fix by scoring the report and creating the next round around the lowest-scoring dimensions.

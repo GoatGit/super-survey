@@ -66,9 +66,10 @@ python3 scripts/survey_round.py init "AI採用エージェント" --language ja
 ```bash
 python3 scripts/survey_round.py round surveys/2026-06-13-ai-招聘助手 1
 python3 scripts/survey_round.py check surveys/2026-06-13-ai-招聘助手
+python3 scripts/survey_round.py upgrade-report surveys/2026-06-13-ai-招聘助手
 ```
 
-`check` 会在缺文件、缺标题、任一必填章节为空、或内容仍像空模板时失败。轮次必须是正整数。
+`check` 会在缺文件、缺标题、任一必填章节为空、内容仍像空模板，或 v2 报告缺少可解析质量分时失败。轮次必须是正整数。旧的六章节报告会以 warning 形式兼容通过；运行 `upgrade-report` 可追加完整报告 schema，然后需要补全新章节内容。
 
 ## skills.sh 收录准备
 
@@ -98,9 +99,24 @@ npx skills add GoatGit/super-survey --list
 - 包含替代方案、替代解释和已检查放弃条件的反方挑战
 - 带置信度、决策依据和未知项的综合结论
 - 轻量进化器输出，并明确 `保留 / 收窄 / 转向 / 放弃`
-- 明确继续/停止决策；不存在默认两轮上限
+- 明确继续/停止决策，并由报告质量分驱动，而不是由固定轮数驱动
 - 更新后的 `index.md`，记录 wiki 或 graph 索引状态
-- 独立的 `report.md`，作为完整最终报告
+- 独立的 `report.md`，作为完整最终报告，包含范围、方法/来源质量、证据、分析、反方挑战、选项/情景、建议、行动计划、开放问题、报告质量评分、局限性和来源备注
+
+`report.md` 使用 100 分质量门：
+
+| 维度 | 分值 |
+|---|---:|
+| 问题与范围定义 | 15 |
+| 来源与方法质量 | 20 |
+| 证据完整性 | 20 |
+| 分析与反方挑战质量 | 20 |
+| 可行动性 | 15 |
+| 结构与可读性 | 10 |
+
+`>=90` 且没有可通过桌面调研降低的决策性未知时可以定稿。`80-89` 属于有条件通过，必须明确说明为什么继续桌面调研不会改变决策。`<80` 必须围绕最低分维度继续下一轮。
+
+进化器在报告质量评分之前运行。它是轮次级环节，负责把最新综合结论和反方挑战转成 `保留 / 收窄 / 转向 / 放弃`，并产出更锋利的下一轮焦点。质量分是报告级门限，只打在更新后的 `report.md` 上。如果分数不通过，下一轮会同时使用报告最低分维度和进化器焦点作为输入。
 
 首选可选知识库 companion 是 `Astro-Han/karpathy-llm-wiki`。`lewislulu/llm-wiki-skill`、本地 `llm-wiki` 和 `pin-llm-wiki` 仍可作为更适合当前环境时的后备方案。如果项目没有初始化知识库后端，Super Survey 会在 `index.md` 里记录 Markdown-only 索引状态。
 
@@ -128,9 +144,10 @@ flowchart TD
     E --> F[反方挑战<br/>风险、替代方案、放弃条件]
     F --> G[综合结论<br/>置信度和决策依据]
     G --> H[进化器<br/>保留 / 收窄 / 转向 / 放弃]
-    H --> I[index.md<br/>来源、决策、wiki 状态]
-    H -->|继续 Round 2+<br/>无默认上限| C
-    H -->|停止| J[report.md<br/>完整最终报告]
+    H --> Q[报告质量评分<br/>100 分质量门]
+    Q --> I[index.md<br/>来源、决策、wiki 状态]
+    Q -->|分数未过门限<br/>或弱项仍可补强| C
+    Q -->|通过门限<br/>无决策性未知| J[report.md<br/>完整最终报告]
     J --> K[最终回答<br/>决策导向摘要]
 ```
 

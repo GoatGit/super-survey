@@ -66,9 +66,10 @@ Create and validate a round:
 ```bash
 python3 scripts/survey_round.py round surveys/2026-06-13-ai-recruiting-agent 1
 python3 scripts/survey_round.py check surveys/2026-06-13-ai-recruiting-agent
+python3 scripts/survey_round.py upgrade-report surveys/2026-06-13-ai-recruiting-agent
 ```
 
-`check` fails when required files are missing, headings are missing, any required section is empty, or artifacts still look like templates. Round numbers must be positive integers.
+`check` fails when required files are missing, headings are missing, any required section is empty, artifacts still look like templates, or the v2 report lacks a parseable quality score. Round numbers must be positive integers. Older six-section reports are accepted with a warning; run `upgrade-report` to append the full report schema and then fill the new sections.
 
 ## skills.sh Readiness
 
@@ -98,9 +99,24 @@ A complete round must include:
 - red-team critique with substitutes, alternative explanations, and kill criteria checked
 - synthesis with confidence, decision rationale, and unknowns
 - lightweight evolver output with `Keep / Narrow / Pivot / Kill`
-- explicit continue/stop decision; there is no implicit two-round cap
+- explicit continue/stop decision driven by report quality, not a fixed round count
 - updated `index.md` with wiki or graph indexing status
-- standalone `report.md` as the complete final report
+- standalone `report.md` as the complete final report, including scope, methodology/source quality, evidence, analysis, red-team critique, options/scenarios, recommendation, action plan, open questions, report quality score, limitations, and source notes
+
+`report.md` uses a 100-point quality gate:
+
+| Dimension | Points |
+|---|---:|
+| Problem and scope definition | 15 |
+| Source and method quality | 20 |
+| Evidence completeness | 20 |
+| Analysis and red-team quality | 20 |
+| Actionability | 15 |
+| Structure and readability | 10 |
+
+`>=90` can finalize when no decision-changing desk-research unknown remains. `80-89` is conditional and must explicitly explain why no further desk research would change the decision. `<80` must continue another round focused on the lowest-scoring dimensions.
+
+The evolver runs before the report quality score. It is a round-level step that converts the latest synthesis and red-team critique into `Keep / Narrow / Pivot / Kill` plus a sharper next-round focus. The quality score is a report-level gate applied to the updated `report.md`. If the score fails, the next round uses the report's lowest-scoring dimensions and the evolver's focus as input.
 
 The preferred optional wiki companion is `Astro-Han/karpathy-llm-wiki`. `lewislulu/llm-wiki-skill`, local `llm-wiki`, and `pin-llm-wiki` remain useful fallbacks when they better match the environment. If no initialized wiki backend exists, Super Survey records Markdown-only indexing status in `index.md`.
 
@@ -128,9 +144,10 @@ flowchart TD
     E --> F[Red-team critique<br/>risks, substitutes, kill criteria]
     F --> G[Synthesis<br/>confidence and rationale]
     G --> H[Evolver<br/>Keep / Narrow / Pivot / Kill]
-    H --> I[index.md<br/>sources, decisions, wiki status]
-    H -->|Continue Round 2+<br/>no implicit cap| C
-    H -->|Stop| J[report.md<br/>complete final report]
+    H --> Q[Report quality score<br/>100-point gate]
+    Q --> I[index.md<br/>sources, decisions, wiki status]
+    Q -->|Score below threshold<br/>or weak dimensions remain| C
+    Q -->|Pass threshold<br/>no decision-changing unknowns| J[report.md<br/>complete final report]
     J --> K[Final answer<br/>decision-oriented summary]
 ```
 
