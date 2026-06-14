@@ -23,18 +23,19 @@ Every survey round must:
 7. Check explicit kill criteria before recommending another round.
 8. Synthesize a clearer conclusion with confidence level, decision rationale, and remaining unknowns.
 9. Run the lightweight evolver to sharpen or kill the next-round target.
-10. Decide whether to continue using the report quality score and continuation rules; never stop because a fixed round count was reached.
+10. Decide whether to continue using the latest evolver decision; use final report quality only after the stop gate moves to `report.md`.
 11. Maintain the lightweight evidence registry: `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`.
 12. Validate citations and claim support with `survey_round.py validate-evidence` or the integrated `check` command.
 13. Update an index and attempt wiki/graph indexing, or record why it was unavailable.
-14. Write or update the final `report.md` before giving a final answer.
-15. Write the round artifacts to disk before giving a final answer.
+14. Use `index.md` as the per-round workbench and decision ledger.
+15. Write `report.md` only after the stop gate passes and before giving a final answer.
+16. Write the round artifacts to disk before giving a final answer.
 
 Do not stop after collecting links. The value of this skill is sharper judgment after each loop.
 
 Empty templates are not artifacts. A round is incomplete until each file contains substantive findings, critique, synthesis, and evolved next-target content.
 
-`index.md` is a navigation and decision log. It is not the final report. The final complete deliverable must be a full `report.md`, written in the selected artifact language and updated before the user-facing answer. Do not treat `report.md` as a short chat summary.
+`index.md` is the per-round workbench, navigation page, and decision log. It is not the final report. During continuing rounds, update `index.md` instead of drafting `report.md`. The final complete deliverable must be a full `report.md`, written in the selected artifact language, only after the stop gate passes and before the user-facing answer. Do not treat `report.md` as a short chat summary.
 
 ## Workflow
 
@@ -134,6 +135,7 @@ python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent" --languag
 python3 <skill-dir>/scripts/survey_round.py round surveys/2026-06-12-ai-recruiting-agent 1
 python3 <skill-dir>/scripts/survey_round.py validate-evidence surveys/2026-06-12-ai-recruiting-agent
 python3 <skill-dir>/scripts/survey_round.py check surveys/2026-06-12-ai-recruiting-agent
+python3 <skill-dir>/scripts/survey_round.py check-final surveys/2026-06-12-ai-recruiting-agent
 python3 <skill-dir>/scripts/survey_round.py upgrade-report surveys/2026-06-12-ai-recruiting-agent
 ```
 
@@ -162,9 +164,9 @@ Write `00-brief.md` with:
 - Initial assumptions
 - Planned research rounds or continuation policy
 
-Do not plan around a fixed default such as two or three rounds. If the user does not specify a fixed round count, write the plan as a quality-driven continuation policy: start with the first round, score the report, then continue while the score is below threshold or decision-changing unknowns remain reducible through desk research or available tools.
+Do not plan around a fixed default such as two or three rounds. If the user does not specify a fixed round count, write the plan as a quality-driven continuation policy: start with the first round, update `index.md`, then continue while the latest evolver decision is `Keep`, `Narrow`, or `Pivot`. When the evolver says `Kill`, write the final `report.md`, score it, and run `check-final`.
 
-If the user only wants a quick answer, use `--mode quick` and keep the full artifact set lightweight. A quick survey still needs `00-brief.md`, `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, `NN-evolver.md`, `index.md`, registry JSONL files, and `report.md`; the sections can be concise, but validation should not bypass red-team critique or the evolver.
+If the user only wants a quick answer, use `--mode quick` and keep the full artifact set lightweight. A quick survey still needs `00-brief.md`, `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, `NN-evolver.md`, `index.md`, and registry JSONL files. It needs `report.md` only at final delivery. The sections can be concise, but validation should not bypass red-team critique or the evolver.
 
 Create these registry files during initialization:
 
@@ -193,7 +195,6 @@ NN-redteam.md
 NN-synthesis.md
 NN-evolver.md
 index.md
-report.md
 ```
 
 `NN-research.md` should contain:
@@ -231,7 +232,9 @@ report.md
 - Best next question
 - Recommended next action
 
-`report.md` should be a complete, standalone report that a user can read smoothly without opening every round artifact. It is not an audit checklist. Put the human-readable argument first and move dense evidence, source, method, red-team, scenario, and scoring material into appendices.
+Do not write or update `report.md` while the latest evolver decision is `Keep`, `Narrow`, or `Pivot`. Use `index.md` for the current thesis, round summaries, continuation status, next research target, and why the survey is not final yet.
+
+When the stop gate is ready, `report.md` should be a complete, standalone report that a user can read smoothly without opening every round artifact. It is not an audit checklist. Put the human-readable argument first and move dense evidence, source, method, red-team, scenario, and scoring material into appendices.
 
 Prose-first rule: before the first evidence appendix, `report.md` should read as narrative prose with short lists where helpful. Do not place Markdown evidence tables, source inventories, claim registers, or audit checklists in the body. Tables belong in appendices or the JSONL registry.
 
@@ -257,7 +260,7 @@ Appendices should contain:
 
 For non-trivial surveys, `report.md` must be longer and more complete than `NN-synthesis.md`, but length alone is not quality. It should read like a coherent memo with supporting appendices, not a pile of evidence tables. A report that only contains a few bullets is incomplete; a report that opens with long source tables before explaining the judgment is also incomplete.
 
-New surveys use report schema v2. Legacy reports with the older six-section structure remain readable and may pass `check` with warnings, but should be upgraded with `survey_round.py upgrade-report <survey-dir>` and then expanded before final delivery. `upgrade-report` appends missing v2 sections and updates metadata; it does not write the report for you.
+New surveys use report schema v2. Legacy reports with the older six-section structure remain readable and may pass `check-final` with warnings, but should be upgraded with `survey_round.py upgrade-report <survey-dir>` and then expanded before final delivery. `upgrade-report` appends missing v2 sections and updates metadata; it does not write the report for you.
 
 ### 2.5 Research Lens
 
@@ -312,7 +315,11 @@ External autoresearch tools are optional. If available, prefer adversarial plann
 Always maintain `index.md` with:
 
 - Current thesis
-- Round summaries
+- Current best conclusion
+- Round ledger
+- Continuation status
+- Next research target
+- Why the survey is not final yet
 - Open questions
 - Source inventory
 - Wiki / Graph Index Status
@@ -323,7 +330,7 @@ After each round, wiki persistence is a required attempt, not a nice-to-have. Do
 1. **Load and use a Karpathy-style LLM Wiki skill when available.**
    - If `karpathy-llm-wiki` is installed, read its `SKILL.md` and follow its ingest workflow.
    - If the environment has an `Astro-Han/karpathy-llm-wiki` checkout or equivalent raw/wiki structure, use that workflow.
-   - Persist at least: survey topic, latest thesis, final recommendation, high-value source URLs, and links to `report.md` / key round files.
+   - Persist at least: survey topic, latest thesis, current best conclusion, continuation status, high-value source URLs, and links to `index.md` / key round files. Add `report.md` only after it exists.
 2. **Fallback: local `llm-wiki`.**
    - If local `llm-wiki` is installed, read its `SKILL.md`.
    - If `~/llm-wiki/wiki/index.md` is missing, follow that skill's auto-init behavior when applicable.
@@ -351,7 +358,7 @@ Never claim a wiki or graph was built unless the ingest/indexing command or file
 
 Super Survey supports arbitrary positive round numbers, but the number itself is not the stopping rule. The helper accepts `round <survey-dir> 3`, `round <survey-dir> 4`, and later rounds when the report quality gate says another pass is needed.
 
-Score `report.md` on a 100-point rubric before finalizing:
+Score the final `report.md` on a 100-point rubric before finalizing. Before `report.md` exists, record provisional quality notes in `NN-evolver.md` and `index.md`; do not let those notes masquerade as a final report score.
 
 | Dimension | Points | What Good Looks Like |
 |---|---:|---|
@@ -368,7 +375,7 @@ Machine continuation gate:
 
 - Stop only when both raw gates pass: `report.md` score is at or above the selected mode threshold, and the latest `NN-evolver.md` decision is `Kill`.
 - `Keep`, `Narrow`, or `Pivot` always require another round. Do not use `report.md` explanations such as "future disclosure", "external validation", or "no decision-changing unknowns" to override the evolver's raw decision.
-- `Kill` means the current thesis can stop when the report score also passes. The report should still explain the kill rationale for readers, but `check` does not parse that prose as a stopping signal.
+- `Kill` means the research loop can move to final report writing. The survey stops only after `report.md` exists, its score passes, and `check-final` passes. The report should still explain the kill rationale for readers, but the helper does not parse that prose as a stopping signal.
 
 Report score thresholds:
 
@@ -384,21 +391,21 @@ Continue another round when:
 - A next-round question could materially change the decision.
 - The latest synthesis lists remaining unknowns that can still be reduced by desk research, current-source search, competitor checks, policy review, source triangulation, or repository analysis.
 - The evolver says `Keep`, `Narrow`, or `Pivot`.
-- `report.md` scores below the selected mode's pass threshold and the weak dimensions are improvable by another evidence pass.
+- After final report drafting, `report.md` scores below the selected mode's pass threshold and the weak dimensions are improvable by another evidence pass.
 
 Stop when:
 
 - `Kill + pass`: the latest evolver decision is `Kill` and the report score passes the selected mode threshold.
 - The user asked for a fixed number of rounds.
 
-Do not let report prose decide whether to stop. `report.md` can explain uncertainty, future disclosure needs, and external validation needs for the reader, but `check` relies only on the score threshold and the latest evolver decision.
+Do not let report prose decide whether to stop. `report.md` can explain uncertainty, future disclosure needs, and external validation needs for the reader, but the helper relies only on the latest evolver decision and, for `check-final`, the score threshold.
 
 ### 6. Quality Gate
 
 Before reporting a round as complete:
 
 1. Run `survey_round.py validate-evidence <survey-dir>` to validate source, claim, and evidence registry links.
-2. Run `survey_round.py check <survey-dir>`.
+2. Run `survey_round.py check <survey-dir>` for round artifacts and the latest raw evolver gate.
 3. Fix missing files, missing headings, empty required sections, or empty-template artifacts.
 4. Confirm every required section contains substantive content, not only placeholders such as `Status:`, `Notes:`, `Option A:`, or table headers.
 5. Confirm `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl` meet the selected mode's minimum coverage and have no orphan links.
@@ -408,17 +415,18 @@ Before reporting a round as complete:
 9. Confirm `NN-synthesis.md` states decision rationale, not only a conclusion.
 10. Confirm `NN-evolver.md` has a concrete `Keep / Narrow / Pivot / Kill` decision.
 11. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
-12. Confirm `index.md` reflects the latest thesis, open questions, source inventory, wiki/graph status, and decision log.
-13. Confirm `report.md` is complete, standalone, updated with the latest synthesis, and reads as a coherent report: executive summary, reader's path, main narrative, decision logic, final recommendation, change triggers, next actions, limits, then appendices for evidence, method/source quality, red-team notes, scenarios, quality score, and source notes.
-14. Confirm the `Report Quality Score` section includes total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
-15. Confirm the report body obeys prose-first rules and does not put evidence tables before the first appendix.
-16. If score is below the selected mode's threshold, create another round focused on the weakest dimensions.
-17. If the evolver says `Keep`, `Narrow`, or `Pivot`, create another round.
-18. If the evolver says `Kill`, stop only when the report score also passes the selected mode threshold.
-19. Stop only when both gates pass: the mode/report score gate and the raw evolver decision gate.
-20. If `check` reports a legacy report warning, run `upgrade-report` and fill the appended sections before presenting the report as final.
-21. Treat companion routing notes as auditable: the artifact must say which tool was used, what failed if fallback happened, and where the result was recorded.
-22. Confirm wiki persistence was attempted and `index.md` records `Wiki Tool Attempted`, `Wiki Ingest Result`, `Wiki Fallback Reason`, and `Wiki Artifact Path`.
+12. Confirm `index.md` reflects the latest thesis, current best conclusion, round ledger, continuation status, next research target, why it is not final yet, open questions, source inventory, wiki/graph status, and decision log.
+13. If the evolver says `Keep`, `Narrow`, or `Pivot`, update `index.md`, create the next round, and do not write `report.md` yet.
+14. If the evolver says `Kill`, write `report.md` as the final standalone report.
+15. Confirm `report.md` is complete, standalone, updated with the latest synthesis, and reads as a coherent report: executive summary, reader's path, main narrative, decision logic, final recommendation, change triggers, next actions, limits, then appendices for evidence, method/source quality, red-team notes, scenarios, quality score, and source notes.
+16. Confirm the `Report Quality Score` section includes total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
+17. Confirm the report body obeys prose-first rules and does not put evidence tables before the first appendix.
+18. Run `survey_round.py check-final <survey-dir>` before presenting the survey as final.
+19. If score is below the selected mode's threshold, create another round focused on the weakest dimensions and remove or revise premature final-report claims.
+20. Stop only when both gates pass: the mode/report score gate and the raw evolver decision gate.
+21. If `check-final` reports a legacy report warning, run `upgrade-report` and fill the appended sections before presenting the report as final.
+22. Treat companion routing notes as auditable: the artifact must say which tool was used, what failed if fallback happened, and where the result was recorded.
+23. Confirm wiki persistence was attempted and `index.md` records `Wiki Tool Attempted`, `Wiki Ingest Result`, `Wiki Fallback Reason`, and `Wiki Artifact Path`.
 
 If the check fails, say the round is still in progress; do not present it as finished.
 

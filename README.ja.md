@@ -29,7 +29,7 @@ surveys/YYYY-MM-DD-topic-slug/
 ├── claims.jsonl
 ├── evidence.jsonl
 ├── index.md
-├── report.md
+├── report.md              # final-only; 停止ゲート通過後に作成
 └── .super-survey.json
 ```
 
@@ -71,10 +71,11 @@ python3 scripts/survey_round.py init "formal market report" --mode deep
 python3 scripts/survey_round.py round surveys/2026-06-13-ai採用エージェント 1
 python3 scripts/survey_round.py validate-evidence surveys/2026-06-13-ai採用エージェント
 python3 scripts/survey_round.py check surveys/2026-06-13-ai採用エージェント
+python3 scripts/survey_round.py check-final surveys/2026-06-13-ai採用エージェント
 python3 scripts/survey_round.py upgrade-report surveys/2026-06-13-ai採用エージェント
 ```
 
-`check` は、必要ファイルの欠落、見出しの欠落、必須セクションの空欄、空テンプレートのままの成果物、証拠レジストリのリンク不備、prose-first ルール違反、または v2 レポートに解析可能な品質スコアがない場合に失敗します。`validate-evidence` は `sources.jsonl`、`claims.jsonl`、`evidence.jsonl` を直接検証します。ラウンド番号は正の整数である必要があります。古い 6 セクションのレポートは warning 付きで互換扱いになります。`upgrade-report` を実行すると完全な report schema が追加されるため、新しいセクションを埋めてください。
+`check` はラウンド成果物、`index.md`、証拠レジストリ、companion routing 記録、最新エボルバーの生判断を検証します。`report.md` は要求しません。`check-final` は同じラウンド成果物に加えて、最終 `report.md`、prose-first ルール、モード別品質スコアを検証します。`validate-evidence` は `sources.jsonl`、`claims.jsonl`、`evidence.jsonl` を直接検証します。ラウンド番号は正の整数である必要があります。古い 6 セクションのレポートは `check-final` で warning 付き互換扱いになります。`upgrade-report` を実行すると完全な report schema が追加されるため、新しいセクションを埋めてください。
 
 ## モードと証拠レジストリ
 
@@ -122,11 +123,11 @@ npx skills add GoatGit/super-survey --list
 - 代替手段、代替説明、確認済みの中止条件を含むレッドチーム批判
 - 信頼度、判断根拠、未解決事項を含む統合結論
 - `維持 / 絞り込み / ピボット / 中止` を明示した軽量エボルバー出力
-- 明示的な継続/停止判断。ただし固定ラウンド数ではなくレポート品質スコアで判断する
-- wiki または graph インデックス状態を記録した更新済み `index.md`
-- 完全な最終レポートとして独立した `report.md`。読みやすい本文を先に置き、証拠、情報源、方法、レッドチーム、シナリオなどの監査材料は付録に置く
+- 明示的な継続/停止判断。ただし固定ラウンド数ではなく最新エボルバー判断と最終レポート品質で判断する
+- ラウンドごとの作業台として更新された `index.md`: 現在の仮説、現在の最良結論、ラウンド台帳、継続状態、次回調査目標、まだ最終化しない理由、情報源、wiki 状態、意思決定ログ
+- 停止ゲート通過後にだけ作成する独立した `report.md`: 読みやすい本文を先に置き、証拠、情報源、方法、レッドチーム、シナリオなどの監査材料は付録に置く
 
-`report.md` は 100 点の品質ゲートを使います:
+最終 `report.md` は 100 点の品質ゲートを使います:
 
 | 観点 | 点数 |
 |---|---:|
@@ -137,11 +138,11 @@ npx skills add GoatGit/super-survey --list
 | 実行可能性 | 15 |
 | 構成と読みやすさ | 10 |
 
-モードしきい値はハードゲートです。`quick >=80`、`standard >=90`、`deep >=95`。レポートが選択モードのしきい値を下回る場合、最低スコア領域に焦点を当てて次のラウンドを続けます。
+モードしきい値はハードゲートです。`quick >=80`、`standard >=90`、`deep >=95`。最終レポートが選択モードのしきい値を下回る場合、最低スコア領域に焦点を当てて次のラウンドを続けます。
 
 最終レポートは監査表ではなく、人が読み通せる判断メモとして書きます。本文では結論、読み方、主要な物語、判断ロジック、最終推奨、結論を変える条件、次の行動、レポートの範囲を先に示します。証拠レジスター、情報源品質、レッドチームメモ、シナリオ、品質スコア、情報源一覧は付録に置き、厳密さと読みやすさを両立させます。
 
-エボルバーはレポート品質スコアの前に実行します。これはラウンド単位のゲートで、最新の統合結論とレッドチーム批判を `維持 / 絞り込み / ピボット / 中止` と、より鋭い次回ラウンドの焦点に変換します。調査を停止できるのは両方の生データゲートを通過した場合だけです。つまり、レポートが選択モードのしきい値を満たし、最新のエボルバー判断が `中止` である必要があります。エボルバーが `維持`、`絞り込み`、または `ピボット` の場合は次のラウンドを続けます。`check` は `report.md` の「将来の開示」や「外部検証」といった説明文でエボルバーの生の判断を上書きしません。
+エボルバーは最終レポート作成の前に実行します。これはラウンド単位のゲートで、最新の統合結論とレッドチーム批判を `維持 / 絞り込み / ピボット / 中止` と、より鋭い次回ラウンドの焦点に変換します。エボルバーが `維持`、`絞り込み`、または `ピボット` の場合は次のラウンドを続け、`index.md` を更新し、まだ `report.md` を書きません。エボルバーが `中止` の場合に最終レポートを書き、採点し、`check-final` を実行します。調査を停止できるのは両方の生データゲートを通過した場合だけです。つまり、最終レポートが選択モードのしきい値を満たし、最新のエボルバー判断が `中止` である必要があります。ヘルパーは `report.md` の「将来の開示」や「外部検証」といった説明文でエボルバーの生の判断を上書きしません。
 
 完了した各調査ラウンドでは wiki への永続化を必ず試みます。優先は `karpathy-llm-wiki` / `Astro-Han/karpathy-llm-wiki`、次にローカル `llm-wiki`、プロジェクト設定がある場合は `pin-llm-wiki`、その後に他の indexer、最後に Markdown-only の `index.md` です。`index.md` には `Wiki Tool Attempted`、`Wiki Ingest Result`、`Wiki Fallback Reason`、`Wiki Artifact Path` を記録します。
 
@@ -171,11 +172,13 @@ flowchart TD
     E --> F[レッドチーム批判<br/>リスク、代替手段、中止条件]
     F --> G[統合結論<br/>信頼度と判断根拠]
     G --> H[エボルバー<br/>維持 / 絞り込み / ピボット / 中止]
-    H --> Q[レポート品質スコア<br/>100点ゲート]
-    Q --> I[index.md<br/>情報源、判断、wiki 状態]
-    Q -->|基準未満<br/>または弱点が残る| C
-    Q -->|基準合格<br/>意思決定上の不明点なし| J[report.md<br/>完全な最終レポート]
-    J --> K[最終回答<br/>判断志向の要約]
+    H --> Q{エボルバー判断}
+    Q -->|維持 / 絞り込み / ピボット| I[index.md<br/>作業台: 次回目標と未最終化理由]
+    I --> C
+    Q -->|中止| J[report.md を作成<br/>完全な最終レポート]
+    J --> R[check-final<br/>スコアと prose-first ゲート]
+    R -->|基準未満| I
+    R -->|基準合格| K[最終回答<br/>判断志向の要約]
 ```
 
 ## インスピレーション: Karpathy の autoresearch

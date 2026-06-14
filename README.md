@@ -29,7 +29,7 @@ surveys/YYYY-MM-DD-topic-slug/
 ├── claims.jsonl
 ├── evidence.jsonl
 ├── index.md
-├── report.md
+├── report.md              # final-only; created after the stop gate passes
 └── .super-survey.json
 ```
 
@@ -71,10 +71,11 @@ Create and validate a round:
 python3 scripts/survey_round.py round surveys/2026-06-13-ai-recruiting-agent 1
 python3 scripts/survey_round.py validate-evidence surveys/2026-06-13-ai-recruiting-agent
 python3 scripts/survey_round.py check surveys/2026-06-13-ai-recruiting-agent
+python3 scripts/survey_round.py check-final surveys/2026-06-13-ai-recruiting-agent
 python3 scripts/survey_round.py upgrade-report surveys/2026-06-13-ai-recruiting-agent
 ```
 
-`check` fails when required files are missing, headings are missing, any required section is empty, artifacts still look like templates, evidence registry links are invalid, prose-first report rules are violated, or the v2 report lacks a parseable quality score. `validate-evidence` checks `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl` directly. Round numbers must be positive integers. Older six-section reports are accepted with a warning; run `upgrade-report` to append the full report schema and then fill the new sections.
+`check` validates round artifacts, `index.md`, the evidence registry, companion-routing notes, and the latest raw evolver decision. It does not require `report.md`. `check-final` validates the same round artifacts plus final `report.md`, prose-first report rules, and the mode-specific quality score. `validate-evidence` checks `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl` directly. Round numbers must be positive integers. Older six-section reports are accepted by `check-final` with a warning; run `upgrade-report` to append the full report schema and then fill the new sections.
 
 ## Modes And Evidence Registry
 
@@ -122,11 +123,11 @@ A complete round must include:
 - red-team critique with substitutes, alternative explanations, and kill criteria checked
 - synthesis with confidence, decision rationale, and unknowns
 - lightweight evolver output with `Keep / Narrow / Pivot / Kill`
-- explicit continue/stop decision driven by report quality, not a fixed round count
-- updated `index.md` with wiki or graph indexing status
-- standalone `report.md` as the complete final report: readable narrative first, appendices for evidence/source/method/red-team/scenario details second
+- explicit continue/stop decision driven by the latest evolver decision and final report quality, not a fixed round count
+- updated `index.md` as the per-round workbench: current thesis, best conclusion, round ledger, continuation status, next target, why not final yet, sources, wiki status, and decision log
+- standalone `report.md` only after the stop gate passes: readable narrative first, appendices for evidence/source/method/red-team/scenario details second
 
-`report.md` uses a 100-point quality gate:
+Final `report.md` uses a 100-point quality gate:
 
 | Dimension | Points |
 |---|---:|
@@ -137,11 +138,11 @@ A complete round must include:
 | Actionability | 15 |
 | Structure and readability | 10 |
 
-Mode thresholds are hard gates: `quick >=80`, `standard >=90`, and `deep >=95`. A report below the selected threshold must continue another round focused on the weakest dimensions.
+Mode thresholds are hard gates: `quick >=80`, `standard >=90`, and `deep >=95`. A final report below the selected threshold must continue another round focused on the weakest dimensions.
 
 The final report should read like a human memo, not an audit table. Start with the answer, reader's path, main narrative, decision logic, recommendation, change triggers, next actions, and limits. Put evidence registers, source quality, red-team notes, scenarios, quality score, and source inventory in appendices so rigor is preserved without breaking readability.
 
-The evolver runs before the report quality score. It is a round-level gate that converts the latest synthesis and red-team critique into `Keep / Narrow / Pivot / Kill` plus a sharper next-round focus. A survey may stop only when both raw gates pass: the report meets the selected mode threshold, and the latest evolver decision is `Kill`. If the evolver says `Keep`, `Narrow`, or `Pivot`, continue another round. `check` does not use `report.md` prose such as "future disclosure" or "external validation" to override the raw evolver decision.
+The evolver runs before final report writing. It is a round-level gate that converts the latest synthesis and red-team critique into `Keep / Narrow / Pivot / Kill` plus a sharper next-round focus. If the evolver says `Keep`, `Narrow`, or `Pivot`, continue another round and update `index.md`; do not draft `report.md` yet. If the evolver says `Kill`, write the final report, score it, and run `check-final`. A survey may stop only when both raw gates pass: the final report meets the selected mode threshold, and the latest evolver decision is `Kill`. The helper does not use `report.md` prose such as "future disclosure" or "external validation" to override the raw evolver decision.
 
 Wiki persistence is a required attempt for every completed survey round. Prefer `karpathy-llm-wiki` / `Astro-Han/karpathy-llm-wiki`; fall back to local `llm-wiki`, then `pin-llm-wiki` when project config exists, then another indexer, then Markdown-only `index.md`. `index.md` must record `Wiki Tool Attempted`, `Wiki Ingest Result`, `Wiki Fallback Reason`, and `Wiki Artifact Path`.
 
@@ -171,11 +172,13 @@ flowchart TD
     E --> F[Red-team critique<br/>risks, substitutes, kill criteria]
     F --> G[Synthesis<br/>confidence and rationale]
     G --> H[Evolver<br/>Keep / Narrow / Pivot / Kill]
-    H --> Q[Report quality score<br/>100-point gate]
-    Q --> I[index.md<br/>sources, decisions, wiki status]
-    Q -->|Score below threshold<br/>or weak dimensions remain| C
-    Q -->|Pass threshold<br/>no decision-changing unknowns| J[report.md<br/>complete final report]
-    J --> K[Final answer<br/>decision-oriented summary]
+    H --> Q{Evolver decision}
+    Q -->|Keep / Narrow / Pivot| I[index.md<br/>workbench: next target and why not final]
+    I --> C
+    Q -->|Kill| J[Write report.md<br/>complete final report]
+    J --> R[check-final<br/>score and prose-first gate]
+    R -->|Score below threshold| I
+    R -->|Score passes| K[Final answer<br/>decision-oriented summary]
 ```
 
 ## Inspiration: Karpathy's autoresearch

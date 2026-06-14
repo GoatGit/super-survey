@@ -78,7 +78,11 @@ LABELS = {
         ],
         "index_headings": [
             "Current Thesis",
-            "Round Summaries",
+            "Current Best Conclusion",
+            "Round Ledger",
+            "Continuation Status",
+            "Next Research Target",
+            "Why Not Final Yet",
             "Open Questions",
             "Source Inventory",
             "Wiki / Graph Index Status",
@@ -232,7 +236,11 @@ LABELS = {
         ],
         "index_headings": [
             "当前论点",
-            "轮次摘要",
+            "当前最佳结论",
+            "轮次台账",
+            "继续状态",
+            "下一轮调研目标",
+            "为何尚未最终成稿",
             "开放问题",
             "来源清单",
             "Wiki / Graph 索引状态",
@@ -370,7 +378,11 @@ LABELS = {
         ],
         "index_headings": [
             "現在の仮説",
-            "ラウンド要約",
+            "現在の最良結論",
+            "ラウンド台帳",
+            "継続状態",
+            "次回調査目標",
+            "まだ最終化しない理由",
             "未解決の問い",
             "情報源一覧",
             "Wiki / Graph インデックス状態",
@@ -871,40 +883,44 @@ def init_survey(args: argparse.Namespace) -> None:
 
 ## {headings[0]}
 
-- 
+-
 
 ## {headings[1]}
 
-- 
+-
 
 ## {headings[2]}
 
-- 
+-
 
 ## {headings[3]}
 
-- 
-- Registry: sources.jsonl, claims.jsonl, evidence.jsonl
+-
 
 ## {headings[4]}
 
-{wiki_status_notes}
+-
 
 ## {headings[5]}
 
-- 
-""",
-    )
-    headings = label["report_headings"]
-    report_template_sections = "\n\n".join(
-        f"## {heading}\n\n- {note}"
-        for heading, note in zip(label["report_headings"], label["report_template_notes"], strict=True)
-    )
-    write_once(
-        survey_dir / "report.md",
-        f"""# {args.topic}
+-
 
-{report_template_sections}
+## {headings[6]}
+
+-
+
+## {headings[7]}
+
+-
+- Registry: sources.jsonl, claims.jsonl, evidence.jsonl
+
+## {headings[8]}
+
+{wiki_status_notes}
+
+## {headings[9]}
+
+-
 """,
     )
     print(survey_dir)
@@ -1162,7 +1178,7 @@ def check_wiki_status_notes(
     if not index_path.exists():
         return
     text = index_path.read_text(encoding="utf-8")
-    body = section_body(text, str(label["index_headings"][4]))
+    body = section_body(text, str(label["index_headings"][-2]))
     if body is None:
         return
     expected_notes = [str(note).split(":")[0] for note in label["wiki_status_notes"][:2]]
@@ -1195,10 +1211,9 @@ def parse_evolver_decision(path: Path, label: dict[str, object]) -> str | None:
 def validate_evolver_gate(
     errors: list[str],
     evolver_path: Path,
-    report_path: Path,
     label: dict[str, object],
 ) -> None:
-    if not evolver_path.exists() or not report_path.exists():
+    if not evolver_path.exists():
         return
     decision = parse_evolver_decision(evolver_path, label)
     if decision is None:
@@ -1338,7 +1353,7 @@ def create_registry_files(survey_dir: Path) -> None:
         write_once(survey_dir / filename, "")
 
 
-def check_survey(args: argparse.Namespace) -> None:
+def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
     survey_dir = Path(args.survey_dir).expanduser().resolve()
     errors: list[str] = []
     warnings: list[str] = []
@@ -1357,9 +1372,10 @@ def check_survey(args: argparse.Namespace) -> None:
     index_path = survey_dir / "index.md"
     check_required_file(errors, index_path, list(label["index_headings"]), language)
     check_wiki_status_notes(errors, warnings, index_path, label, schema_version)
-    report_path = survey_dir / "report.md"
-    check_required_file(errors, report_path, required_report_headings(label, schema_version), language)
-    validate_report_quality(errors, warnings, report_path, label, language, schema_version, mode)
+    if final:
+        report_path = survey_dir / "report.md"
+        check_required_file(errors, report_path, required_report_headings(label, schema_version), language)
+        validate_report_quality(errors, warnings, report_path, label, language, schema_version, mode)
     if schema_version >= REPORT_SCHEMA_VERSION:
         errors.extend(validate_evidence_registry(survey_dir, mode))
     elif not metadata_path(survey_dir).exists():
@@ -1379,11 +1395,13 @@ def check_survey(args: argparse.Namespace) -> None:
         check_required_file(errors, survey_dir / f"{prefix}-synthesis.md", list(label["synthesis_headings"]), language)
         evolver_path = survey_dir / f"{prefix}-evolver.md"
         check_required_file(errors, evolver_path, required_evolver_headings(label, schema_version), language)
-        if schema_version >= REPORT_SCHEMA_VERSION:
-            validate_evolver_gate(errors, evolver_path, report_path, label)
+    if schema_version >= REPORT_SCHEMA_VERSION and rounds:
+        latest_evolver_path = survey_dir / f"{rounds[-1]:02d}-evolver.md"
+        validate_evolver_gate(errors, latest_evolver_path, label)
 
     if errors:
-        print("Super Survey check failed:")
+        label_text = "final check" if final else "check"
+        print(f"Super Survey {label_text} failed:")
         if warnings:
             for warning in warnings:
                 print(f"- {warning}")
@@ -1396,7 +1414,12 @@ def check_survey(args: argparse.Namespace) -> None:
         for warning in warnings:
             print(f"- {warning}")
 
-    print(f"Super Survey check passed: {survey_dir} ({language}, {mode})")
+    label_text = "final check" if final else "check"
+    print(f"Super Survey {label_text} passed: {survey_dir} ({language}, {mode})")
+
+
+def check_final(args: argparse.Namespace) -> None:
+    check_survey(args, final=True)
 
 
 def validate_evidence_command(args: argparse.Namespace) -> None:
@@ -1469,6 +1492,12 @@ def main() -> None:
     p_check.add_argument("--language", choices=LANGUAGES)
     p_check.add_argument("--mode", choices=MODES)
     p_check.set_defaults(func=check_survey)
+
+    p_check_final = sub.add_parser("check-final", help="validate final report delivery gate")
+    p_check_final.add_argument("survey_dir")
+    p_check_final.add_argument("--language", choices=LANGUAGES)
+    p_check_final.add_argument("--mode", choices=MODES)
+    p_check_final.set_defaults(func=check_final)
 
     p_validate = sub.add_parser("validate-evidence", help="validate sources, claims, and evidence registry files")
     p_validate.add_argument("survey_dir")

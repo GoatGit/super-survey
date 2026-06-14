@@ -54,7 +54,7 @@ class SurveyRoundCliTest(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("00-brief.md: appears to be only an empty template", result.stdout)
         self.assertIn("01-brainstorm.md: appears to be only an empty template", result.stdout)
-        self.assertIn("report.md: appears to be only an empty template", result.stdout)
+        self.assertNotIn("report.md", result.stdout)
 
     def test_check_rejects_files_with_empty_required_sections(self) -> None:
         survey_dir = self.init_round()
@@ -140,7 +140,7 @@ Evidence is directional, not decisive.
         redteam = (survey_dir / "01-redteam.md").read_text(encoding="utf-8")
         synthesis = (survey_dir / "01-synthesis.md").read_text(encoding="utf-8")
         evolver = (survey_dir / "01-evolver.md").read_text(encoding="utf-8")
-        report = (survey_dir / "report.md").read_text(encoding="utf-8")
+        index = (survey_dir / "index.md").read_text(encoding="utf-8")
 
         self.assertIn("## Research Lens", brief)
         self.assertIn("## Decision Evidence Standard", brief)
@@ -157,20 +157,14 @@ Evidence is directional, not decisive.
         self.assertIn("## Decision Rationale", synthesis)
         self.assertIn("Alternative", evolver)
         self.assertIn("## Report Quality Gate", evolver)
-        self.assertIn("## Executive Summary", report)
-        self.assertIn("## Reader's Path", report)
-        self.assertIn("## Main Narrative", report)
-        self.assertIn("## Decision Logic", report)
-        self.assertIn("## What Could Change This Conclusion", report)
-        self.assertIn("## Next Actions", report)
-        self.assertIn("## Appendix: Evidence Register", report)
-        self.assertIn("## Appendix: Method And Source Quality", report)
-        self.assertLess(report.index("## Main Narrative"), report.index("## Appendix: Evidence Register"))
-        self.assertIn("## Report Quality Score", report)
-        self.assertIn("Score Breakdown", report)
-        self.assertIn("## Final Recommendation", report)
-        self.assertIn("Wiki Tool Attempted", (survey_dir / "index.md").read_text(encoding="utf-8"))
-        self.assertIn("Wiki Ingest Result", (survey_dir / "index.md").read_text(encoding="utf-8"))
+        self.assertFalse((survey_dir / "report.md").exists())
+        self.assertIn("## Current Best Conclusion", index)
+        self.assertIn("## Round Ledger", index)
+        self.assertIn("## Continuation Status", index)
+        self.assertIn("## Next Research Target", index)
+        self.assertIn("## Why Not Final Yet", index)
+        self.assertIn("Wiki Tool Attempted", index)
+        self.assertIn("Wiki Ingest Result", index)
         self.assertIn("Mode:", brief)
         self.assertIn("Minimum Sources:", brief)
         self.assertIn("Target Report Length:", brief)
@@ -218,7 +212,7 @@ Evidence is directional, not decisive.
         survey_dir = self.init_round()
         self._write_substantive_required_files(survey_dir, include_registry=False)
 
-        result = run_cli("check", str(survey_dir))
+        result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("sources.jsonl: expected at least", result.stdout)
@@ -227,7 +221,7 @@ Evidence is directional, not decisive.
         survey_dir = self.init_round(mode="deep")
         self._write_substantive_required_files(survey_dir, report_score=91)
 
-        result = run_cli("check", str(survey_dir))
+        result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("deep mode requires report score >= 95", result.stdout)
@@ -243,7 +237,7 @@ Evidence is directional, not decisive.
         )
         report_path.write_text(report, encoding="utf-8")
 
-        result = run_cli("check", str(survey_dir))
+        result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("prose-first rule violated", result.stdout)
@@ -252,7 +246,7 @@ Evidence is directional, not decisive.
         survey_dir = self.init_round()
         self._write_substantive_required_files(survey_dir, include_wiki_notes=False)
 
-        result = run_cli("check", str(survey_dir))
+        result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("Wiki / Graph Index Status must record wiki tool attempt and ingest result", result.stdout)
@@ -292,7 +286,7 @@ Sources were checked during this round and remain directional.
         )
         self._write_substantive_required_files(survey_dir, include_report=False)
 
-        result = run_cli("check", str(survey_dir))
+        result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("legacy report schema detected", result.stdout)
@@ -377,7 +371,7 @@ Thin.
         )
         self._write_substantive_required_files(survey_dir, include_report=False)
 
-        result = run_cli("check", str(survey_dir))
+        result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("complete report must contain at least", result.stdout)
@@ -393,7 +387,7 @@ Thin.
         )
         (survey_dir / "report.md").write_text(report, encoding="utf-8")
 
-        result = run_cli("check", str(survey_dir))
+        result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("missing heading '## Report Quality Score'", result.stdout)
@@ -402,7 +396,7 @@ Thin.
         survey_dir = self.init_round()
         self._write_substantive_required_files(survey_dir, report_score=74, continuation_decision="Stop.")
 
-        result = run_cli("check", str(survey_dir))
+        result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("standard mode requires report score >= 90", result.stdout)
@@ -417,12 +411,12 @@ Thin.
             evolver_evidence_needed="None.",
         )
 
-        result = run_cli("check", str(survey_dir))
+        result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("standard mode requires report score >= 90", result.stdout)
 
-    def test_report_pass_score_does_not_require_report_stop_explanation(self) -> None:
+    def test_final_report_pass_score_does_not_require_report_stop_explanation(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(
             survey_dir,
@@ -432,7 +426,7 @@ Thin.
             evolver_evidence_needed="None.",
         )
 
-        result = run_cli("check", str(survey_dir))
+        result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
@@ -445,7 +439,7 @@ Thin.
             ),
         )
 
-        result = run_cli("check", str(survey_dir))
+        result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("evolver decision Narrow requires another round", result.stdout)
@@ -461,7 +455,7 @@ Thin.
             evolver_evidence_needed="User interviews and paid trial data.",
         )
 
-        result = run_cli("check", str(survey_dir))
+        result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("evolver decision Narrow requires another round", result.stdout)
@@ -483,7 +477,7 @@ Thin.
             ),
         )
 
-        result = run_cli("check", str(survey_dir))
+        result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("evolver decision Narrow requires another round", result.stdout)
@@ -499,9 +493,36 @@ Thin.
             evolver_evidence_needed="None.",
         )
 
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_check_allows_completed_round_without_final_report(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+
         result = run_cli("check", str(survey_dir))
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_check_final_requires_final_report(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("missing file: report.md", result.stdout)
 
     def test_validate_evidence_rejects_duplicate_claim_ids(self) -> None:
         survey_dir = self.init_round()
@@ -632,9 +653,25 @@ Round 1 checks demand and policy risk.
 
 The thesis is plausible but unproven.
 
-## Round Summaries
+## Current Best Conclusion
+
+Continue one narrowed round before final reporting.
+
+## Round Ledger
 
 Round 1 found demand signals.
+
+## Continuation Status
+
+Continue if the evolver says Narrow, Pivot, or Keep; finalize only after Kill plus passing report quality.
+
+## Next Research Target
+
+Can policy and pricing evidence support a narrower workflow?
+
+## Why Not Final Yet
+
+The latest round still needs either a Kill decision or a final report gate.
 
 ## Open Questions
 

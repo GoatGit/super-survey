@@ -29,7 +29,7 @@ surveys/YYYY-MM-DD-topic-slug/
 ├── claims.jsonl
 ├── evidence.jsonl
 ├── index.md
-├── report.md
+├── report.md              # 仅最终产物；停止门通过后创建
 └── .super-survey.json
 ```
 
@@ -71,10 +71,11 @@ python3 scripts/survey_round.py init "正式市场报告" --mode deep
 python3 scripts/survey_round.py round surveys/2026-06-13-ai-招聘助手 1
 python3 scripts/survey_round.py validate-evidence surveys/2026-06-13-ai-招聘助手
 python3 scripts/survey_round.py check surveys/2026-06-13-ai-招聘助手
+python3 scripts/survey_round.py check-final surveys/2026-06-13-ai-招聘助手
 python3 scripts/survey_round.py upgrade-report surveys/2026-06-13-ai-招聘助手
 ```
 
-`check` 会在缺文件、缺标题、任一必填章节为空、内容仍像空模板、证据登记关系无效、违反正文优先规则，或 v2 报告缺少可解析质量分时失败。`validate-evidence` 会直接检查 `sources.jsonl`、`claims.jsonl` 和 `evidence.jsonl`。轮次必须是正整数。旧的六章节报告会以 warning 形式兼容通过；运行 `upgrade-report` 可追加完整报告 schema，然后需要补全新章节内容。
+`check` 校验轮次产物、`index.md`、证据登记、companion routing 记录和最新进化器原始决策。它不要求 `report.md`。`check-final` 校验同一批轮次产物，并额外校验最终 `report.md`、正文优先规则和对应模式的质量分。`validate-evidence` 会直接检查 `sources.jsonl`、`claims.jsonl` 和 `evidence.jsonl`。轮次必须是正整数。旧的六章节报告会在 `check-final` 中以 warning 形式兼容通过；运行 `upgrade-report` 可追加完整报告 schema，然后需要补全新章节内容。
 
 ## 模式与证据登记
 
@@ -122,11 +123,11 @@ npx skills add GoatGit/super-survey --list
 - 包含替代方案、替代解释和已检查放弃条件的反方挑战
 - 带置信度、决策依据和未知项的综合结论
 - 轻量进化器输出，并明确 `保留 / 收窄 / 转向 / 放弃`
-- 明确继续/停止决策，并由报告质量分驱动，而不是由固定轮数驱动
-- 更新后的 `index.md`，记录 wiki 或 graph 索引状态
-- 独立的 `report.md`，作为完整最终报告：先写可通畅阅读的正文，再把证据/来源/方法/反方/情景等审计材料放到附录
+- 明确继续/停止决策，并由最新进化器决策和最终报告质量驱动，而不是由固定轮数驱动
+- 更新后的 `index.md`，作为每轮工作台：当前论点、当前最佳结论、轮次台账、继续状态、下一轮目标、为何尚未最终成稿、来源、wiki 状态和决策日志
+- 仅在停止门通过后生成独立的 `report.md`：先写可通畅阅读的正文，再把证据/来源/方法/反方/情景等审计材料放到附录
 
-`report.md` 使用 100 分质量门：
+最终 `report.md` 使用 100 分质量门：
 
 | 维度 | 分值 |
 |---|---:|
@@ -137,11 +138,11 @@ npx skills add GoatGit/super-survey --list
 | 可行动性 | 15 |
 | 结构与可读性 | 10 |
 
-模式门限是硬门：`quick >=80`、`standard >=90`、`deep >=95`。报告低于所选模式门限时，必须围绕最低分维度继续下一轮。
+模式门限是硬门：`quick >=80`、`standard >=90`、`deep >=95`。最终报告低于所选模式门限时，必须围绕最低分维度继续下一轮。
 
 最终报告应该像人类写的判断备忘录，而不是审计表。正文先给答案、阅读路径、正文叙事、决策逻辑、最终建议、改变结论的触发条件、下一步行动和报告边界；证据登记表、来源质量、反方挑战、情景分析、质量分和来源清单放在附录里。这样保留严谨性，但不牺牲可读性。
 
-进化器在报告质量评分之前运行。它是轮次级门限，负责把最新综合结论和反方挑战转成 `保留 / 收窄 / 转向 / 放弃`，并产出更锋利的下一轮焦点。调研只有在两个原始门都通过时才可以停止：报告达到所选模式门限，且最新进化器决策是 `放弃`。如果进化器给出 `保留`、`收窄` 或 `转向`，必须继续下一轮。`check` 不使用 `report.md` 里的“未来披露”或“外部验证”等解释性文字来覆盖进化器原始决策。
+进化器在最终报告写作之前运行。它是轮次级门限，负责把最新综合结论和反方挑战转成 `保留 / 收窄 / 转向 / 放弃`，并产出更锋利的下一轮焦点。如果进化器给出 `保留`、`收窄` 或 `转向`，必须继续下一轮并更新 `index.md`，不要先写 `report.md`。如果进化器给出 `放弃`，再写最终报告、评分并运行 `check-final`。调研只有在两个原始门都通过时才可以停止：最终报告达到所选模式门限，且最新进化器决策是 `放弃`。helper 不使用 `report.md` 里的“未来披露”或“外部验证”等解释性文字来覆盖进化器原始决策。
 
 每个完成的调研轮次都必须尝试 wiki 持久化。优先使用 `karpathy-llm-wiki` / `Astro-Han/karpathy-llm-wiki`；其次回退到本地 `llm-wiki`；若项目已有配置再用 `pin-llm-wiki`；再不行用其他 indexer；最后才是 Markdown-only `index.md`。`index.md` 必须记录 `Wiki Tool Attempted`、`Wiki Ingest Result`、`Wiki Fallback Reason` 和 `Wiki Artifact Path`。
 
@@ -171,11 +172,13 @@ flowchart TD
     E --> F[反方挑战<br/>风险、替代方案、放弃条件]
     F --> G[综合结论<br/>置信度和决策依据]
     G --> H[进化器<br/>保留 / 收窄 / 转向 / 放弃]
-    H --> Q[报告质量评分<br/>100 分质量门]
-    Q --> I[index.md<br/>来源、决策、wiki 状态]
-    Q -->|分数未过门限<br/>或弱项仍可补强| C
-    Q -->|通过门限<br/>无决策性未知| J[report.md<br/>完整最终报告]
-    J --> K[最终回答<br/>决策导向摘要]
+    H --> Q{进化器决策}
+    Q -->|保留 / 收窄 / 转向| I[index.md<br/>工作台：下一轮目标和为何未最终成稿]
+    I --> C
+    Q -->|放弃| J[写 report.md<br/>完整最终报告]
+    J --> R[check-final<br/>分数和正文优先门]
+    R -->|分数未过门限| I
+    R -->|分数通过| K[最终回答<br/>决策导向摘要]
 ```
 
 ## 灵感来源：Karpathy 的 autoresearch
