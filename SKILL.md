@@ -164,7 +164,7 @@ Write `00-brief.md` with:
 
 Do not plan around a fixed default such as two or three rounds. If the user does not specify a fixed round count, write the plan as a quality-driven continuation policy: start with the first round, score the report, then continue while the score is below threshold or decision-changing unknowns remain reducible through desk research or available tools.
 
-If the user only wants a quick answer, still create a lightweight `00-brief.md`, one synthesis file, and `report.md`.
+If the user only wants a quick answer, use `--mode quick` and keep the full artifact set lightweight. A quick survey still needs `00-brief.md`, `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, `NN-evolver.md`, `index.md`, registry JSONL files, and `report.md`; the sections can be concise, but validation should not bypass red-team critique or the evolver.
 
 Create these registry files during initialization:
 

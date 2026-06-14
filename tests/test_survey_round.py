@@ -420,6 +420,46 @@ Thin.
         self.assertEqual(result.returncode, 1)
         self.assertIn("score 80-89 must state that no decision-changing unknowns remain", result.stdout)
 
+    def test_report_pass_score_still_requires_no_decision_changing_unknowns(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            report_score=90,
+            continuation_decision="Pass / Continue Decision: stop because the next action is clear.",
+        )
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("passing report must state that no decision-changing unknowns remain", result.stdout)
+
+    def test_validate_evidence_rejects_duplicate_claim_ids(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(survey_dir)
+        (survey_dir / "claims.jsonl").write_text(
+            '{"claim_id":"C1","claim":"Users repeat this workflow.","supporting_evidence_ids":["E1"],"status":"supported"}\n'
+            '{"claim_id":"C1","claim":"Policy risk matters.","supporting_evidence_ids":["E2"],"status":"supported"}\n'
+            '{"claim_id":"C3","claim":"Paid willingness remains plausible but unproven.","supporting_evidence_ids":["E3"],"status":"partial"}\n',
+            encoding="utf-8",
+        )
+
+        result = run_cli("validate-evidence", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("claims.jsonl: duplicate claim_id C1", result.stdout)
+
+    def test_corrupt_metadata_warns_and_does_not_skip_registry_validation(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(survey_dir, include_registry=False)
+        (survey_dir / ".super-survey.json").write_text("{not json", encoding="utf-8")
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("metadata warning", result.stdout)
+        self.assertIn("could not be parsed", result.stdout)
+        self.assertIn("sources.jsonl: expected at least", result.stdout)
+
     def test_check_passes_when_every_required_section_has_substance(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(survey_dir)

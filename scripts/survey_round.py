@@ -548,6 +548,21 @@ def read_metadata(survey_dir: Path) -> dict[str, object]:
     return {}
 
 
+def metadata_warnings(survey_dir: Path) -> list[str]:
+    path = metadata_path(survey_dir)
+    if not path.exists():
+        return ["metadata warning: .super-survey.json is missing; assuming current schema for validation"]
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [f"metadata warning: .super-survey.json could not be parsed ({exc.msg}); assuming current schema for validation"]
+    if not isinstance(data, dict):
+        return ["metadata warning: .super-survey.json must contain a JSON object; assuming current schema for validation"]
+    if "report_schema_version" not in data:
+        return ["metadata warning: .super-survey.json has no report_schema_version; legacy compatibility may apply"]
+    return []
+
+
 def update_metadata(survey_dir: Path, **updates: object) -> None:
     data = read_metadata(survey_dir)
     data.update(updates)
@@ -576,7 +591,15 @@ def read_language(survey_dir: Path, override: str | None = None) -> str:
 
 
 def report_schema_version(survey_dir: Path) -> int:
-    data = read_metadata(survey_dir)
+    path = metadata_path(survey_dir)
+    if not path.exists():
+        return REPORT_SCHEMA_VERSION
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return REPORT_SCHEMA_VERSION
+    if not isinstance(data, dict):
+        return REPORT_SCHEMA_VERSION
     value = data.get("report_schema_version")
     if isinstance(value, int):
         return value
@@ -804,6 +827,10 @@ def validate_report_quality(
     if conditional_score <= score < pass_score and not mentions_no_decision_changing_unknowns(score_body):
         errors.append(
             f"report.md: score {conditional_score}-{pass_score - 1} must state that no decision-changing unknowns remain before stopping"
+        )
+    if score >= pass_score and not mentions_no_decision_changing_unknowns(score_body):
+        errors.append(
+            "report.md: passing report must state that no decision-changing unknowns remain before stopping"
         )
     if mode == "deep" and score < pass_score:
         errors.append(f"report.md: deep mode requires report score >= {pass_score}")
@@ -1277,6 +1304,7 @@ def validate_evidence_registry(survey_dir: Path, mode: str) -> list[str]:
         if isinstance(source_id, str) and source_id and source_id not in source_ids:
             errors.append(f"evidence.jsonl: {row_id} references missing source_id {source_id}")
 
+    claim_ids: set[str] = set()
     for index, claim in enumerate(claims, start=1):
         row_id = str(claim.get("claim_id") or f"row {index}")
         require_fields(
@@ -1286,6 +1314,11 @@ def validate_evidence_registry(survey_dir: Path, mode: str) -> list[str]:
             row_id,
             ("claim_id", "claim", "supporting_evidence_ids", "status"),
         )
+        claim_id = claim.get("claim_id")
+        if isinstance(claim_id, str) and claim_id:
+            if claim_id in claim_ids:
+                errors.append(f"claims.jsonl: duplicate claim_id {claim_id}")
+            claim_ids.add(claim_id)
         supporting_ids = claim.get("supporting_evidence_ids")
         if not isinstance(supporting_ids, list):
             errors.append(f"claims.jsonl: {row_id} supporting_evidence_ids must be a list")
@@ -1320,6 +1353,7 @@ def check_survey(args: argparse.Namespace) -> None:
     mode = read_mode(survey_dir, getattr(args, "mode", None))
     label = labels(language)
     schema_version = report_schema_version(survey_dir)
+    warnings.extend(metadata_warnings(survey_dir))
 
     check_required_file(errors, survey_dir / "00-brief.md", list(label["brief_headings"]), language)
     index_path = survey_dir / "index.md"
@@ -1329,6 +1363,8 @@ def check_survey(args: argparse.Namespace) -> None:
     check_required_file(errors, report_path, required_report_headings(label, schema_version), language)
     validate_report_quality(errors, warnings, report_path, label, language, schema_version, mode)
     if schema_version >= REPORT_SCHEMA_VERSION:
+        errors.extend(validate_evidence_registry(survey_dir, mode))
+    elif not metadata_path(survey_dir).exists():
         errors.extend(validate_evidence_registry(survey_dir, mode))
 
     rounds = detect_rounds(survey_dir)
@@ -1347,6 +1383,9 @@ def check_survey(args: argparse.Namespace) -> None:
 
     if errors:
         print("Super Survey check failed:")
+        if warnings:
+            for warning in warnings:
+                print(f"- {warning}")
         for error in errors:
             print(f"- {error}")
         raise SystemExit(1)
