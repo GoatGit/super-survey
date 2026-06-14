@@ -26,7 +26,7 @@ class SurveyRoundCliTest(unittest.TestCase):
         self.addCleanup(self.temp_dir.cleanup)
         self.root = Path(self.temp_dir.name)
 
-    def init_round(self, language: str = "en") -> Path:
+    def init_round(self, language: str = "en", mode: str = "standard") -> Path:
         result = run_cli(
             "init",
             "AI recruiting agent",
@@ -36,6 +36,8 @@ class SurveyRoundCliTest(unittest.TestCase):
             "2026-06-13",
             "--language",
             language,
+            "--mode",
+            mode,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         survey_dir = Path(result.stdout.strip())
@@ -167,6 +169,93 @@ Evidence is directional, not decisive.
         self.assertIn("## Report Quality Score", report)
         self.assertIn("Score Breakdown", report)
         self.assertIn("## Final Recommendation", report)
+        self.assertIn("Wiki Tool Attempted", (survey_dir / "index.md").read_text(encoding="utf-8"))
+        self.assertIn("Wiki Ingest Result", (survey_dir / "index.md").read_text(encoding="utf-8"))
+        self.assertIn("Mode:", brief)
+        self.assertIn("Minimum Sources:", brief)
+        self.assertIn("Target Report Length:", brief)
+
+    def test_init_creates_evidence_registry_files_and_mode_metadata(self) -> None:
+        survey_dir = self.init_round(mode="deep")
+
+        metadata = (survey_dir / ".super-survey.json").read_text(encoding="utf-8")
+        self.assertIn('"mode": "deep"', metadata)
+        for filename in ("sources.jsonl", "claims.jsonl", "evidence.jsonl"):
+            self.assertTrue((survey_dir / filename).exists(), filename)
+            self.assertEqual((survey_dir / filename).read_text(encoding="utf-8"), "")
+
+    def test_validate_evidence_rejects_missing_registry_entries(self) -> None:
+        survey_dir = self.init_round()
+
+        result = run_cli("validate-evidence", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("sources.jsonl: expected at least", result.stdout)
+        self.assertIn("claims.jsonl: expected at least", result.stdout)
+        self.assertIn("evidence.jsonl: expected at least", result.stdout)
+
+    def test_validate_evidence_rejects_orphan_claim_support(self) -> None:
+        survey_dir = self.init_round()
+        (survey_dir / "sources.jsonl").write_text(
+            '{"source_id":"S1","title":"Example","url":"https://example.com","source_type":"primary","date_checked":"2026-06-13","credibility":"medium"}\n',
+            encoding="utf-8",
+        )
+        (survey_dir / "evidence.jsonl").write_text(
+            '{"evidence_id":"E1","source_id":"S1","quote_or_summary":"Users repeat this workflow.","locator":"page","confidence":"medium"}\n',
+            encoding="utf-8",
+        )
+        (survey_dir / "claims.jsonl").write_text(
+            '{"claim_id":"C1","claim":"Users repeat this workflow.","supporting_evidence_ids":["E2"],"status":"supported"}\n',
+            encoding="utf-8",
+        )
+
+        result = run_cli("validate-evidence", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("claims.jsonl: C1 references missing evidence_id E2", result.stdout)
+
+    def test_check_runs_evidence_registry_validation_for_v2_surveys(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(survey_dir, include_registry=False)
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("sources.jsonl: expected at least", result.stdout)
+
+    def test_deep_mode_requires_higher_quality_score(self) -> None:
+        survey_dir = self.init_round(mode="deep")
+        self._write_substantive_required_files(survey_dir, report_score=91)
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("deep mode requires report score >= 95", result.stdout)
+
+    def test_report_body_rejects_tables_before_appendix(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(survey_dir)
+        report_path = survey_dir / "report.md"
+        report = report_path.read_text(encoding="utf-8")
+        report = report.replace(
+            "The opportunity is visible because job seekers repeat the same painful workflow across many applications.\n",
+            "| Claim | Evidence |\n|---|---|\n| Early body claim | Early body evidence |\n",
+        )
+        report_path.write_text(report, encoding="utf-8")
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("prose-first rule violated", result.stdout)
+
+    def test_check_rejects_missing_wiki_attempt_notes(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(survey_dir, include_wiki_notes=False)
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Wiki / Graph Index Status must record wiki tool attempt and ingest result", result.stdout)
 
     def test_legacy_report_schema_warns_but_does_not_fail(self) -> None:
         survey_dir = self.init_round()
@@ -345,7 +434,36 @@ Thin.
         include_report: bool = True,
         report_score: int = 92,
         continuation_decision: str | None = None,
+        include_wiki_notes: bool = True,
+        include_registry: bool = True,
     ) -> None:
+        if include_registry:
+            (survey_dir / "sources.jsonl").write_text(
+                '{"source_id":"S1","title":"Example","url":"https://example.com","source_type":"primary","date_checked":"2026-06-13","credibility":"medium"}\n'
+                '{"source_id":"S2","title":"Policy Example","url":"https://example.com/policy","source_type":"primary","date_checked":"2026-06-13","credibility":"high"}\n'
+                '{"source_id":"S3","title":"Pricing Example","url":"https://example.com/pricing","source_type":"secondary","date_checked":"2026-06-13","credibility":"medium"}\n',
+                encoding="utf-8",
+            )
+            (survey_dir / "evidence.jsonl").write_text(
+                '{"evidence_id":"E1","source_id":"S1","quote_or_summary":"Users repeat this workflow.","locator":"page","confidence":"medium"}\n'
+                '{"evidence_id":"E2","source_id":"S2","quote_or_summary":"Policy constraints can affect automation.","locator":"terms","confidence":"high"}\n'
+                '{"evidence_id":"E3","source_id":"S3","quote_or_summary":"Comparable tools use paid subscriptions.","locator":"pricing page","confidence":"medium"}\n',
+                encoding="utf-8",
+            )
+            (survey_dir / "claims.jsonl").write_text(
+                '{"claim_id":"C1","claim":"Users repeat this workflow.","supporting_evidence_ids":["E1"],"status":"supported"}\n'
+                '{"claim_id":"C2","claim":"Policy risk matters.","supporting_evidence_ids":["E2"],"status":"supported"}\n'
+                '{"claim_id":"C3","claim":"Paid willingness remains plausible but unproven.","supporting_evidence_ids":["E3"],"status":"partial"}\n',
+                encoding="utf-8",
+            )
+        wiki_status = (
+            "Wiki Tool Attempted: karpathy-llm-wiki.\n"
+            "Wiki Ingest Result: not built; no initialized project raw/wiki directory was available.\n"
+            "Wiki Fallback Reason: local Markdown index maintained for this survey.\n"
+            "Wiki Artifact Path: index.md only."
+            if include_wiki_notes
+            else "Not built: no initialized wiki backend."
+        )
         (survey_dir / "00-brief.md").write_text(
             """# Survey Brief: AI recruiting agent
 
@@ -412,12 +530,12 @@ Official platform terms and competitor pages.
 
 ## Wiki / Graph Index Status
 
-Not built: no initialized wiki backend.
+{wiki_status}
 
 ## Decision Log
 
 Continue one narrowed round.
-""",
+""".format(wiki_status=wiki_status),
             encoding="utf-8",
         )
         if include_report:

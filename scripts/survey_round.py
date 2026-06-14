@@ -12,10 +12,45 @@ import sys
 from pathlib import Path
 
 LANGUAGES = ("en", "zh", "ja")
+MODES = ("quick", "standard", "deep")
 REPORT_SCHEMA_VERSION = 2
 MIN_REPORT_SUBSTANTIVE_LINES = 20
 REPORT_PASS_SCORE = 90
 REPORT_CONDITIONAL_SCORE = 80
+REGISTRY_FILES = ("sources.jsonl", "claims.jsonl", "evidence.jsonl")
+
+MODE_CONFIG = {
+    "quick": {
+        "min_sources": 1,
+        "min_claims": 1,
+        "min_evidence": 1,
+        "min_report_lines": 12,
+        "pass_score": 80,
+        "conditional_score": 70,
+        "target_report_length": "800-1,500 words",
+        "quality_gate": "quick directional memo; continue if the decision still turns on public facts",
+    },
+    "standard": {
+        "min_sources": 3,
+        "min_claims": 3,
+        "min_evidence": 3,
+        "min_report_lines": 20,
+        "pass_score": 90,
+        "conditional_score": 80,
+        "target_report_length": "1,500-3,500 words",
+        "quality_gate": "standard standalone report; continue while desk-researchable unknowns remain",
+    },
+    "deep": {
+        "min_sources": 8,
+        "min_claims": 6,
+        "min_evidence": 8,
+        "min_report_lines": 35,
+        "pass_score": 95,
+        "conditional_score": 90,
+        "target_report_length": "3,500+ words, or route long-form packaging to deep-research",
+        "quality_gate": "deep report; use strict source triangulation and companion routing when useful",
+    },
+}
 
 LABELS = {
     "en": {
@@ -51,6 +86,12 @@ LABELS = {
             "Source Inventory",
             "Wiki / Graph Index Status",
             "Decision Log",
+        ],
+        "wiki_status_notes": [
+            "Wiki Tool Attempted: karpathy-llm-wiki / llm-wiki / pin-llm-wiki / other / none",
+            "Wiki Ingest Result: ingested / initialized then ingested / failed / not built",
+            "Wiki Fallback Reason: none / unavailable / not initialized / command failed / user skipped",
+            "Wiki Artifact Path: path to wiki page, raw file, log entry, or index.md-only fallback",
         ],
         "report_headings": [
             "Executive Summary",
@@ -200,6 +241,12 @@ LABELS = {
             "Wiki / Graph 索引状态",
             "决策日志",
         ],
+        "wiki_status_notes": [
+            "Wiki Tool Attempted: karpathy-llm-wiki / llm-wiki / pin-llm-wiki / other / none",
+            "Wiki Ingest Result: ingested / initialized then ingested / failed / not built",
+            "Wiki Fallback Reason: none / unavailable / not initialized / command failed / user skipped",
+            "Wiki Artifact Path: wiki 页面、raw 文件、log 记录路径，或 index.md-only fallback",
+        ],
         "report_headings": [
             "执行摘要",
             "阅读路径",
@@ -331,6 +378,12 @@ LABELS = {
             "情報源一覧",
             "Wiki / Graph インデックス状態",
             "意思決定ログ",
+        ],
+        "wiki_status_notes": [
+            "Wiki Tool Attempted: karpathy-llm-wiki / llm-wiki / pin-llm-wiki / other / none",
+            "Wiki Ingest Result: ingested / initialized then ingested / failed / not built",
+            "Wiki Fallback Reason: none / unavailable / not initialized / command failed / user skipped",
+            "Wiki Artifact Path: wiki ページ、raw ファイル、log エントリ、または index.md-only fallback",
         ],
         "report_headings": [
             "エグゼクティブサマリー",
@@ -473,7 +526,7 @@ def write_metadata(survey_dir: Path, topic: str, language: str) -> None:
         return
     path.write_text(
         json.dumps(
-            {"topic": topic, "language": language, "report_schema_version": REPORT_SCHEMA_VERSION},
+            {"topic": topic, "language": language, "mode": "standard", "report_schema_version": REPORT_SCHEMA_VERSION},
             ensure_ascii=False,
             indent=2,
         )
@@ -500,6 +553,16 @@ def update_metadata(survey_dir: Path, **updates: object) -> None:
     data.update(updates)
     path = metadata_path(survey_dir)
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def read_mode(survey_dir: Path, override: str | None = None) -> str:
+    if override:
+        return override
+    data = read_metadata(survey_dir)
+    mode = data.get("mode")
+    if mode in MODES:
+        return str(mode)
+    return "standard"
 
 
 def read_language(survey_dir: Path, override: str | None = None) -> str:
@@ -574,6 +637,11 @@ def is_substantive_line(line: str, language: str) -> bool:
     if stripped.startswith("- ") and stripped[2:].strip() in structural_values(language):
         return False
     if re.fullmatch(r"-\s*(Status|Notes|Option [A-Z]|Round \d+):\s*", stripped):
+        return False
+    if re.fullmatch(
+        r"-\s*(Mode|Minimum Sources|Minimum Claims|Minimum Evidence Items|Target Report Length|Quality Gate|Registry):.*",
+        stripped,
+    ):
         return False
     if stripped.startswith("|") and stripped.endswith("|"):
         cells = [cell.strip() for cell in stripped.strip("|").split("|")]
@@ -685,6 +753,7 @@ def validate_report_quality(
     label: dict[str, object],
     language: str,
     schema_version: int,
+    mode: str,
 ) -> None:
     if not report_path.exists():
         return
@@ -694,13 +763,25 @@ def validate_report_quality(
             warnings.append("report.md: legacy report schema detected; run 'upgrade-report' and expand the new sections")
             return
 
+    mode_config = MODE_CONFIG[mode]
+    min_lines = int(mode_config["min_report_lines"])
+    conditional_score = int(mode_config["conditional_score"])
+    pass_score = int(mode_config["pass_score"])
+
     line_count = substantive_line_count(report_path, language)
-    if line_count < MIN_REPORT_SUBSTANTIVE_LINES:
+    if line_count < min_lines:
         errors.append(
-            f"report.md: complete report must contain at least {MIN_REPORT_SUBSTANTIVE_LINES} substantive lines"
+            f"report.md: {mode} mode complete report must contain at least {min_lines} substantive lines"
         )
 
     text = report_path.read_text(encoding="utf-8")
+    appendix_heading = str(label["appendix_start_heading"])
+    appendix_match = re.search(rf"^## {re.escape(appendix_heading)}\s*$", text, flags=re.MULTILINE)
+    if appendix_match:
+        body_before_appendix = text[: appendix_match.start()]
+        if any(line.strip().startswith("|") and line.strip().endswith("|") for line in body_before_appendix.splitlines()):
+            errors.append("report.md: prose-first rule violated; evidence tables belong in appendices, not the report body")
+
     thin_sections: list[str] = []
     for heading in label["report_headings"]:
         body = section_body(text, str(heading))
@@ -718,22 +799,28 @@ def validate_report_quality(
     if score is None:
         errors.append("report.md: Report Quality Score must include a parseable 'Total Score: N / 100'")
         return
-    if score < REPORT_CONDITIONAL_SCORE and not mentions_continuation(score_body):
-        errors.append("report.md: score below 80 must continue with a next-round focus")
-    if REPORT_CONDITIONAL_SCORE <= score < REPORT_PASS_SCORE and not mentions_no_decision_changing_unknowns(score_body):
+    if score < conditional_score and not mentions_continuation(score_body):
+        errors.append(f"report.md: score below {conditional_score} must continue with a next-round focus")
+    if conditional_score <= score < pass_score and not mentions_no_decision_changing_unknowns(score_body):
         errors.append(
-            "report.md: score 80-89 must state that no decision-changing unknowns remain before stopping"
+            f"report.md: score {conditional_score}-{pass_score - 1} must state that no decision-changing unknowns remain before stopping"
         )
+    if mode == "deep" and score < pass_score:
+        errors.append(f"report.md: deep mode requires report score >= {pass_score}")
 
 
 def init_survey(args: argparse.Namespace) -> None:
     root = Path(args.root).expanduser().resolve()
     today = args.date or dt.date.today().isoformat()
     language = args.language
+    mode = args.mode
+    mode_config = MODE_CONFIG[mode]
     label = labels(language)
     survey_dir = root / "surveys" / f"{today}-{slugify(args.topic)}"
     survey_dir.mkdir(parents=True, exist_ok=True)
     write_metadata(survey_dir, args.topic, language)
+    update_metadata(survey_dir, mode=mode, language=language, report_schema_version=REPORT_SCHEMA_VERSION)
+    create_registry_files(survey_dir)
 
     headings = label["brief_headings"]
     planned_rounds_note = str(label["planned_rounds_note"])
@@ -760,7 +847,12 @@ def init_survey(args: argparse.Namespace) -> None:
 
 ## {headings[4]}
 
-- 
+- Mode: {mode}
+- Minimum Sources: {mode_config['min_sources']}
+- Minimum Claims: {mode_config['min_claims']}
+- Minimum Evidence Items: {mode_config['min_evidence']}
+- Target Report Length: {mode_config['target_report_length']}
+- Quality Gate: {mode_config['quality_gate']}
 
 ## {headings[5]}
 
@@ -784,6 +876,7 @@ def init_survey(args: argparse.Namespace) -> None:
 """,
     )
     headings = label["index_headings"]
+    wiki_status_notes = "\n".join(f"- {note}" for note in label["wiki_status_notes"])
     write_once(
         survey_dir / "index.md",
         f"""# {label['index_title']}: {args.topic}
@@ -803,10 +896,11 @@ def init_survey(args: argparse.Namespace) -> None:
 ## {headings[3]}
 
 - 
+- Registry: sources.jsonl, claims.jsonl, evidence.jsonl
 
 ## {headings[4]}
 
-- 
+{wiki_status_notes}
 
 ## {headings[5]}
 
@@ -1070,6 +1164,149 @@ def check_research_tool_notes(
             errors.append(message)
 
 
+def check_wiki_status_notes(
+    errors: list[str],
+    warnings: list[str],
+    index_path: Path,
+    label: dict[str, object],
+    schema_version: int,
+) -> None:
+    if not index_path.exists():
+        return
+    text = index_path.read_text(encoding="utf-8")
+    body = section_body(text, str(label["index_headings"][4]))
+    if body is None:
+        return
+    expected_notes = [str(note).split(":")[0] for note in label["wiki_status_notes"][:2]]
+    missing = [note for note in expected_notes if note and note not in body]
+    if missing:
+        message = "index.md: Wiki / Graph Index Status must record wiki tool attempt and ingest result"
+        if schema_version < REPORT_SCHEMA_VERSION:
+            warnings.append(message)
+        else:
+            errors.append(message)
+
+
+def read_jsonl(path: Path, errors: list[str]) -> list[dict[str, object]]:
+    rows: list[dict[str, object]] = []
+    if not path.exists():
+        errors.append(f"missing file: {path.name}")
+        return rows
+    for index, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        try:
+            value = json.loads(stripped)
+        except json.JSONDecodeError as exc:
+            errors.append(f"{path.name}:{index}: invalid JSON: {exc.msg}")
+            continue
+        if not isinstance(value, dict):
+            errors.append(f"{path.name}:{index}: entry must be a JSON object")
+            continue
+        rows.append(value)
+    return rows
+
+
+def require_fields(
+    errors: list[str],
+    filename: str,
+    row: dict[str, object],
+    row_id: str,
+    fields: tuple[str, ...],
+) -> None:
+    for field in fields:
+        value = row.get(field)
+        if value in (None, "", []):
+            errors.append(f"{filename}: {row_id} missing required field '{field}'")
+
+
+def validate_evidence_registry(survey_dir: Path, mode: str) -> list[str]:
+    errors: list[str] = []
+    mode_config = MODE_CONFIG[mode]
+    sources = read_jsonl(survey_dir / "sources.jsonl", errors)
+    evidence = read_jsonl(survey_dir / "evidence.jsonl", errors)
+    claims = read_jsonl(survey_dir / "claims.jsonl", errors)
+
+    minimums = {
+        "sources.jsonl": int(mode_config["min_sources"]),
+        "claims.jsonl": int(mode_config["min_claims"]),
+        "evidence.jsonl": int(mode_config["min_evidence"]),
+    }
+    actuals = {
+        "sources.jsonl": len(sources),
+        "claims.jsonl": len(claims),
+        "evidence.jsonl": len(evidence),
+    }
+    for filename, minimum in minimums.items():
+        if actuals[filename] < minimum:
+            errors.append(f"{filename}: expected at least {minimum} entries for {mode} mode, found {actuals[filename]}")
+
+    source_ids: set[str] = set()
+    for index, source in enumerate(sources, start=1):
+        row_id = str(source.get("source_id") or f"row {index}")
+        require_fields(
+            errors,
+            "sources.jsonl",
+            source,
+            row_id,
+            ("source_id", "title", "url", "source_type", "date_checked", "credibility"),
+        )
+        source_id = source.get("source_id")
+        if isinstance(source_id, str) and source_id:
+            if source_id in source_ids:
+                errors.append(f"sources.jsonl: duplicate source_id {source_id}")
+            source_ids.add(source_id)
+
+    evidence_ids: set[str] = set()
+    for index, item in enumerate(evidence, start=1):
+        row_id = str(item.get("evidence_id") or f"row {index}")
+        require_fields(
+            errors,
+            "evidence.jsonl",
+            item,
+            row_id,
+            ("evidence_id", "source_id", "quote_or_summary", "locator", "confidence"),
+        )
+        evidence_id = item.get("evidence_id")
+        source_id = item.get("source_id")
+        if isinstance(evidence_id, str) and evidence_id:
+            if evidence_id in evidence_ids:
+                errors.append(f"evidence.jsonl: duplicate evidence_id {evidence_id}")
+            evidence_ids.add(evidence_id)
+        if isinstance(source_id, str) and source_id and source_id not in source_ids:
+            errors.append(f"evidence.jsonl: {row_id} references missing source_id {source_id}")
+
+    for index, claim in enumerate(claims, start=1):
+        row_id = str(claim.get("claim_id") or f"row {index}")
+        require_fields(
+            errors,
+            "claims.jsonl",
+            claim,
+            row_id,
+            ("claim_id", "claim", "supporting_evidence_ids", "status"),
+        )
+        supporting_ids = claim.get("supporting_evidence_ids")
+        if not isinstance(supporting_ids, list):
+            errors.append(f"claims.jsonl: {row_id} supporting_evidence_ids must be a list")
+            continue
+        status = str(claim.get("status") or "").lower()
+        if status in {"supported", "partial", "contested"} and not supporting_ids:
+            errors.append(f"claims.jsonl: {row_id} needs at least one supporting evidence id")
+        for evidence_id in supporting_ids:
+            if not isinstance(evidence_id, str) or not evidence_id:
+                errors.append(f"claims.jsonl: {row_id} has invalid evidence id {evidence_id!r}")
+            elif evidence_id not in evidence_ids:
+                errors.append(f"claims.jsonl: {row_id} references missing evidence_id {evidence_id}")
+
+    return errors
+
+
+def create_registry_files(survey_dir: Path) -> None:
+    for filename in REGISTRY_FILES:
+        write_once(survey_dir / filename, "")
+
+
 def check_survey(args: argparse.Namespace) -> None:
     survey_dir = Path(args.survey_dir).expanduser().resolve()
     errors: list[str] = []
@@ -1080,14 +1317,19 @@ def check_survey(args: argparse.Namespace) -> None:
         raise SystemExit(2)
 
     language = read_language(survey_dir, args.language)
+    mode = read_mode(survey_dir, getattr(args, "mode", None))
     label = labels(language)
     schema_version = report_schema_version(survey_dir)
 
     check_required_file(errors, survey_dir / "00-brief.md", list(label["brief_headings"]), language)
-    check_required_file(errors, survey_dir / "index.md", list(label["index_headings"]), language)
+    index_path = survey_dir / "index.md"
+    check_required_file(errors, index_path, list(label["index_headings"]), language)
+    check_wiki_status_notes(errors, warnings, index_path, label, schema_version)
     report_path = survey_dir / "report.md"
     check_required_file(errors, report_path, required_report_headings(label, schema_version), language)
-    validate_report_quality(errors, warnings, report_path, label, language, schema_version)
+    validate_report_quality(errors, warnings, report_path, label, language, schema_version, mode)
+    if schema_version >= REPORT_SCHEMA_VERSION:
+        errors.extend(validate_evidence_registry(survey_dir, mode))
 
     rounds = detect_rounds(survey_dir)
     if not rounds:
@@ -1114,7 +1356,22 @@ def check_survey(args: argparse.Namespace) -> None:
         for warning in warnings:
             print(f"- {warning}")
 
-    print(f"Super Survey check passed: {survey_dir} ({language})")
+    print(f"Super Survey check passed: {survey_dir} ({language}, {mode})")
+
+
+def validate_evidence_command(args: argparse.Namespace) -> None:
+    survey_dir = Path(args.survey_dir).expanduser().resolve()
+    if not survey_dir.exists():
+        print(f"ERROR: survey directory does not exist: {survey_dir}", file=sys.stderr)
+        raise SystemExit(2)
+    mode = read_mode(survey_dir, args.mode)
+    errors = validate_evidence_registry(survey_dir, mode)
+    if errors:
+        print("Super Survey evidence validation failed:")
+        for error in errors:
+            print(f"- {error}")
+        raise SystemExit(1)
+    print(f"Super Survey evidence validation passed: {survey_dir} ({mode})")
 
 
 def append_missing_report_sections(report_path: Path, label: dict[str, object]) -> bool:
@@ -1158,6 +1415,7 @@ def main() -> None:
     p_init.add_argument("--root", default=".")
     p_init.add_argument("--date")
     p_init.add_argument("--language", choices=LANGUAGES, default="en")
+    p_init.add_argument("--mode", choices=MODES, default="standard")
     p_init.set_defaults(func=init_survey)
 
     p_round = sub.add_parser("round", help="create round templates")
@@ -1169,7 +1427,13 @@ def main() -> None:
     p_check = sub.add_parser("check", help="validate a survey directory")
     p_check.add_argument("survey_dir")
     p_check.add_argument("--language", choices=LANGUAGES)
+    p_check.add_argument("--mode", choices=MODES)
     p_check.set_defaults(func=check_survey)
+
+    p_validate = sub.add_parser("validate-evidence", help="validate sources, claims, and evidence registry files")
+    p_validate.add_argument("survey_dir")
+    p_validate.add_argument("--mode", choices=MODES)
+    p_validate.set_defaults(func=validate_evidence_command)
 
     p_upgrade = sub.add_parser("upgrade-report", help="append missing v2 report sections")
     p_upgrade.add_argument("survey_dir")

@@ -25,6 +25,9 @@ surveys/YYYY-MM-DD-topic-slug/
 ├── 01-redteam.md
 ├── 01-synthesis.md
 ├── 01-evolver.md
+├── sources.jsonl
+├── claims.jsonl
+├── evidence.jsonl
 ├── index.md
 ├── report.md
 └── .super-survey.json
@@ -59,17 +62,37 @@ Create a survey:
 python3 scripts/survey_round.py init "AI recruiting agent" --language en
 python3 scripts/survey_round.py init "AI 招聘助手" --language zh
 python3 scripts/survey_round.py init "AI採用エージェント" --language ja
+python3 scripts/survey_round.py init "formal market report" --mode deep
 ```
 
 Create and validate a round:
 
 ```bash
 python3 scripts/survey_round.py round surveys/2026-06-13-ai-recruiting-agent 1
+python3 scripts/survey_round.py validate-evidence surveys/2026-06-13-ai-recruiting-agent
 python3 scripts/survey_round.py check surveys/2026-06-13-ai-recruiting-agent
 python3 scripts/survey_round.py upgrade-report surveys/2026-06-13-ai-recruiting-agent
 ```
 
-`check` fails when required files are missing, headings are missing, any required section is empty, artifacts still look like templates, or the v2 report lacks a parseable quality score. Round numbers must be positive integers. Older six-section reports are accepted with a warning; run `upgrade-report` to append the full report schema and then fill the new sections.
+`check` fails when required files are missing, headings are missing, any required section is empty, artifacts still look like templates, evidence registry links are invalid, prose-first report rules are violated, or the v2 report lacks a parseable quality score. `validate-evidence` checks `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl` directly. Round numbers must be positive integers. Older six-section reports are accepted with a warning; run `upgrade-report` to append the full report schema and then fill the new sections.
+
+## Modes And Evidence Registry
+
+Choose the depth explicitly when speed or rigor matters:
+
+| Mode | Use When | Minimum Registry | Report Gate |
+|---|---|---:|---|
+| `quick` | Directional scan or early triage | 1 source, 1 claim, 1 evidence item | score >=80 |
+| `standard` | Default reusable research report | 3 sources, 3 claims, 3 evidence items | score >=90 |
+| `deep` | Formal or high-stakes report, many citations, strict audit needs | 8 sources, 6 claims, 8 evidence items | score >=95 |
+
+The lightweight registry keeps report prose readable while preserving auditability:
+
+- `sources.jsonl`: `source_id`, `title`, `url`, `source_type`, `date_checked`, `credibility`
+- `evidence.jsonl`: `evidence_id`, `source_id`, `quote_or_summary`, `locator`, `confidence`
+- `claims.jsonl`: `claim_id`, `claim`, `supporting_evidence_ids`, `status`
+
+Every evidence item must reference an existing source. Every supported, partial, or contested claim must reference existing evidence. Dense evidence tables belong in appendices or JSONL, not in the main report body.
 
 ## skills.sh Readiness
 
@@ -120,9 +143,11 @@ The final report should read like a human memo, not an audit table. Start with t
 
 The evolver runs before the report quality score. It is a round-level step that converts the latest synthesis and red-team critique into `Keep / Narrow / Pivot / Kill` plus a sharper next-round focus. The quality score is a report-level gate applied to the updated `report.md`. If the score fails, the next round uses the report's lowest-scoring dimensions and the evolver's focus as input.
 
-The preferred optional wiki companion is `Astro-Han/karpathy-llm-wiki`. `lewislulu/llm-wiki-skill`, local `llm-wiki`, and `pin-llm-wiki` remain useful fallbacks when they better match the environment. If no initialized wiki backend exists, Super Survey records Markdown-only indexing status in `index.md`.
+Wiki persistence is a required attempt for every completed survey round. Prefer `karpathy-llm-wiki` / `Astro-Han/karpathy-llm-wiki`; fall back to local `llm-wiki`, then `pin-llm-wiki` when project config exists, then another indexer, then Markdown-only `index.md`. `index.md` must record `Wiki Tool Attempted`, `Wiki Ingest Result`, `Wiki Fallback Reason`, and `Wiki Artifact Path`.
 
 Super Survey can route subtasks to optional companion skills for search, deep reports, VOC/customer research, competitor analysis, brainstorming, and wiki persistence. For current-source discovery, it should try `tavily-search` first and document any fallback. These companions gather or package evidence; Super Survey remains responsible for the final judgment loop.
+
+`deep-research` is the preferred companion when the user asks for a formal long report, many citations, HTML/PDF output, strict citation validation, or publication-style source audit. In that workflow, deep-research handles evidence persistence and long-report packaging; Super Survey still owns red-team critique, the evolver decision, and final decision convergence.
 
 ## Workflow
 

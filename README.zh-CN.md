@@ -25,6 +25,9 @@ surveys/YYYY-MM-DD-topic-slug/
 ├── 01-redteam.md
 ├── 01-synthesis.md
 ├── 01-evolver.md
+├── sources.jsonl
+├── claims.jsonl
+├── evidence.jsonl
 ├── index.md
 ├── report.md
 └── .super-survey.json
@@ -59,17 +62,37 @@ $super-survey 调研 AI 招聘助手是否值得做
 python3 scripts/survey_round.py init "AI recruiting agent" --language en
 python3 scripts/survey_round.py init "AI 招聘助手" --language zh
 python3 scripts/survey_round.py init "AI採用エージェント" --language ja
+python3 scripts/survey_round.py init "正式市场报告" --mode deep
 ```
 
 创建并检查一轮：
 
 ```bash
 python3 scripts/survey_round.py round surveys/2026-06-13-ai-招聘助手 1
+python3 scripts/survey_round.py validate-evidence surveys/2026-06-13-ai-招聘助手
 python3 scripts/survey_round.py check surveys/2026-06-13-ai-招聘助手
 python3 scripts/survey_round.py upgrade-report surveys/2026-06-13-ai-招聘助手
 ```
 
-`check` 会在缺文件、缺标题、任一必填章节为空、内容仍像空模板，或 v2 报告缺少可解析质量分时失败。轮次必须是正整数。旧的六章节报告会以 warning 形式兼容通过；运行 `upgrade-report` 可追加完整报告 schema，然后需要补全新章节内容。
+`check` 会在缺文件、缺标题、任一必填章节为空、内容仍像空模板、证据登记关系无效、违反正文优先规则，或 v2 报告缺少可解析质量分时失败。`validate-evidence` 会直接检查 `sources.jsonl`、`claims.jsonl` 和 `evidence.jsonl`。轮次必须是正整数。旧的六章节报告会以 warning 形式兼容通过；运行 `upgrade-report` 可追加完整报告 schema，然后需要补全新章节内容。
+
+## 模式与证据登记
+
+当速度或严谨性很重要时，显式选择深度：
+
+| 模式 | 适用场景 | 最低登记要求 | 报告门限 |
+|---|---|---:|---|
+| `quick` | 方向性扫描或早期筛选 | 1 个来源、1 个主张、1 条证据 | 分数 >=80 |
+| `standard` | 默认可复用调研报告 | 3 个来源、3 个主张、3 条证据 | 分数 >=90 |
+| `deep` | 正式/高风险报告、大量引用、严格审计 | 8 个来源、6 个主张、8 条证据 | 分数 >=95 |
+
+轻量证据登记表让报告正文保持可读，同时保留可审计性：
+
+- `sources.jsonl`: `source_id`, `title`, `url`, `source_type`, `date_checked`, `credibility`
+- `evidence.jsonl`: `evidence_id`, `source_id`, `quote_or_summary`, `locator`, `confidence`
+- `claims.jsonl`: `claim_id`, `claim`, `supporting_evidence_ids`, `status`
+
+每条 evidence 必须引用已存在的 source。每个 supported、partial 或 contested claim 必须引用已存在的 evidence。密集证据表应放在附录或 JSONL 中，不应放在报告正文。
 
 ## skills.sh 收录准备
 
@@ -120,9 +143,11 @@ npx skills add GoatGit/super-survey --list
 
 进化器在报告质量评分之前运行。它是轮次级环节，负责把最新综合结论和反方挑战转成 `保留 / 收窄 / 转向 / 放弃`，并产出更锋利的下一轮焦点。质量分是报告级门限，只打在更新后的 `report.md` 上。如果分数不通过，下一轮会同时使用报告最低分维度和进化器焦点作为输入。
 
-首选可选知识库 companion 是 `Astro-Han/karpathy-llm-wiki`。`lewislulu/llm-wiki-skill`、本地 `llm-wiki` 和 `pin-llm-wiki` 仍可作为更适合当前环境时的后备方案。如果项目没有初始化知识库后端，Super Survey 会在 `index.md` 里记录 Markdown-only 索引状态。
+每个完成的调研轮次都必须尝试 wiki 持久化。优先使用 `karpathy-llm-wiki` / `Astro-Han/karpathy-llm-wiki`；其次回退到本地 `llm-wiki`；若项目已有配置再用 `pin-llm-wiki`；再不行用其他 indexer；最后才是 Markdown-only `index.md`。`index.md` 必须记录 `Wiki Tool Attempted`、`Wiki Ingest Result`、`Wiki Fallback Reason` 和 `Wiki Artifact Path`。
 
 Super Survey 可以把搜索、深度报告、VOC/客户研究、竞品分析、brainstorming 和 wiki 沉淀等子任务路由给可选 companion skills。当前来源发现应优先尝试 `tavily-search`，并记录任何 fallback。这些 companion 负责收集或包装证据；最终判断闭环仍由 Super Survey 负责。
+
+当用户要求正式长报告、大量引用、HTML/PDF 输出、严格 citation 校验，或出版级来源审计时，`deep-research` 是首选 companion。这个流程里，deep-research 负责证据持久化和长报告包装；Super Survey 仍负责反方挑战、进化器决策和最终决策收敛。
 
 ## 调用流程
 
