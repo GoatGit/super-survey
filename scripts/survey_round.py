@@ -769,6 +769,100 @@ def mentions_no_decision_changing_unknowns(body: str) -> bool:
     return any(phrase.lower() in normalized for phrase in phrases)
 
 
+def mentions_external_validation(body: str) -> bool:
+    normalized = body.lower()
+    phrases = (
+        "external validation",
+        "user interview",
+        "user interviews",
+        "paid trial",
+        "experiment",
+        "purchase data",
+        "private financial",
+        "legal opinion",
+        "future disclosure",
+        "外部验证",
+        "用户访谈",
+        "付费试验",
+        "实验",
+        "购买数据",
+        "私有财务",
+        "法律意见",
+        "未来披露",
+        "外部検証",
+        "ユーザーインタビュー",
+        "有料トライアル",
+        "実験",
+        "購入データ",
+        "非公開財務",
+        "法的意見",
+        "将来の開示",
+    )
+    return any(phrase in normalized for phrase in phrases)
+
+
+def mentions_kill_reason(body: str) -> bool:
+    normalized = body.lower()
+    phrases = (
+        "kill reason",
+        "kill criterion",
+        "kill criteria",
+        "disqualified",
+        "放弃原因",
+        "放弃条件",
+        "被排除",
+        "中止理由",
+        "中止条件",
+        "失格",
+    )
+    return any(phrase in normalized for phrase in phrases)
+
+
+def mentions_evolver_external_validation(body: str) -> bool:
+    normalized = body.lower()
+    return (
+        ("evolver" in normalized or "进化器" in normalized or "エボルバー" in normalized)
+        and mentions_external_validation(body)
+    )
+
+
+def desk_researchable_evidence(text: str) -> bool:
+    normalized = text.lower()
+    if not normalized.strip():
+        return False
+    external_terms = (
+        "external validation",
+        "interview",
+        "interviews",
+        "paid trial",
+        "experiment",
+        "purchase data",
+        "private financial",
+        "legal opinion",
+        "future disclosure",
+        "外部验证",
+        "访谈",
+        "付费试验",
+        "实验",
+        "购买数据",
+        "私有财务",
+        "法律意见",
+        "未来披露",
+        "外部検証",
+        "インタビュー",
+        "有料トライアル",
+        "実験",
+        "購入データ",
+        "非公開財務",
+        "法的意見",
+        "将来の開示",
+    )
+    none_terms = ("none", "n/a", "not applicable", "无", "なし")
+    if any(term in normalized for term in none_terms):
+        return False
+    return not any(term in normalized for term in external_terms)
+
+
 def validate_report_quality(
     errors: list[str],
     warnings: list[str],
@@ -1214,6 +1308,60 @@ def check_wiki_status_notes(
             errors.append(message)
 
 
+def parse_evolver_decision(path: Path, label: dict[str, object]) -> str | None:
+    if not path.exists():
+        return None
+    text = path.read_text(encoding="utf-8")
+    body = section_body(text, str(label["evolver_headings"][3])) or ""
+    normalized = body.lower()
+    if re.search(r"\bkill\b|放弃|中止", normalized):
+        return "Kill"
+    if re.search(r"\bpivot\b|转向|ピボット", normalized):
+        return "Pivot"
+    if re.search(r"\bnarrow\b|收窄|絞り込み", normalized):
+        return "Narrow"
+    if re.search(r"\bkeep\b|保留|維持", normalized):
+        return "Keep"
+    return None
+
+
+def validate_evolver_gate(
+    errors: list[str],
+    evolver_path: Path,
+    report_path: Path,
+    label: dict[str, object],
+) -> None:
+    if not evolver_path.exists() or not report_path.exists():
+        return
+    decision = parse_evolver_decision(evolver_path, label)
+    if decision is None:
+        errors.append(f"{evolver_path.name}: Decision must contain Keep, Narrow, Pivot, or Kill")
+        return
+
+    evolver_text = evolver_path.read_text(encoding="utf-8")
+    report_text = report_path.read_text(encoding="utf-8")
+    score_body = section_body(report_text, str(label["report_quality_heading"])) or ""
+    report_combined = report_text + "\n" + score_body
+    next_target = section_body(evolver_text, str(label["evolver_headings"][5])) or ""
+    evidence_needed = section_body(evolver_text, str(label["evolver_headings"][6])) or ""
+    has_next_evidence = desk_researchable_evidence(next_target + "\n" + evidence_needed)
+
+    if decision == "Kill":
+        if not mentions_kill_reason(report_combined):
+            errors.append("evolver decision Kill requires report.md to state the kill reason")
+        return
+
+    if decision in {"Keep", "Narrow", "Pivot"} and has_next_evidence:
+        if not mentions_continuation(score_body) and not mentions_evolver_external_validation(score_body):
+            errors.append(
+                f"evolver decision {decision} requires another round or an external-validation explanation"
+            )
+        if decision in {"Narrow", "Pivot"} and not mentions_evolver_external_validation(score_body):
+            errors.append(
+                f"evolver decision {decision} requires another round unless report.md explains why the next evidence is external-only"
+            )
+
+
 def read_jsonl(path: Path, errors: list[str]) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     if not path.exists():
@@ -1379,7 +1527,10 @@ def check_survey(args: argparse.Namespace) -> None:
         check_required_file(errors, survey_dir / f"{prefix}-brainstorm.md", list(label["brainstorm_headings"]), language)
         check_required_file(errors, survey_dir / f"{prefix}-redteam.md", list(label["redteam_headings"]), language)
         check_required_file(errors, survey_dir / f"{prefix}-synthesis.md", list(label["synthesis_headings"]), language)
-        check_required_file(errors, survey_dir / f"{prefix}-evolver.md", required_evolver_headings(label, schema_version), language)
+        evolver_path = survey_dir / f"{prefix}-evolver.md"
+        check_required_file(errors, evolver_path, required_evolver_headings(label, schema_version), language)
+        if schema_version >= REPORT_SCHEMA_VERSION:
+            validate_evolver_gate(errors, evolver_path, report_path, label)
 
     if errors:
         print("Super Survey check failed:")

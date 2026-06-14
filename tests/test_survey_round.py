@@ -433,6 +433,51 @@ Thin.
         self.assertEqual(result.returncode, 1)
         self.assertIn("passing report must state that no decision-changing unknowns remain", result.stdout)
 
+    def test_evolver_narrow_with_desk_research_evidence_requires_continuation(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            continuation_decision=(
+                "Pass / Continue Decision: stop because no decision-changing unknown remains desk-researchable."
+            ),
+        )
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("evolver decision Narrow requires another round", result.stdout)
+
+    def test_evolver_narrow_can_stop_when_report_explains_external_validation(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            continuation_decision=(
+                "Pass / Continue Decision: stop because no decision-changing unknown remains desk-researchable; "
+                "the evolver next evidence requires external validation through user interviews."
+            ),
+            evolver_evidence_needed="User interviews and paid trial data.",
+        )
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_evolver_kill_requires_report_kill_reason(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            continuation_decision=(
+                "Pass / Continue Decision: stop because no decision-changing unknown remains desk-researchable."
+            ),
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("evolver decision Kill requires report.md to state the kill reason", result.stdout)
+
     def test_validate_evidence_rejects_duplicate_claim_ids(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(survey_dir)
@@ -476,6 +521,8 @@ Thin.
         continuation_decision: str | None = None,
         include_wiki_notes: bool = True,
         include_registry: bool = True,
+        evolver_decision: str = "Narrow.",
+        evolver_evidence_needed: str = "Official ToS pages, pricing pages, and direct buyer signals.",
     ) -> None:
         if include_registry:
             (survey_dir / "sources.jsonl").write_text(
@@ -580,7 +627,7 @@ Continue one narrowed round.
         )
         if include_report:
             quality_decision = continuation_decision or (
-                "Pass / Continue Decision: pass; finalize the report because no decision-changing unknown remains desk-researchable."
+                "Pass / Continue Decision: pass; finalize the report because no decision-changing unknown remains desk-researchable, and the evolver next evidence requires external validation through user interviews."
             )
             (survey_dir / "report.md").write_text(
                 f"""# AI recruiting agent
@@ -815,7 +862,7 @@ The job seeker workflow may be viable if policy risk is manageable.
 
 ## Decision
 
-Narrow.
+{evolver_decision}
 
 ## Report Quality Gate
 
@@ -830,8 +877,8 @@ Can active US software job seekers use a browser-assisted copilot under platform
 
 ## Evidence Needed Next
 
-Official ToS pages, pricing pages, and direct buyer signals.
-""",
+{evolver_evidence_needed}
+""".format(evolver_decision=evolver_decision, evolver_evidence_needed=evolver_evidence_needed),
             encoding="utf-8",
         )
 
