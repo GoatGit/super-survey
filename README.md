@@ -14,6 +14,7 @@ It focuses on three jobs:
 
 1. The world is noisy, random, and not reliably predictable from an initial hunch. Every research task must avoid the trap of deciding first and then collecting evidence to support the decision.
 2. A research report is written for human decision-makers, not as an agent task-audit log. Evidence trails, source registers, red-team notes, and quality checks are necessary, but they should support a readable judgment rather than replace it.
+3. The user's question is the starting point, not the objective function. Super Survey first checks the user's framing, hidden assumptions, and optimization target before it searches for evidence or converges on an answer.
 
 ## What It Does
 
@@ -141,6 +142,8 @@ npx skills add GoatGit/super-survey --list
 ## Research Frameworks
 
 `Research lens` decides what evidence deserves emphasis. `Research framework` tells the reader how the whole survey systematically examines the question. Every survey should name a framework, list its dimensions, disclose weak or intentionally omitted dimensions, and use those dimensions as the structure for `00-brief.md`, each round artifact, and the final report.
+
+Before selecting the framework, do an anti-sycophancy framing pass. Split the user's wording into known facts, unverified assumptions, subjective judgments, missing information, and stakeholders; then restate the objective in decision terms. This prevents the survey from optimizing the user's initial wording, a stronger easy-to-kill claim, or a comfortable answer that fits the prompt but misses the real decision.
 
 This is the main writing rule: the framework is not an audit checklist at the end. `00-brief.md` defines the dimensions; `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` each expand those same dimensions with Markdown subheadings. The final `report.md` then turns the dimensions into readable body chapters before appendices.
 

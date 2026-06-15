@@ -354,6 +354,15 @@ LABELS = {
             "- For each dimension from 00-brief.md, add `### <framework dimension>` and record coverage quality, weakest gap, and whether a concrete next evidence target remains."
         ),
         "decision_frame_note": (
+            "- Original user frame:\n"
+            "- Known facts:\n"
+            "- Implicit assumptions:\n"
+            "- Subjective judgments:\n"
+            "- Missing information:\n"
+            "- Stakeholders:\n"
+            "- Reframed objective:\n"
+            "- Competing objectives:\n"
+            "- What not to optimize for:\n"
             "- Original question preserved:\n"
             "- Decision frame supported:\n"
             "- Stronger claim not assumed:\n"
@@ -590,6 +599,15 @@ LABELS = {
             "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并记录覆盖质量、最弱缺口，以及是否仍有具体下一步证据目标。"
         ),
         "decision_frame_note": (
+            "- 用户原始框架：\n"
+            "- 已知事实：\n"
+            "- 隐含/未验证假设：\n"
+            "- 主观判断：\n"
+            "- 缺失信息：\n"
+            "- 关键利益相关方：\n"
+            "- 重述后的目标：\n"
+            "- 互相竞争的目标：\n"
+            "- 不应优化的方向：\n"
             "- 原始问题已保留：\n"
             "- 支持的决策框架：\n"
             "- 未预设更强命题：\n"
@@ -810,6 +828,15 @@ LABELS = {
             "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、網羅品質、最も弱い欠落、具体的な次回証拠目標の有無を記録する。"
         ),
         "decision_frame_note": (
+            "- ユーザーの元のフレーム:\n"
+            "- 既知の事実:\n"
+            "- 暗黙/未検証の仮定:\n"
+            "- 主観的判断:\n"
+            "- 欠落情報:\n"
+            "- 主要ステークホルダー:\n"
+            "- 再定義した目的:\n"
+            "- 競合する目的:\n"
+            "- 最適化しないこと:\n"
             "- 元の問いを保持:\n"
             "- 支援する判断枠:\n"
             "- より強い主張を仮定しない:\n"

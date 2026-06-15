@@ -168,6 +168,11 @@ Can this target customer pay for this workflow?
         self.assertIn("## Research Framework", brief)
         self.assertIn("## Decision Evidence Standard", brief)
         self.assertIn("## Decision Frame Integrity", brief)
+        self.assertIn("Original user frame", brief)
+        self.assertIn("Implicit assumptions", brief)
+        self.assertIn("Reframed objective", brief)
+        self.assertIn("Competing objectives", brief)
+        self.assertIn("What not to optimize for", brief)
         self.assertIn("## Initial Assumptions", brief)
         self.assertIn("## Continuation Policy", brief)
         self.assertNotIn("## Planned Rounds", brief)
@@ -207,6 +212,23 @@ Can this target customer pay for this workflow?
         self.assertIn("### <framework dimension>", redteam)
         self.assertIn("### <framework dimension>", synthesis)
         self.assertIn("### <framework dimension>", evolver)
+
+    def test_docs_describe_anti_sycophancy_and_local_optimum_checks(self) -> None:
+        docs = {
+            "README.md": (ROOT / "README.md").read_text(encoding="utf-8"),
+            "README.zh-CN.md": (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
+            "README.ja.md": (ROOT / "README.ja.md").read_text(encoding="utf-8"),
+            "SKILL.md": (ROOT / "SKILL.md").read_text(encoding="utf-8"),
+            "references/research-quality.md": (ROOT / "references" / "research-quality.md").read_text(encoding="utf-8"),
+        }
+
+        self.assertIn("The user's question is the starting point, not the objective function", docs["README.md"])
+        self.assertIn("用户问题是初始点，不是目标函数", docs["README.zh-CN.md"])
+        self.assertIn("ユーザーの問いは出発点であり、目的関数ではありません", docs["README.ja.md"])
+        self.assertIn("Anti-Sycophancy / Anti-Local-Optimum Checks", docs["SKILL.md"])
+        self.assertIn("Anti-Sycophancy / Anti-Local-Optimum Checks", docs["references/research-quality.md"])
+        self.assertIn("known facts, unverified assumptions, subjective judgments, missing information, and stakeholders", docs["SKILL.md"])
+        self.assertIn("decision tree", docs["references/research-quality.md"])
 
     def test_round_template_uses_registry_as_evidence_source_of_truth(self) -> None:
         survey_dir = self.init_round()
@@ -1204,6 +1226,15 @@ Sources were checked during this round and remain directional.
                 "Decision Evidence Standard": "Require current primary sources for policy claims and direct signals for payment claims.",
                 "Decision Frame Integrity": (
                     "Original question: should we build this?\n"
+                    "Original user frame: the user asks whether to build, which is an initial exploration frame rather than proof of demand.\n"
+                    "Known facts: the target workflow is repeated and policy can affect automation.\n"
+                    "Implicit assumptions: users will pay, channels are reachable, and assisted automation is allowed.\n"
+                    "Subjective judgments: the idea feels promising because the workflow is annoying.\n"
+                    "Missing information: direct buyer commitment, official policy boundaries, and acquisition economics.\n"
+                    "Stakeholders: active job seekers, job boards, builders, compliance reviewers, and potential competitors.\n"
+                    "Reframed objective: decide whether another discovery round is justified before implementation.\n"
+                    "Competing objectives: speed, accuracy, compliance safety, user value, and build cost.\n"
+                    "What not to optimize for: proving the initial idea, pleasing the user, or rejecting an exaggerated certainty claim.\n"
                     "Decision frame: evaluate whether to continue discovery, not whether guaranteed success is proven.\n"
                     "Not pre-decided: keep the original question intact instead of turning it into an easier-to-kill demand for certainty.\n"
                     "Allowed narrowing: narrow only when evidence or red-team critique justifies the narrower target."

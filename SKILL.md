@@ -15,21 +15,22 @@ Every survey round must:
 
 0. Use Superpowers brainstorming as a recurring checkpoint, not only a kickoff gate.
 1. State the current research target and decision criteria.
-2. Choose a generic research lens, explicit research framework, and evidence standard without forcing the work into a narrow fixed category.
-3. Gather evidence from current sources when facts may have changed.
-4. Re-enter a brainstorming checkpoint to reframe the problem and compare candidate next moves.
-5. Separate findings from interpretation.
-6. Include a red-team challenge: why the idea may fail, why evidence may be weak, what alternative explanations or substitutes exist, and what constraints invalidate the thesis.
-7. Check explicit kill criteria before recommending another round.
-8. Synthesize a clearer conclusion with confidence level, decision rationale, and remaining unknowns.
-9. Run the lightweight evolver to sharpen, redirect, stop, or finalize the next-round target.
-10. Decide whether to continue using the latest evolver decision; use final report quality only after the stop gate moves to `report.md`.
-11. Maintain the lightweight evidence registry: `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`.
-12. Validate citations and claim support with the integrated `survey_round.py check` / `check-final` commands; use `validate-evidence` only for focused registry debugging.
-13. Update an index and route to wiki/graph indexing when long-term persistence is needed.
-14. Use `index.md` as the per-round workbench and decision ledger.
-15. Write `report.md` only after the stop gate passes and before giving a final answer.
-16. Write the round artifacts to disk before giving a final answer.
+2. Run an anti-sycophancy framing pass: treat the user's wording as the starting point, not the objective function.
+3. Choose a generic research lens, explicit research framework, and evidence standard without forcing the work into a narrow fixed category.
+4. Gather evidence from current sources when facts may have changed.
+5. Re-enter a brainstorming checkpoint to reframe the problem and compare candidate next moves.
+6. Separate findings from interpretation.
+7. Include a red-team challenge: why the idea may fail, why evidence may be weak, what alternative explanations or substitutes exist, and what constraints invalidate the thesis.
+8. Check explicit kill criteria before recommending another round.
+9. Synthesize a clearer conclusion with confidence level, decision rationale, and remaining unknowns.
+10. Run the lightweight evolver to sharpen, redirect, stop, or finalize the next-round target.
+11. Decide whether to continue using the latest evolver decision; use final report quality only after the stop gate moves to `report.md`.
+12. Maintain the lightweight evidence registry: `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`.
+13. Validate citations and claim support with the integrated `survey_round.py check` / `check-final` commands; use `validate-evidence` only for focused registry debugging.
+14. Update an index and route to wiki/graph indexing when long-term persistence is needed.
+15. Use `index.md` as the per-round workbench and decision ledger.
+16. Write `report.md` only after the stop gate passes and before giving a final answer.
+17. Write the round artifacts to disk before giving a final answer.
 
 Move beyond collecting links. The value of this skill is sharper judgment after each loop.
 
@@ -168,6 +169,8 @@ Write `00-brief.md` with:
 - Disqualifying conditions
 - Initial assumptions
 - Continuation policy
+
+In `Decision Frame Integrity`, split the user's wording into known facts, unverified assumptions, subjective judgments, missing information, and stakeholders. Then state the reframed objective, competing objectives, and what the survey should not optimize for. This is the anti-sycophancy / anti-local-optimum check: the survey should optimize the real decision, not the user's first phrasing, emotional stance, or an easier-to-kill stronger claim.
 
 Keep the number of rounds open, and reserve stop conclusions for completed round artifacts. `00-brief.md` must preserve the user's original question and record the decision frame without rewriting it into a stronger or easier-to-kill claim. Any narrowing must say what evidence, assumption, or red-team objection justifies the narrower frame. `00-brief.md` states the continuation policy: start with the next evidence round, update `index.md` after the round, then decide whether to continue only after evidence, red-team critique, synthesis, and the raw evolver decision are written. Actual round history belongs in `index.md`.
 
@@ -319,6 +322,20 @@ For securities-style research, a domain framework can be composed without making
 
 Fit the framework to the user's actual question rather than forcing every survey into a predefined category. The lens determines which evidence deserves extra attention; the framework makes the research method visible to readers. The common Super Survey loop still applies, and a framework is a method, not a prewritten conclusion or a narrow decision-type branch.
 
+### 2.6 Anti-Sycophancy / Anti-Local-Optimum Checks
+
+Treat the user's prompt as an initial point in the search space. Before gathering evidence or stating a thesis, ask whether the prompt embeds a target function, hidden constraint, desired answer, or exaggerated claim. Record this in `00-brief.md` rather than silently accepting it.
+
+Use these checks across domains:
+
+- Facts vs assumptions: separate known facts, unverified assumptions, subjective judgments, missing information, and stakeholders.
+- Objective reconstruction: restate the decision objective and list competing objectives such as accuracy, speed, risk, cost, upside, compliance, relationships, or reversibility.
+- Multi-start perspectives: evaluate the question from at least several decision-relevant roles, not only the user's role.
+- Sensitivity analysis: name the assumptions that would change the conclusion if they were false.
+- Decision tree: when facts are uncertain, express recommendations as conditional branches rather than one overconfident path.
+
+For example, do not turn "is this stock a buy opportunity over the next six months?" into "prove the stock will definitely rise" or "reject it unless immediate heavy buying is justified." The reframed objective should preserve the user's actual decision and stakes.
+
 `NN-evolver.md` should contain the output of the built-in lightweight evolver:
 
 - Probe questions and answers
@@ -406,7 +423,7 @@ Score the final `report.md` on a 100-point rubric before finalizing, and record 
 | Dimension | Points | What Good Looks Like |
 |---|---:|---|
 | Problem and scope definition | 15 | Clear decision, audience, assumptions, non-goals, and success/failure criteria |
-| Source, method, and framework quality | 20 | Current sources where needed, primary sources preferred, search tools/fallbacks recorded, research framework stated, body chapters cover the framework dimensions, and coverage gaps are disclosed |
+| Source, method, and framework quality | 20 | Current sources where needed, primary sources preferred, search tools/fallbacks recorded, anti-sycophancy framing performed, research framework stated, body chapters cover the framework dimensions, and coverage gaps are disclosed |
 | Evidence completeness | 20 | Claim-level evidence, contradictions, confidence, source freshness, and enough coverage for the decision |
 | Analysis and red-team quality | 20 | Synthesis across evidence, alternatives, objections, kill criteria, and falsification tests |
 | Actionability | 15 | Concrete recommendation, next actions, owners/timeframes when useful, monitoring and stop/continue triggers |
@@ -523,3 +540,4 @@ Use the same language as the user's request unless they ask otherwise. When writ
 - **Registry-ID citations**: `report.md` cites `C1`, `E1`, or similar IDs that require opening JSONL files. Fix by replacing them with source titles, Markdown links, footnotes, and URLs.
 - **Framework-as-audit-note**: framework dimensions appear only as a list or coverage checklist, while `brief`, `research`, `brainstorm`, `redteam`, `synthesis`, `evolver`, or `report.md` jump to generic narrative. Fix by using the brief-defined dimensions as `###` subheadings in every framework-relevant stage and as body chapters in the final report.
 - **Round-count autopilot**: the survey stops because it reached a familiar count, while the report score is weak or unknowns remain desk-researchable. Fix by scoring the report and creating the next round around the lowest-scoring dimensions.
+- **Sycophantic framing / local optimum**: the survey accepts the user's stance as fact, optimizes the initial wording, or rewrites the question into a stronger easy-to-kill claim. Fix by rebuilding the objective in `Decision Frame Integrity`, checking multiple perspectives, and making recommendations conditional on the facts that would change them.

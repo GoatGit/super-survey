@@ -27,6 +27,19 @@ Useful lenses:
 
 The lens is not the answer. It only decides which claims require stronger evidence.
 
+## Anti-Sycophancy / Anti-Local-Optimum Checks
+
+Treat the user's question as the initial point, not the objective function. Before choosing sources or writing a thesis, rebuild the problem frame:
+
+- Split the prompt into known facts, unverified assumptions, subjective judgments, missing information, and stakeholders.
+- Restate the real decision objective and list competing objectives.
+- Name what the survey should not optimize for, such as pleasing the user, proving an initial hunch, or rejecting an exaggerated version of the question.
+- Generate multiple plausible explanations before selecting a thesis.
+- Test sensitivity: which assumptions would change the conclusion if false?
+- Use a decision tree when the facts are still uncertain: if A is true, recommend one path; if B is true, recommend another.
+
+Good research challenges the user's frame without being adversarial for its own sake. The goal is a more faithful decision model, not a more comfortable answer.
+
 After choosing lenses, write an explicit research framework. The framework is the reader-visible method: it says which dimensions the survey covers, what each dimension is meant to answer, and where coverage is weak or intentionally out of scope.
 
 Framework starters:

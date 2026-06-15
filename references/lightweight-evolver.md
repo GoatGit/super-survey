@@ -16,6 +16,8 @@ If prior `NN-evolver.md` files exist, read the latest one to avoid repeating the
 
 When the latest files include a research framework or framework coverage section, treat weak or missing framework dimensions as first-class inputs. A next round should usually target the weakest decision-relevant dimension rather than collect more generic sources.
 
+Also read the `Decision Frame Integrity` section in `00-brief.md`. Treat the user's original wording as an initial point, not the objective function. If the current thesis relies on unverified assumptions, subjective judgments, or a stronger easy-to-kill rewrite of the user's question, prefer `Narrow` or `Pivot` with a corrected next target instead of `Kill`.
+
 ## Step 1: Probe Assumptions
 
 List the current thesis in one sentence, copied or tightly derived from the latest `NN-synthesis.md` and `index.md`. Keep it faithful to the user's original question and the latest artifacts, and reserve the final recommendation until the probes are answered. Then answer:
