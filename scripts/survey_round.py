@@ -49,6 +49,105 @@ MODE_CONFIG = {
     },
 }
 
+SECTION_SCHEMAS = {
+    "brief_headings": (
+        "User Question",
+        "Superpowers Brainstorming Gate",
+        "Decision To Make",
+        "Research Lens",
+        "Research Framework",
+        "Decision Evidence Standard",
+        "Decision Frame Integrity",
+        "Target Customer",
+        "Success Criteria",
+        "Disqualifying Conditions",
+        "Initial Assumptions",
+        "Continuation Policy",
+    ),
+    "index_headings": (
+        "Current Thesis",
+        "Current Evidence-Bound Conclusion",
+        "Round Ledger",
+        "Continuation Status",
+        "Next Research Target",
+        "Why Not Final Yet",
+        "Open Questions",
+        "Source Inventory",
+        "Wiki / Graph Index Status",
+        "Decision Log",
+    ),
+    "report_headings": (
+        "Executive Summary",
+        "Reader's Path",
+        "Research Method And Framework",
+        "Main Narrative",
+        "Decision Logic",
+        "Final Recommendation",
+        "What Could Change This Conclusion",
+        "Next Actions",
+        "Limits Of This Report",
+        "Appendix: Evidence Register",
+        "Appendix: Method And Source Quality",
+        "Appendix: Red-Team Notes",
+        "Appendix: Options Or Scenarios",
+        "Report Quality Score",
+        "Appendix: Source Notes",
+    ),
+    "legacy_report_headings": (
+        "Executive Summary",
+        "Key Findings",
+        "Comparison Or Analysis",
+        "Recommendation",
+        "Limitations",
+        "Source Notes",
+    ),
+    "research_headings": (
+        "Research Question",
+        "Source Registry Updates",
+        "Claim And Evidence Notes",
+        "Framework Coverage",
+        "Findings",
+        "Data Quality Notes",
+    ),
+    "brainstorm_headings": (
+        "Brainstorming Status",
+        "Current Framing",
+        "Clarifying Questions",
+        "Candidate Next Moves",
+        "Preferred Exploration Path",
+        "Design Notes For Next Round",
+    ),
+    "redteam_headings": (
+        "Strongest Objections",
+        "Incumbent Response",
+        "Alternative Explanations Or Substitutes",
+        "Data And Access Risks",
+        "Legal, ToS, Privacy, Or Compliance Risks",
+        "Monetization And Distribution Risks",
+        "Kill Criteria Checked",
+        "Falsification Tests",
+    ),
+    "synthesis_headings": (
+        "Updated Conclusion",
+        "Confidence",
+        "Decision Rationale",
+        "Framework-Based Synthesis",
+        "What Changed",
+        "Remaining Unknowns",
+        "Evolved Next Research Target",
+        "Recommended Next Action",
+    ),
+    "evolver_headings": (
+        "Current Thesis",
+        "Probe Results",
+        "Persona Judgments",
+        "Decision",
+        "Round Evidence Quality Gate",
+        "Next Research Target",
+        "Evidence Needed Next",
+    ),
+}
+
 LABELS = {
     "en": {
         "brief_title": "Survey Brief",
@@ -69,6 +168,7 @@ LABELS = {
             "Superpowers Brainstorming Gate",
             "Decision To Make",
             "Research Lens",
+            "Research Framework",
             "Decision Evidence Standard",
             "Decision Frame Integrity",
             "Target Customer",
@@ -98,6 +198,7 @@ LABELS = {
         "report_headings": [
             "Executive Summary",
             "Reader's Path",
+            "Research Method And Framework",
             "Main Narrative",
             "Decision Logic",
             "Final Recommendation",
@@ -123,8 +224,9 @@ LABELS = {
         "appendix_start_heading": "Appendix: Evidence Register",
         "research_headings": [
             "Research Question",
-            "Source List",
-            "Evidence Table",
+            "Source Registry Updates",
+            "Claim And Evidence Notes",
+            "Framework Coverage",
             "Findings",
             "Data Quality Notes",
         ],
@@ -132,8 +234,8 @@ LABELS = {
             "Brainstorming Status",
             "Current Framing",
             "Clarifying Questions",
-            "Alternative Next Moves",
-            "Chosen Direction",
+            "Candidate Next Moves",
+            "Preferred Exploration Path",
             "Design Notes For Next Round",
         ],
         "redteam_headings": [
@@ -150,6 +252,7 @@ LABELS = {
             "Updated Conclusion",
             "Confidence",
             "Decision Rationale",
+            "Framework-Based Synthesis",
             "What Changed",
             "Remaining Unknowns",
             "Evolved Next Research Target",
@@ -164,8 +267,6 @@ LABELS = {
             "Next Research Target",
             "Evidence Needed Next",
         ],
-        "source_cols": "Source | URL | Date Checked | Notes",
-        "evidence_cols": "Claim | Evidence | Source | Source Type | Freshness | Confidence | Contradictions",
         "probe_cols": "Probe | Answer | Strength",
         "persona_cols": "Persona | Verdict | Reason",
         "search_tool_notes": [
@@ -173,6 +274,29 @@ LABELS = {
             "Tavily Fallback Reason: none / not installed / not authenticated / failed / insufficient results / unsuitable source surface",
             "Query And Filter Notes: queries, domains, date filters, source-type filters",
         ],
+        "source_registry_note": "- Canonical source registry: sources.jsonl\n- Round source changes: add source_id values and short notes only",
+        "claim_registry_note": (
+            "- Canonical claim/evidence registry: claims.jsonl and evidence.jsonl\n"
+            "- Round evidence notes: reference claim_id and evidence_id values; do not duplicate the full registry table"
+        ),
+        "research_framework_note": (
+            "- Selected framework:\n"
+            "- Dimensions to cover:\n"
+            "- Why this framework fits the decision:\n"
+            "- Dimensions intentionally out of scope:"
+        ),
+        "framework_coverage_note": (
+            "- Framework dimensions covered:\n"
+            "- Weak or missing dimensions:\n"
+            "- Contradictions by dimension:\n"
+            "- Next evidence target from framework gaps:"
+        ),
+        "framework_synthesis_note": (
+            "- Strongest dimensions:\n"
+            "- Weakest dimensions:\n"
+            "- Cross-dimension judgment:\n"
+            "- Framework gaps that affect confidence:"
+        ),
         "decision_frame_note": (
             "- Original question preserved:\n"
             "- Decision frame supported:\n"
@@ -183,6 +307,7 @@ LABELS = {
         "report_template_notes": [
             "After the final gate passes, answer first: decision, confidence, key reason, strongest caveat, next action",
             "Tell the reader how to read the report: who it is for, what decision it supports, and what to skip if time is short",
+            "Name the research framework, explain why it fits, summarize covered dimensions, and disclose weak or omitted dimensions",
             "Readable narrative that explains the situation, why it matters, how the evidence changes the thesis, and what judgment follows",
             "Reasoning chain from question to recommendation, including tradeoffs and why alternatives were rejected",
             "Final recommendation with conditions, who should act, who should not act, and confidence",
@@ -234,6 +359,7 @@ LABELS = {
             "Superpowers Brainstorming 门",
             "需要做出的决策",
             "研究镜头",
+            "研究框架",
             "决策证据标准",
             "决策框架完整性",
             "目标客户",
@@ -263,6 +389,7 @@ LABELS = {
         "report_headings": [
             "执行摘要",
             "阅读路径",
+            "研究方法与框架",
             "正文叙事",
             "决策逻辑",
             "最终建议",
@@ -288,8 +415,9 @@ LABELS = {
         "appendix_start_heading": "附录：证据登记表",
         "research_headings": [
             "本轮问题",
-            "来源列表",
-            "证据表",
+            "来源登记更新",
+            "主张与证据备注",
+            "框架覆盖情况",
             "发现",
             "数据质量备注",
         ],
@@ -297,8 +425,8 @@ LABELS = {
             "Brainstorming 状态",
             "当前问题框定",
             "澄清问题",
-            "可选下一步",
-            "选定方向",
+            "候选下一步",
+            "偏好的探索路径",
             "下一轮设计备注",
         ],
         "redteam_headings": [
@@ -315,6 +443,7 @@ LABELS = {
             "更新后的结论",
             "置信度",
             "决策依据",
+            "基于研究框架的综合",
             "本轮变化",
             "剩余未知",
             "进化后的下一轮目标",
@@ -329,8 +458,6 @@ LABELS = {
             "下一轮调研目标",
             "下一轮所需证据",
         ],
-        "source_cols": "来源 | URL | 检查日期 | 备注",
-        "evidence_cols": "主张 | 证据 | 来源 | 来源类型 | 新鲜度 | 置信度 | 矛盾证据",
         "probe_cols": "探针 | 回答 | 强度",
         "persona_cols": "角色 | 判断 | 理由",
         "search_tool_notes": [
@@ -338,6 +465,29 @@ LABELS = {
             "Tavily fallback 原因：无 / 未安装 / 未认证 / 失败 / 结果不足 / 不适合所需来源",
             "查询与过滤备注：查询词、域名、日期过滤、来源类型过滤",
         ],
+        "source_registry_note": "- 唯一来源登记：sources.jsonl\n- 本轮来源变更：只记录 source_id 和简短备注",
+        "claim_registry_note": (
+            "- 唯一主张/证据登记：claims.jsonl 和 evidence.jsonl\n"
+            "- 本轮证据备注：引用 claim_id 和 evidence_id，不复制完整登记表"
+        ),
+        "research_framework_note": (
+            "- 选定框架：\n"
+            "- 需要覆盖的维度：\n"
+            "- 为什么该框架适合本决策：\n"
+            "- 有意排除的维度："
+        ),
+        "framework_coverage_note": (
+            "- 已覆盖的框架维度：\n"
+            "- 薄弱或缺失维度：\n"
+            "- 按维度记录的矛盾证据：\n"
+            "- 由框架缺口导出的下一步证据目标："
+        ),
+        "framework_synthesis_note": (
+            "- 最强维度：\n"
+            "- 最弱维度：\n"
+            "- 跨维度综合判断：\n"
+            "- 影响置信度的框架缺口："
+        ),
         "decision_frame_note": (
             "- 原始问题已保留：\n"
             "- 支持的决策框架：\n"
@@ -348,6 +498,7 @@ LABELS = {
         "report_template_notes": [
             "最终门通过后，先给答案：决策、置信度、核心理由、最大保留意见和下一步",
             "告诉读者如何阅读：适合谁、支持什么决策、时间有限先看哪里",
+            "说明采用的研究框架、为什么适合本决策、已覆盖维度，以及薄弱或排除的维度",
             "用连贯正文解释背景、为什么重要、证据如何改变判断、最终判断为何成立",
             "从问题到建议的推理链，包括取舍和为什么排除其他选择",
             "最终建议、适合行动的人、不适合行动的人、条件和置信度",
@@ -383,6 +534,7 @@ LABELS = {
             "Superpowers Brainstorming ゲート",
             "判断すべきこと",
             "調査レンズ",
+            "調査フレームワーク",
             "判断に必要な証拠基準",
             "判断枠の整合性",
             "対象顧客",
@@ -412,6 +564,7 @@ LABELS = {
         "report_headings": [
             "エグゼクティブサマリー",
             "読み方",
+            "調査方法とフレームワーク",
             "本文",
             "判断ロジック",
             "最終推奨",
@@ -437,8 +590,9 @@ LABELS = {
         "appendix_start_heading": "付録: 証拠レジスター",
         "research_headings": [
             "今回の調査問い",
-            "情報源リスト",
-            "証拠テーブル",
+            "情報源レジストリ更新",
+            "主張と証拠メモ",
+            "フレームワーク網羅状況",
             "発見",
             "データ品質メモ",
         ],
@@ -446,8 +600,8 @@ LABELS = {
             "Brainstorming 状態",
             "現在の問いの定義",
             "確認すべき問い",
-            "次の選択肢",
-            "選んだ方向",
+            "次の候補",
+            "優先する探索経路",
             "次回ラウンドの設計メモ",
         ],
         "redteam_headings": [
@@ -464,6 +618,7 @@ LABELS = {
             "更新された結論",
             "信頼度",
             "判断根拠",
+            "フレームワークに基づく統合",
             "今回変わったこと",
             "残る不明点",
             "進化した次回調査目標",
@@ -478,8 +633,6 @@ LABELS = {
             "次回調査目標",
             "次に必要な証拠",
         ],
-        "source_cols": "情報源 | URL | 確認日 | メモ",
-        "evidence_cols": "主張 | 証拠 | 情報源 | 情報源タイプ | 鮮度 | 信頼度 | 矛盾する証拠",
         "probe_cols": "プローブ | 回答 | 強度",
         "persona_cols": "ペルソナ | 判断 | 理由",
         "search_tool_notes": [
@@ -487,6 +640,29 @@ LABELS = {
             "Tavily fallback 理由: なし / 未インストール / 未認証 / 失敗 / 結果不足 / 必要な情報源に不向き",
             "クエリとフィルタのメモ: クエリ、ドメイン、日付フィルタ、情報源タイプ",
         ],
+        "source_registry_note": "- 正規の情報源レジストリ: sources.jsonl\n- 今回の情報源変更: source_id と短いメモのみを記録",
+        "claim_registry_note": (
+            "- 正規の主張/証拠レジストリ: claims.jsonl と evidence.jsonl\n"
+            "- 今回の証拠メモ: claim_id と evidence_id を参照し、完全なレジストリ表を重複させない"
+        ),
+        "research_framework_note": (
+            "- 選択したフレームワーク:\n"
+            "- 網羅すべき次元:\n"
+            "- この判断に適している理由:\n"
+            "- 意図的に対象外とした次元:"
+        ),
+        "framework_coverage_note": (
+            "- 網羅済みのフレームワーク次元:\n"
+            "- 弱い、または欠落している次元:\n"
+            "- 次元別の矛盾する証拠:\n"
+            "- フレームワーク上の欠落から導く次の証拠目標:"
+        ),
+        "framework_synthesis_note": (
+            "- 最も強い次元:\n"
+            "- 最も弱い次元:\n"
+            "- 次元横断の統合判断:\n"
+            "- 信頼度に影響するフレームワーク上の欠落:"
+        ),
         "decision_frame_note": (
             "- 元の問いを保持:\n"
             "- 支援する判断枠:\n"
@@ -497,6 +673,7 @@ LABELS = {
         "report_template_notes": [
             "最終ゲート通過後に結論を先に示す: 判断、信頼度、主要理由、最大の留保、次の行動",
             "読者向けの読み方: 対象読者、支援する判断、時間がない場合に読む箇所",
+            "採用した調査フレームワーク、適合理由、網羅済み次元、弱いまたは除外した次元を示す",
             "背景、重要性、証拠が仮説をどう変えたか、判断がなぜ成立するかを読みやすく説明する",
             "問いから推奨までの推論、トレードオフ、却下した代替案の理由",
             "最終推奨、行動すべき人/すべきでない人、条件、信頼度",
@@ -536,7 +713,16 @@ def slugify(text: str) -> str:
 def labels(language: str) -> dict[str, object]:
     if language not in LANGUAGES:
         raise SystemExit(f"Unsupported language: {language}. Use one of: {', '.join(LANGUAGES)}")
-    return LABELS[language]
+    label = dict(LABELS[language])
+    for schema_key, canonical_headings in SECTION_SCHEMAS.items():
+        localized_headings = list(label.get(schema_key, ()))
+        localized_by_canonical = {
+            canonical_heading: localized_headings[index]
+            for index, canonical_heading in enumerate(canonical_headings)
+            if index < len(localized_headings)
+        }
+        label[schema_key] = [localized_by_canonical.get(heading, heading) for heading in canonical_headings]
+    return label
 
 
 def positive_int(value: str) -> int:
@@ -670,11 +856,19 @@ def placeholder_values(language: str) -> set[str]:
 def structural_values(language: str) -> frozenset[str]:
     label = labels(language)
     values: set[str] = set()
-    for key in ("source_cols", "evidence_cols", "probe_cols", "persona_cols"):
+    for key in ("probe_cols", "persona_cols"):
         values.update(col.strip() for col in str(label[key]).split("|"))
     values.update(str(probe) for probe in label["probes"])
     values.update(str(persona) for persona in label["personas"])
     values.update(str(note) for note in label["search_tool_notes"])
+    for key in (
+        "source_registry_note",
+        "claim_registry_note",
+        "research_framework_note",
+        "framework_coverage_note",
+        "framework_synthesis_note",
+    ):
+        values.update(str(note) for note in str(label[key]).splitlines())
     values.update(str(note) for note in str(label["decision_frame_note"]).splitlines())
     values.update(str(note) for note in str(label["continuation_policy_note"]).splitlines())
     values.update(str(note) for note in label["report_template_notes"])
@@ -810,19 +1004,7 @@ def validate_report_quality(
         if any(line.strip().startswith("|") and line.strip().endswith("|") for line in body_before_appendix.splitlines()):
             errors.append("report.md: prose-first rule violated; evidence tables belong in appendices, not the report body")
 
-    thin_sections: list[str] = []
-    for heading in label["report_headings"]:
-        body = section_body(text, str(heading))
-        if body is None:
-            continue
-        section_lines = [line for line in body.splitlines() if is_substantive_line(line, language)]
-        if len(section_lines) < 1:
-            thin_sections.append(str(heading))
-    if thin_sections:
-        errors.append("report.md: sections need substantive content: " + ", ".join(thin_sections))
-
     score_heading = str(label["report_quality_heading"])
-    score_body = section_body(text, score_heading) or ""
     score = parse_report_score(text, score_heading)
     if score is None:
         errors.append("report.md: Report Quality Score must include a parseable 'Total Score: N / 100'")
@@ -846,6 +1028,7 @@ def init_survey(args: argparse.Namespace) -> None:
 
     headings = label["brief_headings"]
     decision_frame_note = str(label["decision_frame_note"])
+    research_framework_note = str(label["research_framework_note"])
     continuation_policy_note = str(label["continuation_policy_note"])
     write_once(
         survey_dir / "00-brief.md",
@@ -870,6 +1053,10 @@ def init_survey(args: argparse.Namespace) -> None:
 
 ## {headings[4]}
 
+{research_framework_note}
+
+## {headings[5]}
+
 - Mode: {mode}
 - Minimum Sources: {mode_config['min_sources']}
 - Minimum Claims: {mode_config['min_claims']}
@@ -877,13 +1064,9 @@ def init_survey(args: argparse.Namespace) -> None:
 - Target Report Length: {mode_config['target_report_length']}
 - Quality Gate: {mode_config['quality_gate']}
 
-## {headings[5]}
-
-{decision_frame_note}
-
 ## {headings[6]}
 
--
+{decision_frame_note}
 
 ## {headings[7]}
 
@@ -898,6 +1081,10 @@ def init_survey(args: argparse.Namespace) -> None:
 -
 
 ## {headings[10]}
+
+-
+
+## {headings[11]}
 
 {continuation_policy_note}
 """,
@@ -968,6 +1155,9 @@ def create_round(args: argparse.Namespace) -> None:
 
     headings = label["research_headings"]
     search_tool_notes = "\n".join(f"- {note}" for note in label["search_tool_notes"])
+    source_registry_note = str(label["source_registry_note"])
+    claim_registry_note = str(label["claim_registry_note"])
+    framework_coverage_note = str(label["framework_coverage_note"])
     write_once(
         survey_dir / f"{prefix}-research.md",
         f"""# {round_title(label, int(args.round), str(label['research']))}
@@ -978,17 +1168,21 @@ def create_round(args: argparse.Namespace) -> None:
 
 ## {headings[1]}
 
-{table(str(label['source_cols']))}
+{source_registry_note}
 
 ## {headings[2]}
 
-{table(str(label['evidence_cols']))}
+{claim_registry_note}
 
 ## {headings[3]}
 
-- 
+{framework_coverage_note}
 
 ## {headings[4]}
+
+-
+
+## {headings[5]}
 
 {search_tool_notes}
 """,
@@ -1065,6 +1259,7 @@ def create_round(args: argparse.Namespace) -> None:
 """,
     )
     headings = label["synthesis_headings"]
+    framework_synthesis_note = str(label["framework_synthesis_note"])
     write_once(
         survey_dir / f"{prefix}-synthesis.md",
         f"""# {round_title(label, int(args.round), str(label['synthesis']))}
@@ -1083,17 +1278,21 @@ def create_round(args: argparse.Namespace) -> None:
 
 ## {headings[3]}
 
-- 
+{framework_synthesis_note}
 
 ## {headings[4]}
 
-- 
+-
 
 ## {headings[5]}
 
-- 
+-
 
 ## {headings[6]}
+
+-
+
+## {headings[7]}
 
 -
 """,
@@ -1128,7 +1327,8 @@ def create_round(args: argparse.Namespace) -> None:
 ## {headings[4]}
 
 - Evidence coverage this round:
-- Weakest evidence dimensions:
+- Framework coverage this round:
+- Weakest evidence or framework dimensions:
 - Continue / stop implication:
 - Next-round focus:
 

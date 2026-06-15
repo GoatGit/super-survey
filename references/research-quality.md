@@ -11,7 +11,7 @@ Prefer sources in this order:
 3. Reputable secondary sources: established media, analyst reports, credible expert writing.
 4. Community signals: GitHub issues, Reddit, forums, social posts. Treat these as qualitative, not definitive.
 
-## Research Lens Selection
+## Research Lens And Framework Selection
 
 Use lenses to emphasize evidence needs without turning Super Survey into a fixed set of special cases. Pick 1-3 lenses, or define a custom lens, then keep the same common research loop.
 
@@ -27,9 +27,32 @@ Useful lenses:
 
 The lens is not the answer. It only decides which claims require stronger evidence.
 
+After choosing lenses, write an explicit research framework. The framework is the reader-visible method: it says which dimensions the report covers, what each dimension is meant to answer, and where coverage is weak or intentionally out of scope.
+
+Framework starters:
+
+| Survey type | Useful dimensions |
+|---|---|
+| Product opportunity | user pain, frequency, willingness to pay, substitutes, distribution, retention, trust/compliance, implementation difficulty |
+| Market / competitor | demand, supply, competition, pricing, channels, switching cost, regulation, growth drivers |
+| Technical feasibility | requirements, architecture path, data/API access, performance, reliability, security, operations, maintenance cost |
+| Open-source adoption | license, maintainer health, release cadence, issue response, API stability, ecosystem, alternatives, adoption risk |
+| Investment / diligence | macro, industry, company, financial quality, valuation, catalysts, capital flows, risks |
+| Custom | define 5-9 dimensions that fit the user's decision |
+
+Securities-style research can compose these domain frameworks:
+
+- Market view: macro, liquidity, earnings, valuation, risk appetite, fund flows.
+- Industry view: demand, supply, competition, policy, technology, cycle, valuation.
+- Company view: business model, financial quality, growth, competitive advantage, valuation, catalysts, risks.
+
+Do not treat a framework as a prewritten conclusion. If a framework dimension is weak, say so and make it a candidate next-round target.
+
 ## Claim-Level Evidence
 
-Important claims should be evaluated individually. Use a table shaped like:
+Important claims should be evaluated individually. The canonical records live in `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`; `NN-research.md` should reference `source_id`, `claim_id`, and `evidence_id` values instead of copying a full evidence table into the round body.
+
+Use this shape as the mental model for registry fields or appendix summaries, not as a required Markdown table in every round:
 
 | Claim | Evidence | Source | Source Type | Freshness | Confidence | Contradictions |
 |---|---|---|---|---|---|---|
@@ -42,6 +65,15 @@ Guidance:
 - **Contradictions**: conflicting evidence, missing evidence, or "none found after checking X".
 
 Do not let one strong claim hide a weak critical claim. Buyer clarity, data access, compliance, and willingness to pay often deserve separate evidence rows.
+
+## Framework Coverage
+
+At the end of each `NN-research.md`, summarize framework coverage in prose or a compact appendix-style view. Keep source and evidence details referenced by ID so the registry remains the source of truth:
+
+| Framework Dimension | Evidence Status | Confidence | Contradictions | Next Evidence Need |
+|---|---|---|---|---|
+
+Good coverage means the report can explain both what was checked and what remains weak. If a dimension matters to the decision but lacks evidence, do not hide it in a generic "limitations" paragraph; either continue another round or name why desk research cannot reduce it.
 
 ## Required Checks
 

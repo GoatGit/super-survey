@@ -2,13 +2,17 @@
 
 Language: English | [中文](README.zh-CN.md) | [日本語](README.ja.md)
 
-Super Survey is a reusable agent skill and research workflow for multi-round product, market, technical, and open-source research. It turns a vague research target into evidence-backed Markdown artifacts with red-team critique, synthesis, and a sharper next-round question. It is designed for Skills-compatible agents and can also be used directly through its bundled CLI.
+Super Survey is a reusable agent skill for multi-round product, market, technical, and open-source research. It turns a vague research target into evidence-backed Markdown artifacts with red-team critique, synthesis, and a sharper next-round question. It is designed for Skills-compatible agents and can also be used directly through its bundled CLI.
+
+It focuses on three jobs:
+
+- Turn vague questions into an executable research frame.
+- Reduce gut-feel conclusions with evidence, red-team critique, and synthesis.
+- Produce either a sharper next-round question or a final report at the end of each round.
 
 ## First Principles
 
 The world is noisy, random, and not reliably predictable from an initial hunch. Super Survey is built around that premise: every research task must avoid the trap of deciding first and then collecting evidence to support the decision.
-
-The workflow keeps conclusions provisional until evidence, contradictions, red-team critique, synthesis, and the raw evolver decision have all been written down. `00-brief.md` defines the decision frame and continuation policy, but it must not predict the number of rounds or prewrite the conclusion.
 
 ## What It Does
 
@@ -71,17 +75,29 @@ python3 scripts/survey_round.py init "AI採用エージェント" --language ja
 python3 scripts/survey_round.py init "formal market report" --mode deep
 ```
 
-Create and validate a round:
+Create and check a round:
 
 ```bash
 python3 scripts/survey_round.py round surveys/2026-06-13-ai-recruiting-agent 1
-python3 scripts/survey_round.py validate-evidence surveys/2026-06-13-ai-recruiting-agent
 python3 scripts/survey_round.py check surveys/2026-06-13-ai-recruiting-agent
 python3 scripts/survey_round.py check-final surveys/2026-06-13-ai-recruiting-agent
 python3 scripts/survey_round.py upgrade-report surveys/2026-06-13-ai-recruiting-agent
 ```
 
-`check` validates round artifacts, `index.md`, the evidence registry, companion-routing notes, and the latest raw evolver decision. It does not require `report.md`; when the latest decision is `Keep`, `Narrow`, or `Pivot`, it can pass with a continuation warning so the next round can proceed without forcing a premature `Kill`. `check-final` validates the same round artifacts plus final `report.md`, prose-first report rules, the mode-specific quality score, and the requirement that the latest raw evolver decision is `Kill`. `validate-evidence` checks `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl` directly. Round numbers must be positive integers. Older six-section reports are readable but do not pass the final gate; run `upgrade-report` to append the full report schema and then fill the new sections.
+Debug registry links directly:
+
+```bash
+python3 scripts/survey_round.py validate-evidence surveys/2026-06-13-ai-recruiting-agent
+```
+
+Command meanings:
+
+- `check`: validates round artifacts, `index.md`, the evidence registry, companion-routing notes, and the latest raw evolver decision. It does not require `report.md`.
+- `check-final`: runs the same checks plus final `report.md`, prose-first report rules, the mode-specific quality score, and the requirement that the latest raw evolver decision is `Kill`.
+- `upgrade-report`: appends the full report schema to an older report. Older six-section reports are readable but do not pass the final gate; after upgrading, fill the new sections.
+- `validate-evidence`: narrow debugging command for `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`; normal round validation uses `check` / `check-final`.
+
+When the latest decision is `Keep`, `Narrow`, or `Pivot`, `check` can pass with a continuation warning so the next round can proceed without forcing a premature `Kill`. Round numbers must be positive integers.
 
 ## Modes And Evidence Registry
 
@@ -117,51 +133,55 @@ Validate discovery:
 npx skills add GoatGit/super-survey --list
 ```
 
+## Research Frameworks
+
+`Research lens` decides what evidence deserves emphasis. `Research framework` tells the reader how the report systematically examines the question. Every survey should name a framework, list its dimensions, and disclose weak or intentionally omitted dimensions.
+
+Common starters:
+
+| Survey type | Framework dimensions |
+|---|---|
+| Product opportunity | user pain, frequency, willingness to pay, substitutes, distribution, retention, trust/compliance, implementation difficulty |
+| Market / competitor | demand, supply, competition, pricing, channels, switching cost, regulation, growth drivers |
+| Technical feasibility | requirements, architecture, data/API access, performance, reliability, security, operations, maintenance |
+| Open-source adoption | license, maintainer health, release cadence, issue response, API stability, ecosystem, alternatives, adoption risk |
+| Investment / diligence | macro, industry, company, financial quality, valuation, catalysts, capital flows, risks |
+
+For securities-style research, Super Survey can compose market, industry, and company frameworks: market view uses macro, liquidity, earnings, valuation, risk appetite, and fund flows; industry view uses demand, supply, competition, policy, technology, cycle, and valuation; company view uses business model, financial quality, growth, competitive advantage, valuation, catalysts, and risks. These are examples, not hard branches.
+
 ## Quality Gates
 
-A complete round must include:
+README gives the operational shape; the full agent checklist lives in `SKILL.md`.
 
-- current target and decision criteria
-- a research lens and decision evidence standard that guide source selection without forcing a narrow category
-- current claim-level evidence with source type, freshness, confidence, contradictions, and search tool used
-- a brainstorming checkpoint
-- findings separated from interpretation
-- red-team critique with substitutes, alternative explanations, and kill criteria checked
-- synthesis with confidence, decision rationale, and unknowns
-- lightweight evolver output with `Keep / Narrow / Pivot / Kill`
-- explicit continue/stop decision driven by the latest evolver decision and final report quality, not a fixed round count or a prewritten conclusion
-- updated `index.md` as the per-round workbench: current thesis, evidence-bound conclusion, round ledger, continuation status, next target, why not final yet, sources, wiki status, and decision log
-- standalone `report.md` only after the stop gate passes: readable narrative first, appendices for evidence/source/method/red-team/scenario details second
+There are three gates:
+
+- `check` is the round gate. It validates artifacts, registry links, framework coverage, companion/wiki notes, and the latest raw evolver decision. It can pass with a continuation warning when the decision is `Keep`, `Narrow`, or `Pivot`.
+- The evolver is the stop gate. `Keep`, `Narrow`, and `Pivot` mean create another round and update `index.md`; `Kill` means the survey may move to final report writing.
+- `check-final` is the delivery gate. It requires a complete prose-first `report.md`, a passing mode score, and the latest raw evolver decision to be `Kill`.
 
 Final `report.md` uses a 100-point quality gate:
 
 | Dimension | Points |
 |---|---:|
 | Problem and scope definition | 15 |
-| Source and method quality | 20 |
+| Source, method, and framework quality | 20 |
 | Evidence completeness | 20 |
 | Analysis and red-team quality | 20 |
 | Actionability | 15 |
 | Structure and readability | 10 |
 
-Mode thresholds are hard gates: `quick >=80`, `standard >=90`, and `deep >=95`. A final report below the selected threshold must continue another round focused on the weakest dimensions.
+Mode thresholds are hard gates: `quick >=80`, `standard >=90`, and `deep >=95`. A final report below the selected threshold must continue another round focused on the weakest dimensions. The helper uses only the raw evolver decision plus the score threshold for stopping; it does not parse report prose such as "future disclosure" or "external validation" as a stopping rule.
 
-After the final gate passes, the final report should read like a human memo, not an audit table. Start with the answer, reader's path, main narrative, decision logic, recommendation, change triggers, next actions, and limits. Put evidence registers, source quality, red-team notes, scenarios, quality score, and source inventory in appendices so rigor is preserved without breaking readability.
+The final report should read like a human memo: answer, reader's path, research method and framework, narrative, decision logic, recommendation, change triggers, next actions, and limits first; evidence registers, source quality, red-team notes, scenarios, quality score, and source inventory in appendices.
 
-The evolver runs before final report writing. It is a round-level gate that converts the latest synthesis and red-team critique into `Keep / Narrow / Pivot / Kill` plus a sharper next-round focus. If the evolver says `Keep`, `Narrow`, or `Pivot`, continue another round and update `index.md`; do not draft `report.md` yet. If the evolver says `Kill`, write the final report, score it, and run `check-final`. A survey may stop only when both raw gates pass: the final report meets the selected mode threshold, and the latest evolver decision is `Kill`. The helper does not use `report.md` prose such as "future disclosure" or "external validation" to override the raw evolver decision.
-
-Wiki persistence is a required attempt for every completed survey round. Prefer `karpathy-llm-wiki` / `Astro-Han/karpathy-llm-wiki`; fall back to local `llm-wiki`, then `pin-llm-wiki` when project config exists, then another indexer, then Markdown-only `index.md`. `index.md` must record `Wiki Tool Attempted`, `Wiki Ingest Result`, `Wiki Fallback Reason`, and `Wiki Artifact Path`.
-
-Super Survey can route subtasks to optional companion skills for search, deep reports, VOC/customer research, competitor analysis, brainstorming, and wiki persistence. For current-source discovery, it should try `tavily-search` first and document any fallback. These companions gather or package evidence; Super Survey remains responsible for the final judgment loop.
-
-`deep-research` is the preferred companion when the user asks for a formal long report, many citations, HTML/PDF output, strict citation validation, or publication-style source audit. In that workflow, deep-research handles evidence persistence and long-report packaging; Super Survey still owns red-team critique, the evolver decision, and final decision convergence.
+Companion skills are optional helpers for search, long reports, VOC/customer research, competitor analysis, brainstorming, and wiki persistence. Current-source discovery should try `tavily-search` first and record any fallback. Use `deep-research` for formal long reports, many citations, HTML/PDF output, or strict citation validation. Super Survey still owns the judgment loop.
 
 ## Workflow
 
 ```mermaid
 flowchart TD
-    A[User research question] --> B[00-brief.md<br/>decision, lens, evidence standard]
-    B --> C[Round research<br/>sources and claim-level evidence]
+    A[User research question] --> B[00-brief.md<br/>decision, lens, framework, evidence standard]
+    B --> C[Round research<br/>sources, claim-level evidence, framework coverage]
     C --> D{Need companion skill?}
     D -->|Current sources| D1[Tavily first<br/>fallback web search]
     D -->|Long report| D2[Deep Research]

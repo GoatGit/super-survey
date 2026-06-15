@@ -15,9 +15,9 @@ Every survey round must:
 
 0. Use Superpowers brainstorming as a recurring checkpoint, not only a kickoff gate.
 1. State the current research target and decision criteria.
-2. Choose a generic research lens and evidence standard without forcing the work into a narrow fixed category.
+2. Choose a generic research lens, explicit research framework, and evidence standard without forcing the work into a narrow fixed category.
 3. Gather evidence from current sources when facts may have changed.
-4. Re-enter a brainstorming checkpoint to reframe the problem and compare next moves.
+4. Re-enter a brainstorming checkpoint to reframe the problem and compare candidate next moves.
 5. Separate findings from interpretation.
 6. Include a red-team challenge: why the idea may fail, why evidence may be weak, what alternative explanations or substitutes exist, and what constraints invalidate the thesis.
 7. Check explicit kill criteria before recommending another round.
@@ -25,7 +25,7 @@ Every survey round must:
 9. Run the lightweight evolver to sharpen or kill the next-round target.
 10. Decide whether to continue using the latest evolver decision; use final report quality only after the stop gate moves to `report.md`.
 11. Maintain the lightweight evidence registry: `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`.
-12. Validate citations and claim support with `survey_round.py validate-evidence` or the integrated `check` command.
+12. Validate citations and claim support with the integrated `survey_round.py check` / `check-final` commands; use `validate-evidence` only for focused registry debugging.
 13. Update an index and attempt wiki/graph indexing, or record why it was unavailable.
 14. Use `index.md` as the per-round workbench and decision ledger.
 15. Write `report.md` only after the stop gate passes and before giving a final answer.
@@ -48,9 +48,9 @@ Recommended companion routing:
 | Need | Prefer | Record where |
 |---|---|---|
 | Brainstorming checkpoints, reframing, next-move comparison | `superpowers:brainstorming` or equivalent brainstorming workflow | `00-brief.md`, `NN-brainstorm.md` |
-| Current web search, recent facts, source discovery | `tavily-search` first; built-in web search or another current-source search tool only as fallback | `NN-research.md` Source List and Data Quality Notes |
+| Current web search, recent facts, source discovery | `tavily-search` first; built-in web search or another current-source search tool only as fallback | `NN-research.md` Source Registry Updates and Data Quality Notes |
 | Formal long report, many citations, HTML/PDF, strict citation validation, extensive source triangulation | `deep-research` or equivalent deep research/reporting skill | `NN-research.md`, `report.md`, registry JSONL files, `index.md` |
-| Customer voice / VOC / Reddit or review mining | customer-research, reddit-research, or equivalent VOC workflow | `NN-research.md` Evidence Table and `NN-redteam.md` alternatives |
+| Customer voice / VOC / Reddit or review mining | customer-research, reddit-research, or equivalent VOC workflow | `NN-research.md` Claim And Evidence Notes and `NN-redteam.md` alternatives |
 | Competitor matrix, positioning map, SWOT | competitive-research or equivalent competitor-analysis workflow | `NN-research.md`, optional competitor notes, `NN-synthesis.md` |
 | Long-term source and knowledge persistence | `karpathy-llm-wiki` / `Astro-Han/karpathy-llm-wiki` first; local `llm-wiki` second; `pin-llm-wiki` or another indexer only as fallback | `index.md` Wiki / Graph Index Status |
 | Reusable marketing or growth ideas after the research conclusion | `marketing-ideas` or equivalent ideation skill | `NN-synthesis.md` Recommended Next Action |
@@ -103,8 +103,10 @@ Use `$superpowers brainstorming` throughout the survey. It has two roles:
    - restate what changed
    - ask or record any new clarifying question
    - propose 2-3 possible next moves
-   - choose the next-round direction
-   - decide whether to continue, narrow, pivot, or stop
+   - compare candidate exploration paths
+   - record the preferred exploration path and assumptions
+
+Brainstorming proposes routes; it does not own the raw continue/stop decision. The latest `NN-evolver.md` decision is the only machine-readable round decision.
 
 For quick exploratory requests, keep each checkpoint lightweight: explicit assumptions and a concise next-move comparison are enough. Do not let brainstorming become a blocker when the user already gave enough constraints.
 
@@ -133,9 +135,9 @@ python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent" --mode st
 python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent" --language zh --mode quick
 python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent" --language ja --mode deep
 python3 <skill-dir>/scripts/survey_round.py round surveys/2026-06-12-ai-recruiting-agent 1
-python3 <skill-dir>/scripts/survey_round.py validate-evidence surveys/2026-06-12-ai-recruiting-agent
 python3 <skill-dir>/scripts/survey_round.py check surveys/2026-06-12-ai-recruiting-agent
 python3 <skill-dir>/scripts/survey_round.py check-final surveys/2026-06-12-ai-recruiting-agent
+python3 <skill-dir>/scripts/survey_round.py validate-evidence surveys/2026-06-12-ai-recruiting-agent
 python3 <skill-dir>/scripts/survey_round.py upgrade-report surveys/2026-06-12-ai-recruiting-agent
 ```
 
@@ -157,6 +159,7 @@ Write `00-brief.md` with:
 - Superpowers Brainstorming Gate
 - Practical decision to make
 - Research lens
+- Research framework
 - Decision evidence standard
 - Decision frame integrity
 - Target user/customer
@@ -201,8 +204,9 @@ index.md
 `NN-research.md` should contain:
 
 - Research question for this round
-- Source list with dates/URLs where applicable
-- Claim-level evidence table with source type, freshness, confidence, and contradictions
+- Source registry updates by `source_id`; `sources.jsonl` remains the canonical source list
+- Claim and evidence notes by `claim_id` / `evidence_id`; `claims.jsonl` and `evidence.jsonl` remain the canonical evidence registry
+- Framework coverage: which framework dimensions are covered, weak, missing, contradictory, or driving the next evidence target
 - Notes on data quality, freshness, and whether Tavily or a fallback search path was used
 
 `NN-brainstorm.md` should contain:
@@ -210,8 +214,8 @@ index.md
 - Brainstorming status
 - Current framing after the research pass
 - Clarifying questions or explicit assumptions
-- 2-3 possible next moves
-- Chosen direction
+- 2-3 candidate next moves
+- Preferred exploration path, not a final continue/stop decision
 - Design notes for the next round
 
 `NN-redteam.md` should contain:
@@ -229,6 +233,7 @@ index.md
 - Updated conclusion
 - Confidence: low / medium / high
 - Decision rationale: why the recommendation follows from the evidence
+- Framework-based synthesis: strongest dimensions, weakest dimensions, cross-dimension judgment, and framework gaps affecting confidence
 - What changed from prior round
 - Best next question
 - Recommended next action
@@ -243,6 +248,7 @@ The readable body should contain:
 
 - Executive summary with the answer, confidence, key reason, strongest caveat, and next action.
 - Reader's path: who the report is for, what decision it supports, and what to read first.
+- Research method and framework: the framework used, why it fits, which dimensions were covered, and which dimensions remain weak or out of scope.
 - Main narrative: the situation, why it matters, what changed across rounds, and why the conclusion follows.
 - Decision logic: the reasoning chain, tradeoffs, and why alternatives were rejected.
 - Final recommendation: who should act, who should not act, conditions, and confidence.
@@ -252,7 +258,7 @@ The readable body should contain:
 
 Appendices should contain:
 
-- Evidence register with claim-level evidence, confidence, contradictions, freshness, and source names.
+- Evidence register appendix with decisive claim IDs and source IDs; do not copy the full JSONL registry into the report.
 - Method and source quality, including search tools used, source types, confidence rules, and fallback notes.
 - Red-team notes with strongest objections, substitutes, kill criteria, and falsification tests.
 - Options or scenarios with pros, cons, trigger conditions, and expected implications.
@@ -263,9 +269,9 @@ For non-trivial surveys, `report.md` must be longer and more complete than `NN-s
 
 New surveys use report schema v2. Legacy reports with the older six-section structure remain readable, but they do not satisfy the final delivery gate. Run `survey_round.py upgrade-report <survey-dir>` and then expand the appended sections before final delivery. `upgrade-report` appends missing v2 sections and updates metadata; it does not write the report for you.
 
-### 2.5 Research Lens
+### 2.5 Research Lens And Framework
 
-Use a research lens as a lightweight emphasis guide, not a hard decision-type branch. A survey can combine lenses when needed.
+Use a research lens as a lightweight emphasis guide, not a hard decision-type branch. Use a research framework as the reader-visible method for how the report will systematically examine the question. A survey can combine lenses and frameworks when needed.
 
 Pick or write 1-3 lenses that best match the question:
 
@@ -277,7 +283,24 @@ Pick or write 1-3 lenses that best match the question:
 - **Open-source lens**: what license, maintainers, release cadence, issues, adoption, API stability, and ecosystem risks matter?
 - **Custom lens**: define the lens when the survey does not fit the examples above.
 
-Do not force every survey into a predefined category. The lens only determines which evidence deserves extra attention; the common research loop still applies.
+After choosing lenses, select or write a research framework with explicit dimensions. The framework answers: what dimensions will this research cover, what question does each dimension answer, and which dimensions are weak or intentionally out of scope?
+
+Useful framework starters:
+
+- **Product opportunity framework**: user pain, frequency, willingness to pay, substitutes, distribution, retention, trust/compliance, implementation difficulty.
+- **Market / competitor framework**: demand, supply, competition, pricing, channels, switching cost, regulation, growth drivers.
+- **Technical feasibility framework**: requirements, architecture path, data/API access, performance, reliability, security, operations, maintenance cost.
+- **Open-source adoption framework**: license, maintainer health, release cadence, issue response, API stability, ecosystem, alternatives, adoption risk.
+- **Investment / diligence framework**: macro, industry, company, financial quality, valuation, catalysts, capital flows, risks.
+- **Custom framework**: name the dimensions when the topic needs another method.
+
+For securities-style research, a domain framework can be composed without making Super Survey a securities-only tool:
+
+- Market view: macro, liquidity, earnings, valuation, risk appetite, fund flows.
+- Industry view: demand, supply, competition, policy, technology, cycle, valuation.
+- Company view: business model, financial quality, growth, competitive advantage, valuation, catalysts, risks.
+
+Do not force every survey into a predefined category. The lens determines which evidence deserves extra attention; the framework makes the research method visible to readers. The common Super Survey loop still applies, and a framework is not a prewritten conclusion.
 
 `NN-evolver.md` should contain the output of the built-in lightweight evolver:
 
@@ -364,7 +387,7 @@ Score the final `report.md` on a 100-point rubric before finalizing. Before `rep
 | Dimension | Points | What Good Looks Like |
 |---|---:|---|
 | Problem and scope definition | 15 | Clear decision, audience, assumptions, non-goals, and success/failure criteria |
-| Source and method quality | 20 | Current sources where needed, primary sources preferred, search tools/fallbacks recorded |
+| Source, method, and framework quality | 20 | Current sources where needed, primary sources preferred, search tools/fallbacks recorded, research framework stated and coverage gaps disclosed |
 | Evidence completeness | 20 | Claim-level evidence, contradictions, confidence, source freshness, and enough coverage for the decision |
 | Analysis and red-team quality | 20 | Synthesis across evidence, alternatives, objections, kill criteria, and falsification tests |
 | Actionability | 15 | Concrete recommendation, next actions, owners/timeframes when useful, monitoring and stop/continue triggers |
@@ -406,21 +429,21 @@ Do not let report prose decide whether to stop. `report.md` can explain uncertai
 
 Before reporting a round as complete:
 
-1. Run `survey_round.py validate-evidence <survey-dir>` to validate source, claim, and evidence registry links.
-2. Run `survey_round.py check <survey-dir>` for round artifacts and the latest raw evolver gate.
+1. Run `survey_round.py check <survey-dir>` for round artifacts, registry validation, and the latest raw evolver gate.
+2. Use `survey_round.py validate-evidence <survey-dir>` only when debugging registry errors directly.
 3. Fix missing files, missing headings, empty required sections, or empty-template artifacts.
 4. Confirm every required section contains substantive content, not only placeholders such as `Status:`, `Notes:`, `Option A:`, or table headers.
 5. Confirm `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl` meet the selected mode's minimum coverage and have no orphan links.
-6. Confirm `00-brief.md` has a research lens and decision evidence standard specific enough to guide source selection.
-7. Confirm `NN-research.md` records source type, freshness, confidence, contradictions, search tool used, and Tavily fallback reason if Tavily was not used for current-source discovery.
+6. Confirm `00-brief.md` has a research lens, research framework, and decision evidence standard specific enough to guide source selection and reader expectations.
+7. Confirm `NN-research.md` records source type, freshness, confidence, contradictions, framework coverage, search tool used, and Tavily fallback reason if Tavily was not used for current-source discovery.
 8. Confirm `NN-redteam.md` checks substitutes, alternative explanations, and explicit kill criteria.
-9. Confirm `NN-synthesis.md` states decision rationale, not only a conclusion.
+9. Confirm `NN-synthesis.md` states decision rationale and framework-based synthesis, not only a conclusion.
 10. Confirm `NN-evolver.md` has a concrete `Keep / Narrow / Pivot / Kill` decision.
 11. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
 12. Confirm `index.md` reflects the latest thesis, current evidence-bound conclusion, round ledger, continuation status, next research target, why it is not final yet, open questions, source inventory, wiki/graph status, and decision log.
 13. If the evolver says `Keep`, `Narrow`, or `Pivot`, update `index.md`, create the next round, and do not write `report.md` yet.
 14. If the evolver says `Kill`, write `report.md` as the final standalone report.
-15. Confirm `report.md` is complete, standalone, updated with the latest synthesis, and reads as a coherent report: executive summary, reader's path, main narrative, decision logic, final recommendation, change triggers, next actions, limits, then appendices for evidence, method/source quality, red-team notes, scenarios, quality score, and source notes.
+15. Confirm `report.md` is complete, standalone, updated with the latest synthesis, and reads as a coherent report: executive summary, reader's path, research method and framework, main narrative, decision logic, final recommendation, change triggers, next actions, limits, then appendices for evidence, method/source quality, red-team notes, scenarios, quality score, and source notes.
 16. Confirm the `Report Quality Score` section includes total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
 17. Confirm the report body obeys prose-first rules and does not put evidence tables before the first appendix.
 18. Run `survey_round.py check-final <survey-dir>` before presenting the survey as final.
