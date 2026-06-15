@@ -251,9 +251,7 @@ Draft the report section by section, not by pasting the audit trail. For each bo
 The readable body should contain:
 
 - Executive summary with the answer, confidence, key reason, strongest caveat, and next action.
-- Reader's path: who the report is for, what decision it supports, and what to read first.
-- Research method and framework: the framework used, why it fits, which dimensions were covered, and which dimensions remain weak or out of scope.
-- Framework dimension analysis: each framework dimension must become a body subheading, such as `### Market environment` or `### User pain`, with narrative analysis under it. Do not leave dimensions only in the method section, scorecard, evidence appendix, or source audit.
+- Framework dimension chapters: each effective framework dimension from `index.md` / `00-brief.md` must become a top-level body heading such as `## Market Environment` or `## User Pain`, with narrative analysis under it. Do not wrap them under a generic `Framework Dimension Analysis` heading, and do not leave them only in a method note, scorecard, evidence appendix, or source audit.
 - Main narrative: the situation, why it matters, what changed across rounds, and why the conclusion follows.
 - Decision logic: the reasoning chain, tradeoffs, and why alternatives were rejected.
 - Final recommendation: who should act, who should not act, conditions, and confidence.
@@ -267,12 +265,11 @@ Appendices should contain:
 - Method and source quality, including search tools used, source types, confidence rules, and fallback notes.
 - Red-team notes with strongest objections, substitutes, kill criteria, and falsification tests.
 - Options or scenarios with pros, cons, trigger conditions, and expected implications.
-- Report quality score with total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
 - Source notes with source inventory, dates checked, URLs, and companion/wiki/indexing notes.
 
 For non-trivial surveys, `report.md` must be longer and more complete than `NN-synthesis.md`, but length alone is not quality. It should read like a coherent memo with supporting appendices, not a pile of evidence tables. A report that only contains a few bullets is incomplete; a report that opens with long source tables before explaining the judgment is also incomplete. A report that names a research framework but does not analyze those dimensions as body subchapters is incomplete.
 
-New surveys use report schema v2. Legacy reports with the older six-section structure remain readable, but they do not satisfy the final delivery gate. Run `survey_round.py upgrade-report <survey-dir>` and then expand the appended sections before final delivery. `upgrade-report` appends missing v2 sections and updates metadata; it does not write the report for you.
+New surveys use report schema v3. Legacy reports with older report schemas remain readable, but they do not satisfy the final delivery gate. Run `survey_round.py upgrade-report <survey-dir>` and then expand the appended sections before final delivery. `upgrade-report` appends missing v3 report sections and updates metadata; it does not write the report for you.
 
 ### 2.5 Research Lens And Framework
 
@@ -394,11 +391,11 @@ Never claim a wiki or graph was built unless the ingest/indexing command or file
 
 `code-review-graph` is not a substitute for the survey wiki. Use it only when the survey target is a code repository and code structure analysis is needed.
 
-### 5. Report Quality Score And Continuation
+### 5. Final Quality Gate And Continuation
 
 Super Survey supports arbitrary positive round numbers, but the number itself is not the stopping rule. The helper accepts `round <survey-dir> 3`, `round <survey-dir> 4`, and later rounds when the completed round's evidence and evolver decision say another pass is needed. The brief must not predict those future rounds.
 
-Score the final `report.md` on a 100-point rubric before finalizing. Before `report.md` exists, record provisional quality notes in `NN-evolver.md` and `index.md`; do not let those notes masquerade as a final report score.
+Score the final `report.md` on a 100-point rubric before finalizing, but record that score in `index.md` under `Final Report Quality Gate`, not inside `report.md`. Before `report.md` exists, record provisional quality notes in `NN-evolver.md` and `index.md`; do not let those notes masquerade as a final report score.
 
 | Dimension | Points | What Good Looks Like |
 |---|---:|---|
@@ -413,9 +410,9 @@ Mode-specific thresholds are stricter for deeper work. `quick` can pass at 80 wh
 
 Machine continuation gate:
 
-- Stop only when both raw gates pass: `report.md` score is at or above the selected mode threshold, and the latest `NN-evolver.md` decision is `Kill`.
+- Stop only when both raw gates pass: the `index.md` final report score is at or above the selected mode threshold, and the latest `NN-evolver.md` decision is `Kill`.
 - `Keep`, `Narrow`, or `Pivot` always require another round. Do not use `report.md` explanations such as "future disclosure", "external validation", or "no decision-changing unknowns" to override the evolver's raw decision.
-- `Kill` means the research loop can move to final report writing. The survey stops only after `report.md` exists, its score passes, and `check-final` passes. The report should still explain the kill rationale for readers, but the helper does not parse that prose as a stopping signal.
+- `Kill` means the research loop can move to final report writing. The survey stops only after `report.md` exists, the `index.md` final quality score passes, and `check-final` passes. The report should still explain the kill rationale for readers, but the helper does not parse that prose as a stopping signal.
 - `survey_round.py check` may pass with a continuation warning when the latest decision is `Keep`, `Narrow`, or `Pivot`; that means the round artifacts are valid and the next round must be created. `survey_round.py check-final` must fail for those decisions.
 
 Report score thresholds:
@@ -432,14 +429,14 @@ Continue another round when:
 - A next-round question could materially change the decision.
 - The latest synthesis lists remaining unknowns that can still be reduced by desk research, current-source search, competitor checks, policy review, source triangulation, or repository analysis.
 - The evolver says `Keep`, `Narrow`, or `Pivot`.
-- After final report drafting, `report.md` scores below the selected mode's pass threshold and the weak dimensions are improvable by another evidence pass.
+- After final report drafting, the `index.md` final report score is below the selected mode's pass threshold and the weak dimensions are improvable by another evidence pass.
 
 Stop when:
 
-- `Kill + pass`: the latest evolver decision is `Kill` and the report score passes the selected mode threshold.
+- `Kill + pass`: the latest evolver decision is `Kill` and the `index.md` final report score passes the selected mode threshold.
 - The user explicitly stops or asks for a bounded checkpoint; still report unresolved quality risks instead of pretending the survey converged.
 
-Do not let report prose decide whether to stop. `report.md` can explain uncertainty, future disclosure needs, and external validation needs for the reader, but the helper relies only on the latest evolver decision and, for `check-final`, the score threshold.
+Do not let report prose decide whether to stop. `report.md` can explain uncertainty, future disclosure needs, and external validation needs for the reader, but the helper relies only on the latest evolver decision and, for `check-final`, the score threshold recorded in `index.md`.
 
 ### 6. Quality Gate
 
@@ -458,11 +455,11 @@ Before reporting a round as complete:
 11. Confirm `NN-synthesis.md` states decision rationale and framework-based synthesis, not only a conclusion.
 12. Confirm `NN-evolver.md` has a concrete `Keep / Narrow / Pivot / Kill` decision.
 13. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
-14. Confirm `index.md` reflects the latest thesis, current evidence-bound conclusion, round ledger, continuation status, next research target, why it is not final yet, open questions, source inventory, framework refinement log, wiki/graph status, and decision log.
+14. Confirm `index.md` reflects the latest thesis, current evidence-bound conclusion, round ledger, continuation status, next research target, why it is not final yet, open questions, source inventory, framework refinement log, final report quality gate, wiki/graph status, and decision log.
 15. If the evolver says `Keep`, `Narrow`, or `Pivot`, update `index.md`, create the next round, and do not write `report.md` yet.
 16. If the evolver says `Kill`, write `report.md` as the final standalone report.
-17. Confirm `report.md` is complete, standalone, updated with the latest synthesis, and reads as a coherent report: executive summary, reader's path, research method and framework, framework dimension analysis with one subheading per dimension, main narrative, decision logic, final recommendation, change triggers, next actions, limits, then appendices for evidence, method/source quality, red-team notes, scenarios, quality score, and source notes.
-18. Confirm the `Report Quality Score` section includes total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
+17. Confirm `report.md` is complete, standalone, updated with the latest synthesis, and reads as a coherent report: executive summary, one top-level body chapter per framework dimension, main narrative, decision logic, final recommendation, change triggers, next actions, limits, then appendices for evidence, method/source quality, red-team notes, scenarios, and source notes.
+18. Confirm `index.md` has a `Final Report Quality Gate` section with total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
 19. Confirm the report body obeys prose-first rules: it is not bullet-dominated and does not put evidence tables before the first appendix.
 20. Run `survey_round.py check-final <survey-dir>` before presenting the survey as final.
 21. If score is below the selected mode's threshold, create another round focused on the weakest dimensions and remove or revise premature final-report claims.

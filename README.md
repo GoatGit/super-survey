@@ -94,7 +94,7 @@ python3 scripts/survey_round.py validate-evidence surveys/2026-06-13-ai-recruiti
 Command meanings:
 
 - `check`: validates round artifacts, `index.md`, the evidence registry, companion-routing notes, and the latest raw evolver decision. It does not require `report.md`.
-- `check-final`: runs the same checks plus final `report.md`, prose-first report rules, the mode-specific quality score, and the requirement that the latest raw evolver decision is `Kill`.
+- `check-final`: runs the same checks plus final `report.md`, prose-first report rules, the mode-specific quality score recorded in `index.md`, and the requirement that the latest raw evolver decision is `Kill`.
 - `upgrade-report`: appends the full report schema to an older report. Older six-section reports are readable but do not pass the final gate; after upgrading, fill the new sections.
 - `validate-evidence`: narrow debugging command for `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`; normal round validation uses `check` / `check-final`.
 
@@ -162,9 +162,9 @@ There are three gates:
 
 - `check` is the round gate. It validates artifacts, registry links and weak-support checks, framework coverage including explicit refinements, companion/wiki notes, and the latest raw evolver decision. It can pass with a continuation warning when the decision is `Keep`, `Narrow`, or `Pivot`.
 - The evolver is the stop gate. `Keep`, `Narrow`, and `Pivot` mean create another round and update `index.md`; `Kill` means the survey may move to final report writing.
-- `check-final` is the delivery gate. It requires a complete prose-first `report.md`, a passing mode score, and the latest raw evolver decision to be `Kill`.
+- `check-final` is the delivery gate. It requires a complete prose-first `report.md`, a passing mode score recorded in `index.md`, and the latest raw evolver decision to be `Kill`.
 
-Final `report.md` uses a 100-point quality gate:
+Final delivery uses a 100-point quality gate recorded in `index.md`:
 
 | Dimension | Points |
 |---|---:|
@@ -177,7 +177,7 @@ Final `report.md` uses a 100-point quality gate:
 
 Mode thresholds are hard gates: `quick >=80`, `standard >=90`, and `deep >=95`. A final report below the selected threshold must continue another round focused on the weakest dimensions. The helper uses only the raw evolver decision plus the score threshold for stopping; it does not parse report prose such as "future disclosure" or "external validation" as a stopping rule.
 
-The final report should read like a human memo: answer, reader's path, research method and framework, framework dimension analysis, narrative, decision logic, recommendation, change triggers, next actions, and limits first; evidence registers, source quality, red-team notes, scenarios, quality score, and source inventory in appendices. If the method names dimensions, those dimensions must appear as Markdown subheadings in the body, not only in the method note or appendices. A body dominated by bullets or audit tables does not pass.
+The final report should read like a human memo: answer, framework dimension chapters, narrative, decision logic, recommendation, change triggers, next actions, and limits first; evidence registers, source quality, red-team notes, scenarios, and source inventory in appendices. Quality scoring belongs in `index.md` under the final report quality gate, not in `report.md`. Framework dimensions must appear as top-level Markdown headings in the body, not only in method notes or appendices. A body dominated by bullets or audit tables does not pass.
 
 Companion skills are optional helpers for search, long reports, VOC/customer research, competitor analysis, brainstorming, and wiki persistence. Current-source discovery should try `tavily-search` first and record any fallback. Use `deep-research` for formal long reports, many citations, HTML/PDF output, or strict citation validation. Super Survey still owns the judgment loop.
 

@@ -99,21 +99,19 @@ Good coverage means the report can explain both what was checked and what remain
 
 ## Final Report Framework Chapters
 
-In final `report.md`, framework dimensions are not just audit metadata. After `Research Method And Framework`, add a body section such as `Framework Dimension Analysis` and make each dimension its own Markdown subheading.
+In final `report.md`, framework dimensions are not just audit metadata. Make each effective framework dimension its own top-level body chapter before the appendices. Do not add a generic `Research Method And Framework` or `Framework Dimension Analysis` wrapper to the final report.
 
 Example:
 
 ```markdown
-## Framework Dimension Analysis
+## Market Environment
 
-### Market Environment
+## Industry Theme
 
-### Industry Theme
-
-### Company Business Structure
+## Company Business Structure
 ```
 
-For securities-style reports, dimensions such as market environment, industry theme, company business structure, financial quality, valuation, institutional expectations, fund flows, technicals, catalysts, and risks should be readable as report chapters before the appendices. Evidence tables and source audits still belong in appendices.
+For securities-style reports, dimensions such as market environment, industry theme, company business structure, financial quality, valuation, institutional expectations, fund flows, technicals, catalysts, and risks should be readable as report chapters before the appendices. Evidence tables, source audits, and final quality scores belong outside the report body; record the quality gate in `index.md`.
 
 Write final reports section by section. Each body section should state its decision purpose, key claim, supporting or weakening evidence IDs, strongest counterpoint, and implication for the reader. If a section can only be written as a checklist or source table, keep researching or narrow the section question before finalizing.
 

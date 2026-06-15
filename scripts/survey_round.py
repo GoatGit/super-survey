@@ -13,7 +13,7 @@ from pathlib import Path
 
 LANGUAGES = ("en", "zh", "ja")
 MODES = ("quick", "standard", "deep")
-REPORT_SCHEMA_VERSION = 2
+REPORT_SCHEMA_VERSION = 3
 MIN_REPORT_SUBSTANTIVE_LINES = 20
 REPORT_PASS_SCORE = 90
 REPORT_CONDITIONAL_SCORE = 80
@@ -74,14 +74,12 @@ SECTION_SCHEMAS = {
         "Open Questions",
         "Source Inventory",
         "Framework Refinement Log",
+        "Final Report Quality Gate",
         "Wiki / Graph Index Status",
         "Decision Log",
     ),
     "report_headings": (
         "Executive Summary",
-        "Reader's Path",
-        "Research Method And Framework",
-        "Framework Dimension Analysis",
         "Main Narrative",
         "Decision Logic",
         "Final Recommendation",
@@ -92,7 +90,6 @@ SECTION_SCHEMAS = {
         "Appendix: Method And Source Quality",
         "Appendix: Red-Team Notes",
         "Appendix: Options Or Scenarios",
-        "Report Quality Score",
         "Appendix: Source Notes",
     ),
     "legacy_report_headings": (
@@ -189,6 +186,7 @@ LABELS = {
             "Open Questions",
             "Source Inventory",
             "Framework Refinement Log",
+            "Final Report Quality Gate",
             "Wiki / Graph Index Status",
             "Decision Log",
         ],
@@ -196,6 +194,15 @@ LABELS = {
             "Current dimensions:",
             "Evidence trigger for changes:",
             "Original question/core preserved:",
+        ],
+        "report_quality_gate_notes": [
+            "Mode:",
+            "Threshold:",
+            "Total Score:",
+            "Passed:",
+            "Score Breakdown:",
+            "Lowest-Scoring Areas:",
+            "Next Round Focus:",
         ],
         "wiki_status_notes": [
             "Wiki Tool Attempted: karpathy-llm-wiki / llm-wiki / pin-llm-wiki / other / none",
@@ -205,9 +212,6 @@ LABELS = {
         ],
         "report_headings": [
             "Executive Summary",
-            "Reader's Path",
-            "Research Method And Framework",
-            "Framework Dimension Analysis",
             "Main Narrative",
             "Decision Logic",
             "Final Recommendation",
@@ -218,7 +222,6 @@ LABELS = {
             "Appendix: Method And Source Quality",
             "Appendix: Red-Team Notes",
             "Appendix: Options Or Scenarios",
-            "Report Quality Score",
             "Appendix: Source Notes",
         ],
         "legacy_report_headings": [
@@ -229,7 +232,13 @@ LABELS = {
             "Limitations",
             "Source Notes",
         ],
-        "report_quality_heading": "Report Quality Score",
+        "report_quality_heading": "Final Report Quality Gate",
+        "removed_report_headings": [
+            "Reader's Path",
+            "Research Method And Framework",
+            "Framework Dimension Analysis",
+            "Report Quality Score",
+        ],
         "appendix_start_heading": "Appendix: Evidence Register",
         "research_headings": [
             "Research Question",
@@ -333,9 +342,6 @@ LABELS = {
         "continuation_policy_note": "- Start with the next research round; decide whether to continue only after evidence, red-team critique, synthesis, and the raw evolver decision are written.\n- Do not predict the number of rounds or prewrite a stop conclusion in the brief.\n- Record actual round history and next targets in index.md, not here.",
         "report_template_notes": [
             "After the final gate passes, answer first: decision, confidence, key reason, strongest caveat, next action",
-            "Tell the reader how to read the report: who it is for, what decision it supports, and what to skip if time is short",
-            "Name the research framework, explain why it fits, summarize covered dimensions, and disclose weak or omitted dimensions",
-            "Body chapters: analyze each framework dimension under its own Markdown subheading; do not leave dimensions only in method notes or appendices",
             "Readable narrative that explains the situation, why it matters, how the evidence changes the thesis, and what judgment follows",
             "Reasoning chain from question to recommendation, including tradeoffs and why alternatives were rejected",
             "Final recommendation with conditions, who should act, who should not act, and confidence",
@@ -346,7 +352,6 @@ LABELS = {
             "Appendix only: search tools used, source freshness, source types, confidence rules, and fallback notes",
             "Appendix only: strongest objections, substitutes, kill criteria, and falsification tests",
             "Appendix only: options, scenarios, or alternatives with pros, cons, and trigger conditions",
-            "Total Score, Score Breakdown, pass/continue decision, lowest-scoring areas, and next-round focus",
             "Appendix only: source inventory with URLs, dates checked, and companion/indexing notes",
         ],
         "probes": [
@@ -406,6 +411,7 @@ LABELS = {
             "开放问题",
             "来源清单",
             "框架修正日志",
+            "最终报告质量门",
             "Wiki / Graph 索引状态",
             "决策日志",
         ],
@@ -413,6 +419,15 @@ LABELS = {
             "当前维度：",
             "变更的证据触发：",
             "原始问题/核心已保留：",
+        ],
+        "report_quality_gate_notes": [
+            "模式：",
+            "门限：",
+            "总分：",
+            "是否通过：",
+            "分项得分：",
+            "最低分维度：",
+            "下一轮重点：",
         ],
         "wiki_status_notes": [
             "Wiki Tool Attempted: karpathy-llm-wiki / llm-wiki / pin-llm-wiki / other / none",
@@ -422,9 +437,6 @@ LABELS = {
         ],
         "report_headings": [
             "执行摘要",
-            "阅读路径",
-            "研究方法与框架",
-            "框架维度分析",
             "正文叙事",
             "决策逻辑",
             "最终建议",
@@ -435,7 +447,6 @@ LABELS = {
             "附录：方法与来源质量",
             "附录：反方挑战记录",
             "附录：选项或情景",
-            "报告质量评分",
             "附录：来源备注",
         ],
         "legacy_report_headings": [
@@ -446,7 +457,13 @@ LABELS = {
             "局限性",
             "来源备注",
         ],
-        "report_quality_heading": "报告质量评分",
+        "report_quality_heading": "最终报告质量门",
+        "removed_report_headings": [
+            "阅读路径",
+            "研究方法与框架",
+            "框架维度分析",
+            "报告质量评分",
+        ],
         "appendix_start_heading": "附录：证据登记表",
         "research_headings": [
             "本轮问题",
@@ -550,9 +567,6 @@ LABELS = {
         "continuation_policy_note": "- 从下一轮调研开始；只有在证据、反方挑战、综合结论和原始进化器决策写入后，才能决定是否继续。\n- 不要在 brief 中预测轮数，也不要预写停止结论。\n- 实际轮次历史和下一轮目标记录在 index.md，而不是这里。",
         "report_template_notes": [
             "最终门通过后，先给答案：决策、置信度、核心理由、最大保留意见和下一步",
-            "告诉读者如何阅读：适合谁、支持什么决策、时间有限先看哪里",
-            "说明采用的研究框架、为什么适合本决策、已覆盖维度，以及薄弱或排除的维度",
-            "正文分章：每个研究框架维度都要用独立 Markdown 子标题展开分析，不要只留在方法说明或附录里",
             "用连贯正文解释背景、为什么重要、证据如何改变判断、最终判断为何成立",
             "从问题到建议的推理链，包括取舍和为什么排除其他选择",
             "最终建议、适合行动的人、不适合行动的人、条件和置信度",
@@ -563,7 +577,6 @@ LABELS = {
             "仅作附录：使用的搜索工具、来源新鲜度、来源类型、置信规则和 fallback 记录",
             "仅作附录：最强反对意见、替代方案、放弃条件和证伪测试",
             "仅作附录：选项、情景或替代路径，并写明优缺点和触发条件",
-            "总分、分项得分、通过/继续决策、最低分维度和下一轮重点",
             "仅作附录：来源清单、URL、检查日期和 companion/indexing 备注",
         ],
         "probes": ["买方", "痛点", "触发事件", "数据", "分发", "既有玩家", "合规", "替代解释", "证伪条件"],
@@ -607,6 +620,7 @@ LABELS = {
             "未解決の問い",
             "情報源一覧",
             "フレームワーク修正ログ",
+            "最終レポート品質ゲート",
             "Wiki / Graph インデックス状態",
             "意思決定ログ",
         ],
@@ -614,6 +628,15 @@ LABELS = {
             "現在の次元:",
             "変更の証拠トリガー:",
             "元の問い/中核を保持:",
+        ],
+        "report_quality_gate_notes": [
+            "モード:",
+            "しきい値:",
+            "総合スコア:",
+            "合格:",
+            "スコア内訳:",
+            "最低スコア領域:",
+            "次回ラウンドの焦点:",
         ],
         "wiki_status_notes": [
             "Wiki Tool Attempted: karpathy-llm-wiki / llm-wiki / pin-llm-wiki / other / none",
@@ -623,9 +646,6 @@ LABELS = {
         ],
         "report_headings": [
             "エグゼクティブサマリー",
-            "読み方",
-            "調査方法とフレームワーク",
-            "フレームワーク次元別分析",
             "本文",
             "判断ロジック",
             "最終推奨",
@@ -636,7 +656,6 @@ LABELS = {
             "付録: 方法と情報源品質",
             "付録: レッドチームメモ",
             "付録: 選択肢またはシナリオ",
-            "レポート品質スコア",
             "付録: 情報源メモ",
         ],
         "legacy_report_headings": [
@@ -647,7 +666,13 @@ LABELS = {
             "制約",
             "情報源メモ",
         ],
-        "report_quality_heading": "レポート品質スコア",
+        "report_quality_heading": "最終レポート品質ゲート",
+        "removed_report_headings": [
+            "読み方",
+            "調査方法とフレームワーク",
+            "フレームワーク次元別分析",
+            "レポート品質スコア",
+        ],
         "appendix_start_heading": "付録: 証拠レジスター",
         "research_headings": [
             "今回の調査問い",
@@ -751,9 +776,6 @@ LABELS = {
         "continuation_policy_note": "- 次の調査ラウンドから始める。証拠、レッドチーム、統合結論、生のエボルバー判断を書いた後にだけ継続可否を決める。\n- brief でラウンド数を予測したり、停止結論を先に書いたりしない。\n- 実際のラウンド履歴と次回目標はここではなく index.md に記録する。",
         "report_template_notes": [
             "最終ゲート通過後に結論を先に示す: 判断、信頼度、主要理由、最大の留保、次の行動",
-            "読者向けの読み方: 対象読者、支援する判断、時間がない場合に読む箇所",
-            "採用した調査フレームワーク、適合理由、網羅済み次元、弱いまたは除外した次元を示す",
-            "本文章: 各フレームワーク次元を Markdown の独立した小見出しで分析し、方法メモや付録だけに置かない",
             "背景、重要性、証拠が仮説をどう変えたか、判断がなぜ成立するかを読みやすく説明する",
             "問いから推奨までの推論、トレードオフ、却下した代替案の理由",
             "最終推奨、行動すべき人/すべきでない人、条件、信頼度",
@@ -764,7 +786,6 @@ LABELS = {
             "付録のみ: 使用した検索ツール、情報源の鮮度、情報源タイプ、信頼度基準、fallback 記録",
             "付録のみ: 最も強い反論、代替手段、中止条件、反証テスト",
             "付録のみ: 選択肢、シナリオ、代替案と、それぞれの長所、短所、発動条件",
-            "総合スコア、内訳、合格/継続判断、最低スコア領域、次回ラウンドの焦点",
             "付録のみ: 情報源一覧、URL、確認日、companion/indexing メモ",
         ],
         "probes": [
@@ -942,6 +963,7 @@ def structural_values(language: str) -> frozenset[str]:
     values.update(str(persona) for persona in label["personas"])
     values.update(str(note) for note in label["search_tool_notes"])
     values.update(str(note) for note in label["framework_refinement_notes"])
+    values.update(str(note) for note in label["report_quality_gate_notes"])
     for key in (
         "source_registry_note",
         "claim_registry_note",
@@ -1342,29 +1364,76 @@ def validate_dimension_body_depth(
             )
 
 
-def validate_framework_dimension_analysis(
+def top_level_headings_before_appendix(text: str, appendix_heading: str) -> list[str]:
+    body = report_body_before_appendix(text, appendix_heading)
+    return [
+        match.group(1).strip()
+        for match in re.finditer(r"^##\s+(.+?)\s*$", body, flags=re.MULTILINE)
+        if not is_placeholder_dimension(match.group(1).strip())
+    ]
+
+
+def validate_report_removed_headings(
     errors: list[str],
     text: str,
     label: dict[str, object],
 ) -> None:
-    dimensions = extract_framework_dimensions(text, label)
+    for heading in label.get("removed_report_headings", []):
+        if has_heading(text, str(heading)):
+            errors.append(f"report.md: remove process/audit heading '## {heading}' from the final report body")
+
+
+def validate_report_framework_dimension_chapters(
+    errors: list[str],
+    text: str,
+    label: dict[str, object],
+    dimensions: list[str],
+) -> None:
     if not dimensions:
         return
 
-    analysis_heading = str(label["report_headings"][3])
-    body = section_body(text, analysis_heading) or ""
-    validate_framework_dimension_subheadings(errors, "report.md", analysis_heading, body, dimensions)
-    validate_dimension_body_depth(errors, "report.md", analysis_heading, body, dimensions)
+    appendix_heading = str(label["appendix_start_heading"])
+    top_headings = top_level_headings_before_appendix(text, appendix_heading)
+    missing = [
+        dimension
+        for dimension in dimensions
+        if not any(normalize_dimension_text(dimension) in normalize_dimension_text(heading) for heading in top_headings)
+    ]
+    if missing:
+        errors.append(
+            "report.md: body must include top-level framework dimension headings: "
+            + ", ".join(missing)
+        )
+        return
+
+    for dimension in dimensions:
+        matching_heading = next(
+            (
+                heading
+                for heading in top_headings
+                if normalize_dimension_text(dimension) in normalize_dimension_text(heading)
+            ),
+            None,
+        )
+        if not matching_heading:
+            continue
+        dimension_body = section_body(text, matching_heading) or ""
+        if prose_character_count(dimension_body) < 80:
+            errors.append(
+                f"report.md: framework dimension chapter '{dimension}' needs substantive prose, not just a heading or audit note"
+            )
 
 
 def validate_report_quality(
     errors: list[str],
     warnings: list[str],
     report_path: Path,
+    index_path: Path,
     label: dict[str, object],
     language: str,
     schema_version: int,
     mode: str,
+    framework_dimensions: list[str],
 ) -> None:
     if not report_path.exists():
         return
@@ -1385,7 +1454,8 @@ def validate_report_quality(
         )
 
     text = report_path.read_text(encoding="utf-8")
-    validate_framework_dimension_analysis(errors, text, label)
+    validate_report_removed_headings(errors, text, label)
+    validate_report_framework_dimension_chapters(errors, text, label, framework_dimensions)
     validate_report_prose_first(errors, text, label)
 
     appendix_heading = str(label["appendix_start_heading"])
@@ -1394,12 +1464,13 @@ def validate_report_quality(
         errors.append("report.md: prose-first rule violated; evidence tables belong in appendices, not the report body")
 
     score_heading = str(label["report_quality_heading"])
-    score = parse_report_score(text, score_heading)
+    index_text = index_path.read_text(encoding="utf-8") if index_path.exists() else ""
+    score = parse_report_score(index_text, score_heading)
     if score is None:
-        errors.append("report.md: Report Quality Score must include a parseable 'Total Score: N / 100'")
+        errors.append(f"index.md: {score_heading} must include a parseable 'Total Score: N / 100'")
         return
     if score < pass_score:
-        errors.append(f"report.md: {mode} mode requires report score >= {pass_score}")
+        errors.append(f"index.md: {mode} mode requires report score >= {pass_score}")
 
 
 def init_survey(args: argparse.Namespace) -> None:
@@ -1482,6 +1553,7 @@ def init_survey(args: argparse.Namespace) -> None:
     )
     headings = label["index_headings"]
     framework_refinement_notes = "\n".join(f"- {note}" for note in label["framework_refinement_notes"])
+    report_quality_gate_notes = "\n".join(f"- {note}" for note in label["report_quality_gate_notes"])
     wiki_status_notes = "\n".join(f"- {note}" for note in label["wiki_status_notes"])
     write_once(
         survey_dir / "index.md",
@@ -1526,9 +1598,13 @@ def init_survey(args: argparse.Namespace) -> None:
 
 ## {headings[9]}
 
-{wiki_status_notes}
+{report_quality_gate_notes}
 
 ## {headings[10]}
+
+{wiki_status_notes}
+
+## {headings[11]}
 
 -
 """,
@@ -2158,7 +2234,17 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
     if final:
         report_path = survey_dir / "report.md"
         check_required_file(errors, report_path, required_report_headings(label, schema_version), language)
-        validate_report_quality(errors, warnings, report_path, label, language, schema_version, mode)
+        validate_report_quality(
+            errors,
+            warnings,
+            report_path,
+            index_path,
+            label,
+            language,
+            schema_version,
+            mode,
+            effective_framework_dimensions,
+        )
     errors.extend(validate_evidence_registry(survey_dir, mode))
 
     rounds = detect_rounds(survey_dir)

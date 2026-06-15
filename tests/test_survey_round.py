@@ -333,16 +333,11 @@ Evidence is directional, not decisive.
         self.assertEqual(result.returncode, 1)
         self.assertIn("prose-first rule violated", result.stdout)
 
-    def test_chinese_framework_dimensions_are_extracted_from_method_section(self) -> None:
+    def test_chinese_framework_dimensions_are_extracted_from_framework_body(self) -> None:
         module = load_survey_round_module()
-        text = """# 报告
+        body = "核心维度包括市场环境、行业主题、公司业务结构、财务质量、估值、机构预期、资金面、技术面、催化剂和风险。"
 
-## 研究方法与框架
-
-核心维度包括市场环境、行业主题、公司业务结构、财务质量、估值、机构预期、资金面、技术面、催化剂和风险。
-"""
-
-        dimensions = module.extract_framework_dimensions(text, module.labels("zh"))
+        dimensions = module.extract_framework_dimensions_from_body(body)
 
         self.assertEqual(
             dimensions,
@@ -358,26 +353,18 @@ Evidence is directional, not decisive.
         )
         report_path = survey_dir / "report.md"
         report = report_path.read_text(encoding="utf-8")
+        for heading in ("User Pain", "Workflow Frequency", "Policy Constraints"):
+            report = re.sub(rf"(?ms)^## {re.escape(heading)}\n\n.*?(?=^## |\Z)", "", report)
         report = report.replace(
-            "It checks user pain, workflow frequency, willingness to pay, policy constraints, substitutes, distribution, and implementation difficulty.",
-            "Dimensions to cover: user pain, workflow frequency, policy constraints.",
-        )
-        report = re.sub(
-            r"## Framework Dimension Analysis\n\n.*?(?=\n## Main Narrative)",
-            (
-                "## Framework Dimension Analysis\n\n"
-                "This section mentions user pain, workflow frequency, and policy constraints in one paragraph "
-                "but does not make them report subchapters.\n"
-            ),
-            report,
-            flags=re.DOTALL,
+            "The opportunity is visible because job seekers repeat the same painful workflow across many applications.",
+            "The opportunity is visible because user pain, workflow frequency, and policy constraints matter, but this paragraph does not make them report chapters.",
         )
         report_path.write_text(report, encoding="utf-8")
 
         result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
-        self.assertIn("Framework Dimension Analysis must include subheadings", result.stdout)
+        self.assertIn("report.md: body must include top-level framework dimension headings", result.stdout)
         self.assertIn("user pain", result.stdout)
 
     def test_empty_report_section_is_reported_once(self) -> None:
@@ -454,7 +441,7 @@ Sources were checked during this round and remain directional.
         self.assertEqual(result.returncode, 1)
         self.assertIn("legacy report schema detected", result.stdout)
 
-    def test_upgrade_report_appends_v2_sections_and_metadata(self) -> None:
+    def test_upgrade_report_appends_v3_sections_and_metadata(self) -> None:
         survey_dir = self.init_round()
         metadata = survey_dir / ".super-survey.json"
         metadata.write_text(
@@ -495,11 +482,12 @@ Sources were checked during this round and remain directional.
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         report = (survey_dir / "report.md").read_text(encoding="utf-8")
-        self.assertIn("## Reader's Path", report)
-        self.assertIn("## Research Method And Framework", report)
-        self.assertIn("## Framework Dimension Analysis", report)
+        self.assertNotIn("## Reader's Path", report)
+        self.assertNotIn("## Research Method And Framework", report)
+        self.assertNotIn("## Framework Dimension Analysis", report)
+        self.assertNotIn("## Report Quality Score", report)
         self.assertIn("## Appendix: Evidence Register", report)
-        self.assertIn('"report_schema_version": 2', metadata.read_text(encoding="utf-8"))
+        self.assertIn('"report_schema_version": 3', metadata.read_text(encoding="utf-8"))
 
     def test_v2_report_rejects_thin_content(self) -> None:
         survey_dir = self.init_round()
@@ -508,11 +496,7 @@ Sources were checked during this round and remain directional.
 
 ## Executive Summary
 Thin.
-## Reader's Path
-Thin.
-## Research Method And Framework
-Thin.
-## Framework Dimension Analysis
+## User Pain
 Thin.
 ## Main Narrative
 Thin.
@@ -534,8 +518,6 @@ Thin.
 Thin.
 ## Appendix: Options Or Scenarios
 Thin.
-## Report Quality Score
-Thin.
 ## Appendix: Source Notes
 Thin.
 """,
@@ -548,21 +530,22 @@ Thin.
         self.assertEqual(result.returncode, 1)
         self.assertIn("complete report must contain at least", result.stdout)
 
-    def test_v2_report_rejects_missing_quality_score(self) -> None:
+    def test_final_check_requires_quality_score_in_index(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(survey_dir)
-        report = (survey_dir / "report.md").read_text(encoding="utf-8")
-        report = report.replace("\n## Report Quality Score\n\n", "\n## ")
-        report = report.replace(
-            "Total Score: 92 / 100.\nScore Breakdown: scope 14, sources 19, evidence 18, analysis 18, actionability 14, structure 9.\nPass / Continue Decision: pass; finalize the report because no decision-changing unknown remains desk-researchable.\nLowest-Scoring Areas: evidence completeness and analysis depth remain monitored, but both are above the pass threshold.\nNext Round Focus: none for desk research; move to user interviews if further validation is needed.\n\n## Appendix: Source Notes",
-            "Appendix: Source Notes",
+        index_path = survey_dir / "index.md"
+        index = index_path.read_text(encoding="utf-8")
+        index = re.sub(
+            r"(?ms)^## Final Report Quality Gate\n\n.*?(?=^## |\Z)",
+            "## Final Report Quality Gate\n\nScore pending.\n",
+            index,
         )
-        (survey_dir / "report.md").write_text(report, encoding="utf-8")
+        index_path.write_text(index, encoding="utf-8")
 
         result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
-        self.assertIn("missing heading '## Report Quality Score'", result.stdout)
+        self.assertIn("index.md: Final Report Quality Gate must include a parseable 'Total Score: N / 100'", result.stdout)
 
     def test_report_below_pass_score_requires_continuation_decision(self) -> None:
         survey_dir = self.init_round()
@@ -963,7 +946,7 @@ Sources were checked during this round and remain directional.
         report = report_path.read_text(encoding="utf-8")
         for heading in (
             "Executive Summary",
-            "Reader's Path",
+            "User Pain",
             "Main Narrative",
             "Decision Logic",
             "Final Recommendation",
@@ -1084,6 +1067,9 @@ Sources were checked during this round and remain directional.
             if include_wiki_notes
             else "Not built: no initialized wiki backend."
         )
+        quality_decision = continuation_decision or (
+            "Pass / Continue Decision: pass; finalize the report because no decision-changing unknown remains desk-researchable, and the evolver next evidence requires external validation through user interviews."
+        )
         write_markdown(
             survey_dir / "00-brief.md",
             "Survey Brief: AI recruiting agent",
@@ -1146,14 +1132,18 @@ Sources were checked during this round and remain directional.
                     "Evidence trigger for changes: no change yet; the first round still uses the initial framework.\n"
                     "Original question/core preserved: yes; the survey still evaluates whether to continue discovery."
                 ),
+                "Final Report Quality Gate": (
+                    f"Total Score: {report_score} / 100.\n"
+                    "Score Breakdown: scope 14, sources 19, evidence 18, analysis 18, actionability 14, structure 9.\n"
+                    f"{quality_decision}\n"
+                    "Lowest-Scoring Areas: evidence completeness and analysis depth remain monitored, but both are above the pass threshold.\n"
+                    "Next Round Focus: none for desk research; move to user interviews if further validation is needed."
+                ),
                 "Wiki / Graph Index Status": wiki_status,
                 "Decision Log": "Continue one narrowed round.",
             },
         )
         if include_report:
-            quality_decision = continuation_decision or (
-                "Pass / Continue Decision: pass; finalize the report because no decision-changing unknown remains desk-researchable, and the evolver next evidence requires external validation through user interviews."
-            )
             write_markdown(
                 survey_dir / "report.md",
                 "AI recruiting agent",
@@ -1162,29 +1152,25 @@ Sources were checked during this round and remain directional.
                         "Continue with a narrower policy-first validation path.\n"
                         "Confidence is medium because demand is visible but policy and payment remain unresolved."
                     ),
-                    "Reader's Path": (
-                        "Read the executive summary for the decision, the narrative for the reasoning, and the appendices for audit details.\n"
-                        "This report supports a go/no-go validation decision for active US software engineers."
-                    ),
-                    "Research Method And Framework": (
-                        "This report uses a product opportunity plus policy-risk framework.\n"
-                        "Dimensions to cover: user pain, workflow frequency, willingness to pay, policy constraints, substitutes, distribution, and implementation difficulty.\n"
-                        "Demand and policy dimensions are emphasized because either one can change the discovery decision."
-                    ),
-                    "Framework Dimension Analysis": (
-                        "### User Pain\n"
+                    "User Pain": (
                         "Job seekers repeat a frustrating workflow across many applications, so the pain is concrete rather than abstract. The remaining question is whether the frustration changes behavior enough to justify switching from manual tracking.\n\n"
-                        "### Workflow Frequency\n"
+                    ),
+                    "Workflow Frequency": (
                         "The workflow can recur several times per week during active job searches, which supports repeated use if trust is adequate. Frequency still varies by segment, so the report treats this as a validation target rather than settled retention proof.\n\n"
-                        "### Willingness To Pay\n"
+                    ),
+                    "Willingness To Pay": (
                         "Comparable tools use paid subscriptions, but direct willingness-to-pay evidence remains partial and should constrain confidence. This dimension weakens the case for immediate build because comparable pricing is not the same as committed buyer demand.\n\n"
-                        "### Policy Constraints\n"
+                    ),
+                    "Policy Constraints": (
                         "Platform terms and automation limits can block the core workflow, so policy evidence has veto power over the idea. The recommendation therefore prioritizes official terms and assisted-workflow boundaries before any broad automation design.\n\n"
-                        "### Substitutes\n"
+                    ),
+                    "Substitutes": (
                         "Spreadsheets, job trackers, and manual application routines are credible substitutes with low switching cost. A viable product has to beat these substitutes on effort reduction or outcome quality, not only on interface polish.\n\n"
-                        "### Distribution\n"
+                    ),
+                    "Distribution": (
                         "Distribution likely depends on search, communities, and browser workflows; paid acquisition may weaken margins. This makes high-intent entry points and organic workflow placement important evidence targets for the next pass.\n\n"
-                        "### Implementation Difficulty\n"
+                    ),
+                    "Implementation Difficulty": (
                         "Reliable form assistance, user confirmation, and policy-safe operation make the build harder than a simple wrapper. A narrow copilot path can reduce risk, but full automation should wait until reliability and policy boundaries are clearer."
                     ),
                     "Main Narrative": (
@@ -1229,13 +1215,6 @@ Sources were checked during this round and remain directional.
                     "Appendix: Options Or Scenarios": (
                         "Option A: continue policy validation. Option B: stop if terms block the workflow.\n"
                         "Option C: pivot to a personal job-search CRM if automation is too risky."
-                    ),
-                    "Report Quality Score": (
-                        f"Total Score: {report_score} / 100.\n"
-                        "Score Breakdown: scope 14, sources 19, evidence 18, analysis 18, actionability 14, structure 9.\n"
-                        f"{quality_decision}\n"
-                        "Lowest-Scoring Areas: evidence completeness and analysis depth remain monitored, but both are above the pass threshold.\n"
-                        "Next Round Focus: none for desk research; move to user interviews if further validation is needed."
                     ),
                     "Appendix: Source Notes": (
                         "Sources were checked during this round and remain directional.\n"
