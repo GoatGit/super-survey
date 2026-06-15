@@ -73,6 +73,7 @@ SECTION_SCHEMAS = {
         "Why Not Final Yet",
         "Open Questions",
         "Source Inventory",
+        "Framework Refinement Log",
         "Wiki / Graph Index Status",
         "Decision Log",
     ),
@@ -80,6 +81,7 @@ SECTION_SCHEMAS = {
         "Executive Summary",
         "Reader's Path",
         "Research Method And Framework",
+        "Framework Dimension Analysis",
         "Main Narrative",
         "Decision Logic",
         "Final Recommendation",
@@ -186,8 +188,14 @@ LABELS = {
             "Why Not Final Yet",
             "Open Questions",
             "Source Inventory",
+            "Framework Refinement Log",
             "Wiki / Graph Index Status",
             "Decision Log",
+        ],
+        "framework_refinement_notes": [
+            "Current dimensions:",
+            "Evidence trigger for changes:",
+            "Original question/core preserved:",
         ],
         "wiki_status_notes": [
             "Wiki Tool Attempted: karpathy-llm-wiki / llm-wiki / pin-llm-wiki / other / none",
@@ -199,6 +207,7 @@ LABELS = {
             "Executive Summary",
             "Reader's Path",
             "Research Method And Framework",
+            "Framework Dimension Analysis",
             "Main Narrative",
             "Decision Logic",
             "Final Recommendation",
@@ -285,17 +294,35 @@ LABELS = {
             "- Why this framework fits the decision:\n"
             "- Dimensions intentionally out of scope:"
         ),
+        "framework_dimension_map_note": (
+            "- After listing dimensions, add `### <framework dimension>` for every dimension and write the core question, evidence needed, and current weakness or boundary."
+        ),
         "framework_coverage_note": (
             "- Framework dimensions covered:\n"
             "- Weak or missing dimensions:\n"
             "- Contradictions by dimension:\n"
             "- Next evidence target from framework gaps:"
         ),
+        "framework_round_coverage_note": (
+            "- For each dimension from 00-brief.md, add `### <framework dimension>` and write findings, evidence IDs, contradictions, confidence, and next evidence need."
+        ),
+        "framework_brainstorm_note": (
+            "- For each dimension from 00-brief.md, add `### <framework dimension>` and compare possible next evidence moves or reframes."
+        ),
+        "framework_redteam_note": (
+            "- For each dimension from 00-brief.md, add `### <framework dimension>` and write the strongest objection, alternative explanation, falsification test, and decision implication."
+        ),
         "framework_synthesis_note": (
             "- Strongest dimensions:\n"
             "- Weakest dimensions:\n"
             "- Cross-dimension judgment:\n"
             "- Framework gaps that affect confidence:"
+        ),
+        "framework_synthesis_expansion_note": (
+            "- For each dimension from 00-brief.md, add `### <framework dimension>` and synthesize current judgment, confidence, contradictions, and effect on the decision."
+        ),
+        "framework_evolver_gate_note": (
+            "- For each dimension from 00-brief.md, add `### <framework dimension>` and record coverage quality, weakest gap, and whether a concrete next evidence target remains."
         ),
         "decision_frame_note": (
             "- Original question preserved:\n"
@@ -308,6 +335,7 @@ LABELS = {
             "After the final gate passes, answer first: decision, confidence, key reason, strongest caveat, next action",
             "Tell the reader how to read the report: who it is for, what decision it supports, and what to skip if time is short",
             "Name the research framework, explain why it fits, summarize covered dimensions, and disclose weak or omitted dimensions",
+            "Body chapters: analyze each framework dimension under its own Markdown subheading; do not leave dimensions only in method notes or appendices",
             "Readable narrative that explains the situation, why it matters, how the evidence changes the thesis, and what judgment follows",
             "Reasoning chain from question to recommendation, including tradeoffs and why alternatives were rejected",
             "Final recommendation with conditions, who should act, who should not act, and confidence",
@@ -377,8 +405,14 @@ LABELS = {
             "为何尚未最终成稿",
             "开放问题",
             "来源清单",
+            "框架修正日志",
             "Wiki / Graph 索引状态",
             "决策日志",
+        ],
+        "framework_refinement_notes": [
+            "当前维度：",
+            "变更的证据触发：",
+            "原始问题/核心已保留：",
         ],
         "wiki_status_notes": [
             "Wiki Tool Attempted: karpathy-llm-wiki / llm-wiki / pin-llm-wiki / other / none",
@@ -390,6 +424,7 @@ LABELS = {
             "执行摘要",
             "阅读路径",
             "研究方法与框架",
+            "框架维度分析",
             "正文叙事",
             "决策逻辑",
             "最终建议",
@@ -476,17 +511,35 @@ LABELS = {
             "- 为什么该框架适合本决策：\n"
             "- 有意排除的维度："
         ),
+        "framework_dimension_map_note": (
+            "- 列出维度后，为每个维度添加 `### <框架维度>`，并写明核心问题、所需证据、当前薄弱点或边界。"
+        ),
         "framework_coverage_note": (
             "- 已覆盖的框架维度：\n"
             "- 薄弱或缺失维度：\n"
             "- 按维度记录的矛盾证据：\n"
             "- 由框架缺口导出的下一步证据目标："
         ),
+        "framework_round_coverage_note": (
+            "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并写明发现、证据 ID、矛盾证据、置信度和下一步证据需求。"
+        ),
+        "framework_brainstorm_note": (
+            "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并比较可能的下一步证据动作或问题重构。"
+        ),
+        "framework_redteam_note": (
+            "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并写明最强反对意见、替代解释、证伪测试和决策影响。"
+        ),
         "framework_synthesis_note": (
             "- 最强维度：\n"
             "- 最弱维度：\n"
             "- 跨维度综合判断：\n"
             "- 影响置信度的框架缺口："
+        ),
+        "framework_synthesis_expansion_note": (
+            "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并综合当前判断、置信度、矛盾证据和对决策的影响。"
+        ),
+        "framework_evolver_gate_note": (
+            "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并记录覆盖质量、最弱缺口，以及是否仍有具体下一步证据目标。"
         ),
         "decision_frame_note": (
             "- 原始问题已保留：\n"
@@ -499,6 +552,7 @@ LABELS = {
             "最终门通过后，先给答案：决策、置信度、核心理由、最大保留意见和下一步",
             "告诉读者如何阅读：适合谁、支持什么决策、时间有限先看哪里",
             "说明采用的研究框架、为什么适合本决策、已覆盖维度，以及薄弱或排除的维度",
+            "正文分章：每个研究框架维度都要用独立 Markdown 子标题展开分析，不要只留在方法说明或附录里",
             "用连贯正文解释背景、为什么重要、证据如何改变判断、最终判断为何成立",
             "从问题到建议的推理链，包括取舍和为什么排除其他选择",
             "最终建议、适合行动的人、不适合行动的人、条件和置信度",
@@ -552,8 +606,14 @@ LABELS = {
             "まだ最終化しない理由",
             "未解決の問い",
             "情報源一覧",
+            "フレームワーク修正ログ",
             "Wiki / Graph インデックス状態",
             "意思決定ログ",
+        ],
+        "framework_refinement_notes": [
+            "現在の次元:",
+            "変更の証拠トリガー:",
+            "元の問い/中核を保持:",
         ],
         "wiki_status_notes": [
             "Wiki Tool Attempted: karpathy-llm-wiki / llm-wiki / pin-llm-wiki / other / none",
@@ -565,6 +625,7 @@ LABELS = {
             "エグゼクティブサマリー",
             "読み方",
             "調査方法とフレームワーク",
+            "フレームワーク次元別分析",
             "本文",
             "判断ロジック",
             "最終推奨",
@@ -651,17 +712,35 @@ LABELS = {
             "- この判断に適している理由:\n"
             "- 意図的に対象外とした次元:"
         ),
+        "framework_dimension_map_note": (
+            "- 次元を列挙した後、各次元に `### <フレームワーク次元>` を追加し、中心問い、必要な証拠、現在の弱点または範囲を記載する。"
+        ),
         "framework_coverage_note": (
             "- 網羅済みのフレームワーク次元:\n"
             "- 弱い、または欠落している次元:\n"
             "- 次元別の矛盾する証拠:\n"
             "- フレームワーク上の欠落から導く次の証拠目標:"
         ),
+        "framework_round_coverage_note": (
+            "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、発見、証拠 ID、矛盾、信頼度、次に必要な証拠を記載する。"
+        ),
+        "framework_brainstorm_note": (
+            "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、次の証拠取得や問いの再定義の候補を比較する。"
+        ),
+        "framework_redteam_note": (
+            "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、最も強い反論、代替説明、反証テスト、判断への影響を記載する。"
+        ),
         "framework_synthesis_note": (
             "- 最も強い次元:\n"
             "- 最も弱い次元:\n"
             "- 次元横断の統合判断:\n"
             "- 信頼度に影響するフレームワーク上の欠落:"
+        ),
+        "framework_synthesis_expansion_note": (
+            "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、現在の判断、信頼度、矛盾、判断への影響を統合する。"
+        ),
+        "framework_evolver_gate_note": (
+            "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、網羅品質、最も弱い欠落、具体的な次回証拠目標の有無を記録する。"
         ),
         "decision_frame_note": (
             "- 元の問いを保持:\n"
@@ -674,6 +753,7 @@ LABELS = {
             "最終ゲート通過後に結論を先に示す: 判断、信頼度、主要理由、最大の留保、次の行動",
             "読者向けの読み方: 対象読者、支援する判断、時間がない場合に読む箇所",
             "採用した調査フレームワーク、適合理由、網羅済み次元、弱いまたは除外した次元を示す",
+            "本文章: 各フレームワーク次元を Markdown の独立した小見出しで分析し、方法メモや付録だけに置かない",
             "背景、重要性、証拠が仮説をどう変えたか、判断がなぜ成立するかを読みやすく説明する",
             "問いから推奨までの推論、トレードオフ、却下した代替案の理由",
             "最終推奨、行動すべき人/すべきでない人、条件、信頼度",
@@ -861,12 +941,19 @@ def structural_values(language: str) -> frozenset[str]:
     values.update(str(probe) for probe in label["probes"])
     values.update(str(persona) for persona in label["personas"])
     values.update(str(note) for note in label["search_tool_notes"])
+    values.update(str(note) for note in label["framework_refinement_notes"])
     for key in (
         "source_registry_note",
         "claim_registry_note",
         "research_framework_note",
+        "framework_dimension_map_note",
+        "framework_round_coverage_note",
+        "framework_brainstorm_note",
+        "framework_redteam_note",
         "framework_coverage_note",
+        "framework_synthesis_expansion_note",
         "framework_synthesis_note",
+        "framework_evolver_gate_note",
     ):
         values.update(str(note) for note in str(label[key]).splitlines())
     values.update(str(note) for note in str(label["decision_frame_note"]).splitlines())
@@ -969,6 +1056,307 @@ def parse_report_score(text: str, heading: str) -> int | None:
     return None
 
 
+def normalize_dimension_text(text: str) -> str:
+    return re.sub(r"[\W_]+", "", text, flags=re.UNICODE).lower()
+
+
+DIMENSION_PATTERNS = (
+    r"(?:Dimensions to cover|Core dimensions include|Framework dimensions(?: include)?)\s*[:：]?\s*(.+)",
+    r"(?:核心维度包括|框架维度包括|需要覆盖的维度|维度包括)\s*[:：]?\s*(.+)",
+    r"(?:網羅すべき次元|中核次元|フレームワーク次元)\s*[:：]?\s*(.+)",
+)
+
+CURRENT_DIMENSION_PATTERNS = (
+    r"(?:Current dimensions)\s*[:：]\s*(.+)",
+    r"(?:当前维度|目前维度)\s*[:：]\s*(.+)",
+    r"(?:現在の次元)\s*[:：]\s*(.+)",
+)
+
+
+def is_placeholder_dimension(text: str) -> bool:
+    stripped = text.strip()
+    normalized = normalize_dimension_text(stripped)
+    return (
+        not normalized
+        or "<" in stripped
+        or ">" in stripped
+        or normalized
+        in {
+            "frameworkdimension",
+            "框架维度",
+            "フレームワーク次元",
+            "commaseparateddimensions",
+        }
+    )
+
+
+def split_framework_dimensions(fragment: str) -> list[str]:
+    fragment = fragment.strip()
+    fragment = re.split(r"[。.!！]\s*", fragment, maxsplit=1)[0]
+    fragment = re.sub(r"\s+(?:and)\s+", ", ", fragment, flags=re.IGNORECASE)
+    fragment = re.sub(r"(?:以及|和|及|と)", "、", fragment)
+    dimensions: list[str] = []
+    seen: set[str] = set()
+    for raw_part in re.split(r"[、,，;；\n]+", fragment):
+        part = raw_part.strip(" \t\r\n-:：.。;；,，")
+        part = re.sub(r"^(?:and|or)\s+", "", part, flags=re.IGNORECASE).strip()
+        if not part or is_placeholder_dimension(part):
+            continue
+        normalized = normalize_dimension_text(part)
+        if normalized and normalized not in seen:
+            dimensions.append(part)
+            seen.add(normalized)
+    return dimensions
+
+
+def section_subheadings(body: str) -> list[str]:
+    return [
+        match.group(1).strip()
+        for match in re.finditer(r"^#{3,6}\s+(.+?)\s*$", body, flags=re.MULTILINE)
+        if not is_placeholder_dimension(match.group(1).strip())
+    ]
+
+
+def extract_framework_dimensions_from_body(body: str) -> list[str]:
+    dimensions: list[str] = []
+    seen: set[str] = set()
+    for line in body.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        for pattern in DIMENSION_PATTERNS:
+            match = re.search(pattern, stripped, flags=re.IGNORECASE)
+            if not match:
+                continue
+            for dimension in split_framework_dimensions(match.group(1)):
+                normalized = normalize_dimension_text(dimension)
+                if normalized and normalized not in seen:
+                    dimensions.append(dimension)
+                    seen.add(normalized)
+            break
+    if dimensions:
+        return dimensions
+
+    for heading in section_subheadings(body):
+        normalized = normalize_dimension_text(heading)
+        if normalized and normalized not in seen:
+            dimensions.append(heading)
+            seen.add(normalized)
+    return dimensions
+
+
+def extract_framework_dimensions(text: str, label: dict[str, object]) -> list[str]:
+    method_heading = str(label["report_headings"][2])
+    body = section_body(text, method_heading) or ""
+    if not body:
+        return []
+    return extract_framework_dimensions_from_body(body)
+
+
+def extract_brief_framework_dimensions(text: str, label: dict[str, object]) -> list[str]:
+    framework_heading = str(label["brief_headings"][4])
+    body = section_body(text, framework_heading) or ""
+    if not body:
+        return []
+    return extract_framework_dimensions_from_body(body)
+
+
+def extract_index_framework_dimensions(text: str, label: dict[str, object]) -> list[str]:
+    refinement_heading = str(label["index_headings"][8])
+    body = section_body(text, refinement_heading) or ""
+    if not body:
+        return []
+    dimensions: list[str] = []
+    seen: set[str] = set()
+    for line in body.splitlines():
+        stripped = line.strip().lstrip("-*0123456789.）) ").strip()
+        if not stripped:
+            continue
+        for pattern in CURRENT_DIMENSION_PATTERNS:
+            match = re.search(pattern, stripped, flags=re.IGNORECASE)
+            if not match:
+                continue
+            for dimension in split_framework_dimensions(match.group(1)):
+                normalized = normalize_dimension_text(dimension)
+                if normalized and normalized not in seen:
+                    dimensions.append(dimension)
+                    seen.add(normalized)
+            break
+    return dimensions
+
+
+def normalized_dimension_set(dimensions: list[str]) -> set[str]:
+    return {normalize_dimension_text(dimension) for dimension in dimensions if normalize_dimension_text(dimension)}
+
+
+def line_value_after_label(body: str, label_patterns: tuple[str, ...]) -> str:
+    for line in body.splitlines():
+        stripped = line.strip().lstrip("-*0123456789.）) ").strip()
+        for pattern in label_patterns:
+            match = re.match(rf"{pattern}\s*[:：]\s*(.+)$", stripped, flags=re.IGNORECASE)
+            if match:
+                return match.group(1).strip()
+    return ""
+
+
+def check_index_framework_refinement(
+    errors: list[str],
+    index_path: Path,
+    label: dict[str, object],
+    brief_dimensions: list[str],
+) -> list[str]:
+    if not index_path.exists():
+        return brief_dimensions
+
+    text = index_path.read_text(encoding="utf-8")
+    current_dimensions = extract_index_framework_dimensions(text, label)
+    if not current_dimensions:
+        return brief_dimensions
+
+    if normalized_dimension_set(current_dimensions) == normalized_dimension_set(brief_dimensions):
+        return current_dimensions
+
+    refinement_heading = str(label["index_headings"][8])
+    body = section_body(text, refinement_heading) or ""
+    evidence_trigger = line_value_after_label(
+        body,
+        (
+            r"Evidence trigger for changes",
+            r"变更的证据触发",
+            r"変更の証拠トリガー",
+        ),
+    )
+    original_preserved = line_value_after_label(
+        body,
+        (
+            r"Original question/core preserved",
+            r"原始问题/核心已保留",
+            r"元の問い/中核を保持",
+        ),
+    )
+    if not evidence_trigger:
+        errors.append(
+            "index.md: Framework Refinement Log changed dimensions but lacks evidence trigger for changes"
+        )
+    if not original_preserved:
+        errors.append(
+            "index.md: Framework Refinement Log changed dimensions but does not state the original question/core is preserved"
+        )
+    return current_dimensions
+
+
+def missing_framework_dimension_subheadings(body: str, dimensions: list[str]) -> list[str]:
+    normalized_subheadings = [normalize_dimension_text(heading) for heading in section_subheadings(body)]
+    return [
+        dimension
+        for dimension in dimensions
+        if not any(normalize_dimension_text(dimension) in heading for heading in normalized_subheadings)
+    ]
+
+
+def validate_framework_dimension_subheadings(
+    errors: list[str],
+    path_name: str,
+    section_heading: str,
+    body: str,
+    dimensions: list[str],
+) -> None:
+    missing = missing_framework_dimension_subheadings(body, dimensions)
+    if missing:
+        errors.append(
+            f"{path_name}: {section_heading} must include subheadings for framework dimensions: "
+            + ", ".join(missing)
+        )
+
+
+def body_for_subheading(section: str, subheading: str) -> str:
+    match = re.search(
+        rf"^#{{3,6}}\s+{re.escape(subheading)}\s*$\n(?P<body>.*?)(?=^#{{3,6}}\s+|\Z)",
+        section,
+        flags=re.MULTILINE | re.DOTALL,
+    )
+    if not match:
+        return ""
+    return match.group("body")
+
+
+def prose_character_count(text: str) -> int:
+    count = 0
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or stripped.startswith("|"):
+            continue
+        if re.match(r"^[-*+]\s+", stripped) or re.match(r"^\d+[.)]\s+", stripped):
+            stripped = re.sub(r"^([-*+]|\d+[.)])\s+", "", stripped)
+        count += len(re.sub(r"\s+", "", stripped))
+    return count
+
+
+def report_body_before_appendix(text: str, appendix_heading: str) -> str:
+    appendix_match = re.search(rf"^## {re.escape(appendix_heading)}\s*$", text, flags=re.MULTILINE)
+    if not appendix_match:
+        return text
+    return text[: appendix_match.start()]
+
+
+def validate_report_prose_first(errors: list[str], text: str, label: dict[str, object]) -> None:
+    appendix_heading = str(label["appendix_start_heading"])
+    body_before_appendix = report_body_before_appendix(text, appendix_heading)
+    bullet_lines = 0
+    prose_lines = 0
+    for line in body_before_appendix.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or stripped.startswith("|"):
+            continue
+        if re.match(r"^[-*+]\s+", stripped) or re.match(r"^\d+[.)]\s+", stripped):
+            bullet_lines += 1
+        else:
+            prose_lines += 1
+    if bullet_lines >= 8 and bullet_lines > prose_lines:
+        errors.append("report.md: prose-first rule violated; report body uses too many list lines")
+
+
+def validate_dimension_body_depth(
+    errors: list[str],
+    path_name: str,
+    section_heading: str,
+    body: str,
+    dimensions: list[str],
+) -> None:
+    subheadings = section_subheadings(body)
+    for dimension in dimensions:
+        matching_heading = next(
+            (
+                heading
+                for heading in subheadings
+                if normalize_dimension_text(dimension) in normalize_dimension_text(heading)
+            ),
+            None,
+        )
+        if not matching_heading:
+            continue
+        dimension_body = body_for_subheading(body, matching_heading)
+        if prose_character_count(dimension_body) < 80:
+            errors.append(
+                f"{path_name}: {section_heading} dimension '{dimension}' needs substantive prose, not just a heading or audit note"
+            )
+
+
+def validate_framework_dimension_analysis(
+    errors: list[str],
+    text: str,
+    label: dict[str, object],
+) -> None:
+    dimensions = extract_framework_dimensions(text, label)
+    if not dimensions:
+        return
+
+    analysis_heading = str(label["report_headings"][3])
+    body = section_body(text, analysis_heading) or ""
+    validate_framework_dimension_subheadings(errors, "report.md", analysis_heading, body, dimensions)
+    validate_dimension_body_depth(errors, "report.md", analysis_heading, body, dimensions)
+
+
 def validate_report_quality(
     errors: list[str],
     warnings: list[str],
@@ -997,12 +1385,13 @@ def validate_report_quality(
         )
 
     text = report_path.read_text(encoding="utf-8")
+    validate_framework_dimension_analysis(errors, text, label)
+    validate_report_prose_first(errors, text, label)
+
     appendix_heading = str(label["appendix_start_heading"])
-    appendix_match = re.search(rf"^## {re.escape(appendix_heading)}\s*$", text, flags=re.MULTILINE)
-    if appendix_match:
-        body_before_appendix = text[: appendix_match.start()]
-        if any(line.strip().startswith("|") and line.strip().endswith("|") for line in body_before_appendix.splitlines()):
-            errors.append("report.md: prose-first rule violated; evidence tables belong in appendices, not the report body")
+    body_before_appendix = report_body_before_appendix(text, appendix_heading)
+    if any(line.strip().startswith("|") and line.strip().endswith("|") for line in body_before_appendix.splitlines()):
+        errors.append("report.md: prose-first rule violated; evidence tables belong in appendices, not the report body")
 
     score_heading = str(label["report_quality_heading"])
     score = parse_report_score(text, score_heading)
@@ -1029,6 +1418,7 @@ def init_survey(args: argparse.Namespace) -> None:
     headings = label["brief_headings"]
     decision_frame_note = str(label["decision_frame_note"])
     research_framework_note = str(label["research_framework_note"])
+    framework_dimension_map_note = str(label["framework_dimension_map_note"])
     continuation_policy_note = str(label["continuation_policy_note"])
     write_once(
         survey_dir / "00-brief.md",
@@ -1054,6 +1444,7 @@ def init_survey(args: argparse.Namespace) -> None:
 ## {headings[4]}
 
 {research_framework_note}
+{framework_dimension_map_note}
 
 ## {headings[5]}
 
@@ -1090,6 +1481,7 @@ def init_survey(args: argparse.Namespace) -> None:
 """,
     )
     headings = label["index_headings"]
+    framework_refinement_notes = "\n".join(f"- {note}" for note in label["framework_refinement_notes"])
     wiki_status_notes = "\n".join(f"- {note}" for note in label["wiki_status_notes"])
     write_once(
         survey_dir / "index.md",
@@ -1130,9 +1522,13 @@ def init_survey(args: argparse.Namespace) -> None:
 
 ## {headings[8]}
 
-{wiki_status_notes}
+{framework_refinement_notes}
 
 ## {headings[9]}
+
+{wiki_status_notes}
+
+## {headings[10]}
 
 -
 """,
@@ -1158,6 +1554,7 @@ def create_round(args: argparse.Namespace) -> None:
     source_registry_note = str(label["source_registry_note"])
     claim_registry_note = str(label["claim_registry_note"])
     framework_coverage_note = str(label["framework_coverage_note"])
+    framework_round_coverage_note = str(label["framework_round_coverage_note"])
     write_once(
         survey_dir / f"{prefix}-research.md",
         f"""# {round_title(label, int(args.round), str(label['research']))}
@@ -1176,6 +1573,7 @@ def create_round(args: argparse.Namespace) -> None:
 
 ## {headings[3]}
 
+{framework_round_coverage_note}
 {framework_coverage_note}
 
 ## {headings[4]}
@@ -1188,6 +1586,7 @@ def create_round(args: argparse.Namespace) -> None:
 """,
     )
     headings = label["brainstorm_headings"]
+    framework_brainstorm_note = str(label["framework_brainstorm_note"])
     write_once(
         survey_dir / f"{prefix}-brainstorm.md",
         f"""# {round_title(label, int(args.round), str(label['brainstorm']))}
@@ -1207,6 +1606,7 @@ def create_round(args: argparse.Namespace) -> None:
 
 ## {headings[3]}
 
+{framework_brainstorm_note}
 - Option A:
 - Option B:
 - Option C:
@@ -1221,12 +1621,14 @@ def create_round(args: argparse.Namespace) -> None:
 """,
     )
     headings = label["redteam_headings"]
+    framework_redteam_note = str(label["framework_redteam_note"])
     write_once(
         survey_dir / f"{prefix}-redteam.md",
         f"""# {round_title(label, int(args.round), str(label['redteam']))}
 
 ## {headings[0]}
 
+{framework_redteam_note}
 - 
 
 ## {headings[1]}
@@ -1260,6 +1662,7 @@ def create_round(args: argparse.Namespace) -> None:
     )
     headings = label["synthesis_headings"]
     framework_synthesis_note = str(label["framework_synthesis_note"])
+    framework_synthesis_expansion_note = str(label["framework_synthesis_expansion_note"])
     write_once(
         survey_dir / f"{prefix}-synthesis.md",
         f"""# {round_title(label, int(args.round), str(label['synthesis']))}
@@ -1278,6 +1681,7 @@ def create_round(args: argparse.Namespace) -> None:
 
 ## {headings[3]}
 
+{framework_synthesis_expansion_note}
 {framework_synthesis_note}
 
 ## {headings[4]}
@@ -1298,6 +1702,7 @@ def create_round(args: argparse.Namespace) -> None:
 """,
     )
     headings = label["evolver_headings"]
+    framework_evolver_gate_note = str(label["framework_evolver_gate_note"])
     write_once(
         survey_dir / f"{prefix}-evolver.md",
         f"""# {round_title(label, int(args.round), str(label['evolver']))}
@@ -1326,6 +1731,7 @@ def create_round(args: argparse.Namespace) -> None:
 
 ## {headings[4]}
 
+{framework_evolver_gate_note}
 - Evidence coverage this round:
 - Framework coverage this round:
 - Weakest evidence or framework dimensions:
@@ -1433,6 +1839,37 @@ def check_continuation_policy(errors: list[str], brief_path: Path, label: dict[s
         errors.append("00-brief.md: continuation policy must not predict specific round outcomes")
 
 
+def check_brief_framework_dimensions(errors: list[str], brief_path: Path, label: dict[str, object]) -> list[str]:
+    if not brief_path.exists():
+        return []
+    text = brief_path.read_text(encoding="utf-8")
+    framework_heading = str(label["brief_headings"][4])
+    body = section_body(text, framework_heading) or ""
+    dimensions = extract_brief_framework_dimensions(text, label)
+    if not dimensions:
+        errors.append(
+            f"00-brief.md: {framework_heading} must declare framework dimensions with a Dimensions to cover line or one ### subheading per dimension"
+        )
+        return []
+    validate_framework_dimension_subheadings(errors, "00-brief.md", framework_heading, body, dimensions)
+    return dimensions
+
+
+def check_round_framework_dimensions(
+    errors: list[str],
+    path: Path,
+    section_heading: str,
+    dimensions: list[str],
+) -> None:
+    if not dimensions or not path.exists():
+        return
+    text = path.read_text(encoding="utf-8")
+    body = section_body(text, section_heading)
+    if body is None:
+        return
+    validate_framework_dimension_subheadings(errors, path.name, section_heading, body, dimensions)
+
+
 def parse_evolver_decision(path: Path, label: dict[str, object]) -> str | None:
     if not path.exists():
         return None
@@ -1525,6 +1962,68 @@ def require_fields(
             errors.append(f"{filename}: {row_id} missing required field '{field}'")
 
 
+SUPPORT_STOPWORDS = {
+    "about",
+    "after",
+    "also",
+    "because",
+    "being",
+    "could",
+    "does",
+    "from",
+    "have",
+    "into",
+    "more",
+    "most",
+    "only",
+    "over",
+    "than",
+    "that",
+    "their",
+    "there",
+    "this",
+    "uses",
+    "with",
+    "would",
+}
+
+
+def extract_numbers(text: str) -> set[str]:
+    return set(re.findall(r"\b\d+(?:\.\d+)?%?\b", text))
+
+
+def extract_support_terms(text: str) -> set[str]:
+    terms: set[str] = set()
+    lowered = text.lower()
+    for token in re.findall(r"[a-z][a-z0-9-]{2,}|[\u4e00-\u9fff\u3040-\u30ff]{2,}", lowered):
+        if re.fullmatch(r"\d+(?:\.\d+)?%?", token):
+            continue
+        if re.fullmatch(r"[a-z][a-z0-9-]*", token):
+            token = token.strip("-")
+            if len(token) < 4 or token in SUPPORT_STOPWORDS:
+                continue
+            terms.add(token)
+            continue
+        compact = re.sub(r"\s+", "", token)
+        if len(compact) <= 6:
+            terms.add(compact)
+        for index in range(max(0, len(compact) - 1)):
+            terms.add(compact[index : index + 2])
+    return terms
+
+
+def claim_has_weak_support(claim_text: str, evidence_text: str) -> bool:
+    claim_numbers = extract_numbers(claim_text)
+    if claim_numbers and not claim_numbers.issubset(extract_numbers(evidence_text)):
+        return True
+
+    claim_terms = extract_support_terms(claim_text)
+    if not claim_terms:
+        return False
+    evidence_terms = extract_support_terms(evidence_text)
+    return not bool(claim_terms & evidence_terms)
+
+
 def validate_evidence_registry(survey_dir: Path, mode: str) -> list[str]:
     errors: list[str] = []
     mode_config = MODE_CONFIG[mode]
@@ -1563,6 +2062,7 @@ def validate_evidence_registry(survey_dir: Path, mode: str) -> list[str]:
             source_ids.add(source_id)
 
     evidence_ids: set[str] = set()
+    evidence_by_id: dict[str, dict[str, object]] = {}
     for index, item in enumerate(evidence, start=1):
         row_id = str(item.get("evidence_id") or f"row {index}")
         require_fields(
@@ -1578,6 +2078,7 @@ def validate_evidence_registry(survey_dir: Path, mode: str) -> list[str]:
             if evidence_id in evidence_ids:
                 errors.append(f"evidence.jsonl: duplicate evidence_id {evidence_id}")
             evidence_ids.add(evidence_id)
+            evidence_by_id[evidence_id] = item
         if isinstance(source_id, str) and source_id and source_id not in source_ids:
             errors.append(f"evidence.jsonl: {row_id} references missing source_id {source_id}")
 
@@ -1608,6 +2109,15 @@ def validate_evidence_registry(survey_dir: Path, mode: str) -> list[str]:
                 errors.append(f"claims.jsonl: {row_id} has invalid evidence id {evidence_id!r}")
             elif evidence_id not in evidence_ids:
                 errors.append(f"claims.jsonl: {row_id} references missing evidence_id {evidence_id}")
+        if status in {"supported", "partial"}:
+            linked_evidence_text = "\n".join(
+                str(evidence_by_id[evidence_id].get("quote_or_summary") or "")
+                for evidence_id in supporting_ids
+                if isinstance(evidence_id, str) and evidence_id in evidence_by_id
+            )
+            claim_text = str(claim.get("claim") or "")
+            if linked_evidence_text and claim_has_weak_support(claim_text, linked_evidence_text):
+                errors.append(f"claims.jsonl: {row_id} has weak support from linked evidence")
 
     return errors
 
@@ -1635,8 +2145,15 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
     brief_path = survey_dir / "00-brief.md"
     check_required_file(errors, brief_path, list(label["brief_headings"]), language)
     check_continuation_policy(errors, brief_path, label)
+    framework_dimensions = check_brief_framework_dimensions(errors, brief_path, label)
     index_path = survey_dir / "index.md"
     check_required_file(errors, index_path, list(label["index_headings"]), language)
+    effective_framework_dimensions = check_index_framework_refinement(
+        errors,
+        index_path,
+        label,
+        framework_dimensions,
+    )
     check_wiki_status_notes(errors, warnings, index_path, label, schema_version)
     if final:
         report_path = survey_dir / "report.md"
@@ -1653,11 +2170,44 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
         research_path = survey_dir / f"{prefix}-research.md"
         check_required_file(errors, research_path, list(label["research_headings"]), language)
         check_research_tool_notes(errors, warnings, research_path, label, schema_version)
-        check_required_file(errors, survey_dir / f"{prefix}-brainstorm.md", list(label["brainstorm_headings"]), language)
-        check_required_file(errors, survey_dir / f"{prefix}-redteam.md", list(label["redteam_headings"]), language)
-        check_required_file(errors, survey_dir / f"{prefix}-synthesis.md", list(label["synthesis_headings"]), language)
+        check_round_framework_dimensions(
+            errors,
+            research_path,
+            str(label["research_headings"][3]),
+            effective_framework_dimensions,
+        )
+        brainstorm_path = survey_dir / f"{prefix}-brainstorm.md"
+        check_required_file(errors, brainstorm_path, list(label["brainstorm_headings"]), language)
+        check_round_framework_dimensions(
+            errors,
+            brainstorm_path,
+            str(label["brainstorm_headings"][3]),
+            effective_framework_dimensions,
+        )
+        redteam_path = survey_dir / f"{prefix}-redteam.md"
+        check_required_file(errors, redteam_path, list(label["redteam_headings"]), language)
+        check_round_framework_dimensions(
+            errors,
+            redteam_path,
+            str(label["redteam_headings"][0]),
+            effective_framework_dimensions,
+        )
+        synthesis_path = survey_dir / f"{prefix}-synthesis.md"
+        check_required_file(errors, synthesis_path, list(label["synthesis_headings"]), language)
+        check_round_framework_dimensions(
+            errors,
+            synthesis_path,
+            str(label["synthesis_headings"][3]),
+            effective_framework_dimensions,
+        )
         evolver_path = survey_dir / f"{prefix}-evolver.md"
         check_required_file(errors, evolver_path, required_evolver_headings(label, schema_version), language)
+        check_round_framework_dimensions(
+            errors,
+            evolver_path,
+            str(label["evolver_headings"][4]),
+            effective_framework_dimensions,
+        )
     if rounds:
         latest_evolver_path = survey_dir / f"{rounds[-1]:02d}-evolver.md"
         validate_evolver_gate(errors, warnings, latest_evolver_path, label, final=final)

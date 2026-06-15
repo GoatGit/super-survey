@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -159,6 +160,7 @@ Evidence is directional, not decisive.
 
         brief = (survey_dir / "00-brief.md").read_text(encoding="utf-8")
         research = (survey_dir / "01-research.md").read_text(encoding="utf-8")
+        brainstorm = (survey_dir / "01-brainstorm.md").read_text(encoding="utf-8")
         redteam = (survey_dir / "01-redteam.md").read_text(encoding="utf-8")
         synthesis = (survey_dir / "01-synthesis.md").read_text(encoding="utf-8")
         evolver = (survey_dir / "01-evolver.md").read_text(encoding="utf-8")
@@ -194,11 +196,18 @@ Evidence is directional, not decisive.
         self.assertIn("## Continuation Status", index)
         self.assertIn("## Next Research Target", index)
         self.assertIn("## Why Not Final Yet", index)
+        self.assertIn("## Framework Refinement Log", index)
         self.assertIn("Wiki Tool Attempted", index)
         self.assertIn("Wiki Ingest Result", index)
         self.assertIn("Mode:", brief)
         self.assertIn("Minimum Sources:", brief)
         self.assertIn("Target Report Length:", brief)
+        self.assertIn("### <framework dimension>", brief)
+        self.assertIn("### <framework dimension>", research)
+        self.assertIn("### <framework dimension>", brainstorm)
+        self.assertIn("### <framework dimension>", redteam)
+        self.assertIn("### <framework dimension>", synthesis)
+        self.assertIn("### <framework dimension>", evolver)
 
     def test_round_template_uses_registry_as_evidence_source_of_truth(self) -> None:
         survey_dir = self.init_round()
@@ -324,6 +333,53 @@ Evidence is directional, not decisive.
         self.assertEqual(result.returncode, 1)
         self.assertIn("prose-first rule violated", result.stdout)
 
+    def test_chinese_framework_dimensions_are_extracted_from_method_section(self) -> None:
+        module = load_survey_round_module()
+        text = """# 报告
+
+## 研究方法与框架
+
+核心维度包括市场环境、行业主题、公司业务结构、财务质量、估值、机构预期、资金面、技术面、催化剂和风险。
+"""
+
+        dimensions = module.extract_framework_dimensions(text, module.labels("zh"))
+
+        self.assertEqual(
+            dimensions,
+            ["市场环境", "行业主题", "公司业务结构", "财务质量", "估值", "机构预期", "资金面", "技术面", "催化剂", "风险"],
+        )
+
+    def test_report_rejects_framework_dimensions_without_body_subheadings(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        report_path = survey_dir / "report.md"
+        report = report_path.read_text(encoding="utf-8")
+        report = report.replace(
+            "It checks user pain, workflow frequency, willingness to pay, policy constraints, substitutes, distribution, and implementation difficulty.",
+            "Dimensions to cover: user pain, workflow frequency, policy constraints.",
+        )
+        report = re.sub(
+            r"## Framework Dimension Analysis\n\n.*?(?=\n## Main Narrative)",
+            (
+                "## Framework Dimension Analysis\n\n"
+                "This section mentions user pain, workflow frequency, and policy constraints in one paragraph "
+                "but does not make them report subchapters.\n"
+            ),
+            report,
+            flags=re.DOTALL,
+        )
+        report_path.write_text(report, encoding="utf-8")
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Framework Dimension Analysis must include subheadings", result.stdout)
+        self.assertIn("user pain", result.stdout)
+
     def test_empty_report_section_is_reported_once(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(survey_dir)
@@ -441,6 +497,7 @@ Sources were checked during this round and remain directional.
         report = (survey_dir / "report.md").read_text(encoding="utf-8")
         self.assertIn("## Reader's Path", report)
         self.assertIn("## Research Method And Framework", report)
+        self.assertIn("## Framework Dimension Analysis", report)
         self.assertIn("## Appendix: Evidence Register", report)
         self.assertIn('"report_schema_version": 2', metadata.read_text(encoding="utf-8"))
 
@@ -454,6 +511,8 @@ Thin.
 ## Reader's Path
 Thin.
 ## Research Method And Framework
+Thin.
+## Framework Dimension Analysis
 Thin.
 ## Main Narrative
 Thin.
@@ -738,6 +797,21 @@ Sources were checked during this round and remain directional.
         self.assertEqual(result.returncode, 1)
         self.assertIn("claims.jsonl: duplicate claim_id C1", result.stdout)
 
+    def test_validate_evidence_rejects_claims_weakly_supported_by_linked_evidence(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(survey_dir)
+        (survey_dir / "claims.jsonl").write_text(
+            '{"claim_id":"C1","claim":"Mars has 500 million residents in 2026.","supporting_evidence_ids":["E1"],"status":"supported"}\n'
+            '{"claim_id":"C2","claim":"Policy risk matters.","supporting_evidence_ids":["E2"],"status":"supported"}\n'
+            '{"claim_id":"C3","claim":"Paid willingness remains plausible but unproven.","supporting_evidence_ids":["E3"],"status":"partial"}\n',
+            encoding="utf-8",
+        )
+
+        result = run_cli("validate-evidence", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("claims.jsonl: C1 has weak support from linked evidence", result.stdout)
+
     def test_corrupt_metadata_warns_and_does_not_skip_registry_validation(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(survey_dir, include_registry=False)
@@ -761,6 +835,156 @@ Sources were checked during this round and remain directional.
         result = run_cli("check", str(survey_dir))
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_check_rejects_process_artifacts_that_only_summarize_framework_audit(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+
+        replacements = {
+            "00-brief.md": (
+                "Research Framework",
+                "Selected framework: product opportunity plus policy-risk framework.\n"
+                "Dimensions to cover: user pain, workflow frequency, willingness to pay, policy constraints, substitutes, distribution, and implementation difficulty.\n"
+                "Why this framework fits the decision: demand and launch constraints both matter.\n"
+                "Dimensions intentionally out of scope: enterprise procurement and recruiter-side workflows."
+            ),
+            "01-research.md": (
+                "Framework Coverage",
+                "Framework dimensions covered: user pain, workflow frequency, policy constraints, substitutes, and early pricing signals.\n"
+                "Weak or missing dimensions: willingness to pay and distribution economics.\n"
+                "Next evidence target from framework gaps: official policy pages and direct buyer pricing signals."
+            ),
+            "01-brainstorm.md": (
+                "Candidate Next Moves",
+                "Compare policy, pricing, substitutes, distribution, and implementation difficulty as possible next moves."
+            ),
+            "01-redteam.md": (
+                "Strongest Objections",
+                "Users may not trust automation, policy can block delivery, and paid acquisition can weaken margin."
+            ),
+            "01-synthesis.md": (
+                "Framework-Based Synthesis",
+                "Strongest dimensions: workflow repetition and policy risk evidence.\n"
+                "Weakest dimensions: direct willingness to pay and distribution economics.\n"
+                "Cross-dimension judgment: demand is plausible, but policy and payment constraints should drive the next round."
+            ),
+            "01-evolver.md": (
+                "Round Evidence Quality Gate",
+                "Evidence coverage this round: directional signals exist.\n"
+                "Framework coverage this round: demand and policy dimensions are covered; payment and distribution remain weak.\n"
+                "Weakest evidence or framework dimensions: payment proof and distribution depth."
+            ),
+        }
+        for filename, (heading, body) in replacements.items():
+            path = survey_dir / filename
+            text = path.read_text(encoding="utf-8")
+            text = re.sub(
+                rf"(?ms)^## {re.escape(heading)}\n\n.*?(?=^## |\Z)",
+                f"## {heading}\n\n{body}\n",
+                text,
+            )
+            path.write_text(text, encoding="utf-8")
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("00-brief.md: Research Framework must include subheadings", result.stdout)
+        self.assertIn("01-research.md: Framework Coverage must include subheadings", result.stdout)
+        self.assertIn("01-brainstorm.md: Candidate Next Moves must include subheadings", result.stdout)
+        self.assertIn("01-redteam.md: Strongest Objections must include subheadings", result.stdout)
+        self.assertIn("01-synthesis.md: Framework-Based Synthesis must include subheadings", result.stdout)
+        self.assertIn("01-evolver.md: Round Evidence Quality Gate must include subheadings", result.stdout)
+
+    def test_check_uses_evidence_driven_refined_framework_dimensions_from_index(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        brief_path = survey_dir / "00-brief.md"
+        brief = brief_path.read_text(encoding="utf-8")
+        brief = brief.replace(
+            "Dimensions to cover: user pain, workflow frequency, willingness to pay, policy constraints, substitutes, distribution, and implementation difficulty.",
+            "Dimensions to cover: user pain, workflow frequency.",
+        )
+        brief_path.write_text(brief, encoding="utf-8")
+
+        index_path = survey_dir / "index.md"
+        index = index_path.read_text(encoding="utf-8")
+        index = index.replace(
+            "Current dimensions: user pain, workflow frequency, willingness to pay, policy constraints, substitutes, distribution, and implementation difficulty.",
+            "Current dimensions: policy constraints.\n"
+            "Evidence trigger for changes: C2/E2 showed policy is the veto dimension for this round.\n"
+            "Original question/core preserved: yes; the survey still evaluates whether to continue discovery.",
+        )
+        index_path.write_text(index, encoding="utf-8")
+
+        replacements = {
+            "01-research.md": "Framework Coverage",
+            "01-brainstorm.md": "Candidate Next Moves",
+            "01-redteam.md": "Strongest Objections",
+            "01-synthesis.md": "Framework-Based Synthesis",
+            "01-evolver.md": "Round Evidence Quality Gate",
+        }
+        for filename, heading in replacements.items():
+            path = survey_dir / filename
+            text = path.read_text(encoding="utf-8")
+            text = re.sub(
+                rf"(?ms)^## {re.escape(heading)}\n\n.*?(?=^## |\Z)",
+                f"## {heading}\n\n### Policy Constraints\n\n"
+                "Current judgment: platform rules are the decision bottleneck. "
+                "Evidence impact: C2/E2 moves the next round toward official ToS review. "
+                "Counterpoint: assisted workflows may still be allowed. "
+                "Decision effect: continue only if a compliant workflow remains plausible.\n",
+                text,
+            )
+            path.write_text(text, encoding="utf-8")
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_final_report_rejects_bullet_dominated_body(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            report_score=92,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        report_path = survey_dir / "report.md"
+        report = report_path.read_text(encoding="utf-8")
+        for heading in (
+            "Executive Summary",
+            "Reader's Path",
+            "Main Narrative",
+            "Decision Logic",
+            "Final Recommendation",
+            "What Could Change This Conclusion",
+            "Next Actions",
+            "Limits Of This Report",
+        ):
+            report = re.sub(
+                rf"(?ms)^## {re.escape(heading)}\n\n.*?(?=^## |\Z)",
+                f"## {heading}\n\n"
+                "- Bullet one with a factual-looking claim.\n"
+                "- Bullet two with another claim.\n"
+                "- Bullet three with a terse conclusion.\n",
+                report,
+            )
+        report_path.write_text(report, encoding="utf-8")
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("report.md: prose-first rule violated; report body uses too many list lines", result.stdout)
 
     def _write_substantive_required_files(
         self,
@@ -872,7 +1096,21 @@ Sources were checked during this round and remain directional.
                     "Selected framework: product opportunity plus policy-risk framework.\n"
                     "Dimensions to cover: user pain, workflow frequency, willingness to pay, policy constraints, substitutes, distribution, and implementation difficulty.\n"
                     "Why this framework fits the decision: the decision is whether to continue discovery, so both demand and launch constraints matter.\n"
-                    "Dimensions intentionally out of scope: enterprise procurement and recruiter-side workflows are out of scope for this pass."
+                    "Dimensions intentionally out of scope: enterprise procurement and recruiter-side workflows are out of scope for this pass.\n\n"
+                    "### User Pain\n"
+                    "Core question: whether the target workflow is painful enough to motivate change. Evidence needed: repeated complaints and workaround behavior.\n\n"
+                    "### Workflow Frequency\n"
+                    "Core question: whether the job-search workflow happens often enough for repeated use. Evidence needed: application frequency and routine depth.\n\n"
+                    "### Willingness To Pay\n"
+                    "Core question: whether users would pay from a personal budget. Evidence needed: direct pricing signals and paid alternatives.\n\n"
+                    "### Policy Constraints\n"
+                    "Core question: whether platform rules allow the assisted workflow. Evidence needed: official ToS and enforcement signals.\n\n"
+                    "### Substitutes\n"
+                    "Core question: whether low-cost substitutes already solve enough of the problem. Evidence needed: spreadsheet, tracker, and incumbent usage.\n\n"
+                    "### Distribution\n"
+                    "Core question: whether the product can reach active job seekers efficiently. Evidence needed: channel signals and acquisition constraints.\n\n"
+                    "### Implementation Difficulty\n"
+                    "Core question: whether the workflow can be built reliably and safely. Evidence needed: technical constraints and operational risks."
                 ),
                 "Decision Evidence Standard": "Require current primary sources for policy claims and direct signals for payment claims.",
                 "Decision Frame Integrity": (
@@ -903,6 +1141,11 @@ Sources were checked during this round and remain directional.
                 "Why Not Final Yet": "The latest round still needs either a Kill decision or a final report gate.",
                 "Open Questions": "Policy risk remains open.",
                 "Source Inventory": "Official platform terms and competitor pages.",
+                "Framework Refinement Log": (
+                    "Current dimensions: user pain, workflow frequency, willingness to pay, policy constraints, substitutes, distribution, and implementation difficulty.\n"
+                    "Evidence trigger for changes: no change yet; the first round still uses the initial framework.\n"
+                    "Original question/core preserved: yes; the survey still evaluates whether to continue discovery."
+                ),
                 "Wiki / Graph Index Status": wiki_status,
                 "Decision Log": "Continue one narrowed round.",
             },
@@ -925,8 +1168,24 @@ Sources were checked during this round and remain directional.
                     ),
                     "Research Method And Framework": (
                         "This report uses a product opportunity plus policy-risk framework.\n"
-                        "It checks user pain, workflow frequency, willingness to pay, policy constraints, substitutes, distribution, and implementation difficulty.\n"
+                        "Dimensions to cover: user pain, workflow frequency, willingness to pay, policy constraints, substitutes, distribution, and implementation difficulty.\n"
                         "Demand and policy dimensions are emphasized because either one can change the discovery decision."
+                    ),
+                    "Framework Dimension Analysis": (
+                        "### User Pain\n"
+                        "Job seekers repeat a frustrating workflow across many applications, so the pain is concrete rather than abstract. The remaining question is whether the frustration changes behavior enough to justify switching from manual tracking.\n\n"
+                        "### Workflow Frequency\n"
+                        "The workflow can recur several times per week during active job searches, which supports repeated use if trust is adequate. Frequency still varies by segment, so the report treats this as a validation target rather than settled retention proof.\n\n"
+                        "### Willingness To Pay\n"
+                        "Comparable tools use paid subscriptions, but direct willingness-to-pay evidence remains partial and should constrain confidence. This dimension weakens the case for immediate build because comparable pricing is not the same as committed buyer demand.\n\n"
+                        "### Policy Constraints\n"
+                        "Platform terms and automation limits can block the core workflow, so policy evidence has veto power over the idea. The recommendation therefore prioritizes official terms and assisted-workflow boundaries before any broad automation design.\n\n"
+                        "### Substitutes\n"
+                        "Spreadsheets, job trackers, and manual application routines are credible substitutes with low switching cost. A viable product has to beat these substitutes on effort reduction or outcome quality, not only on interface polish.\n\n"
+                        "### Distribution\n"
+                        "Distribution likely depends on search, communities, and browser workflows; paid acquisition may weaken margins. This makes high-intent entry points and organic workflow placement important evidence targets for the next pass.\n\n"
+                        "### Implementation Difficulty\n"
+                        "Reliable form assistance, user confirmation, and policy-safe operation make the build harder than a simple wrapper. A narrow copilot path can reduce risk, but full automation should wait until reliability and policy boundaries are clearer."
                     ),
                     "Main Narrative": (
                         "The opportunity is visible because job seekers repeat the same painful workflow across many applications.\n"
@@ -998,9 +1257,20 @@ Sources were checked during this round and remain directional.
                     "This round references C1 and E1 instead of duplicating the full evidence table."
                 ),
                 "Framework Coverage": (
-                    "Framework dimensions covered: user pain, workflow frequency, policy constraints, substitutes, and early pricing signals.\n"
-                    "Weak or missing dimensions: direct willingness to pay and distribution economics remain weak.\n"
-                    "Contradictions by dimension: demand signals exist, but payment proof remains indirect.\n"
+                    "### User Pain\n"
+                    "Finding: repeated application work creates visible pain. Evidence IDs: E1. Contradiction: pain intensity is not yet quantified. Confidence: medium.\n\n"
+                    "### Workflow Frequency\n"
+                    "Finding: active job seekers repeat the workflow enough to justify a repeated-use hypothesis. Evidence IDs: E1. Contradiction: frequency varies by user segment.\n\n"
+                    "### Willingness To Pay\n"
+                    "Finding: paid alternatives make payment plausible but not proven. Evidence IDs: E3. Contradiction: direct buyer commitment is missing.\n\n"
+                    "### Policy Constraints\n"
+                    "Finding: platform terms can affect automation scope. Evidence IDs: E2. Contradiction: assisted workflows may still be allowed.\n\n"
+                    "### Substitutes\n"
+                    "Finding: manual spreadsheets and job trackers remain credible substitutes. Evidence IDs: E1. Contradiction: substitutes may not solve execution burden.\n\n"
+                    "### Distribution\n"
+                    "Finding: channels are plausible but unproven. Evidence IDs: E3. Contradiction: paid acquisition may be inefficient.\n\n"
+                    "### Implementation Difficulty\n"
+                    "Finding: reliable assistance is harder than a simple wrapper. Evidence IDs: E2. Contradiction: a narrow copilot may reduce build risk.\n\n"
                     "Next evidence target from framework gaps: official policy pages and direct buyer pricing signals."
                 ),
                 "Findings": "There are repeated workflow signals.",
@@ -1019,7 +1289,22 @@ Sources were checked during this round and remain directional.
                 "Brainstorming Status": "Completed after initial research.",
                 "Current Framing": "Focus on job seekers rather than recruiters.",
                 "Clarifying Questions": "Can policy risk be reduced?",
-                "Candidate Next Moves": "Compare policy, pricing, or open-source tools.",
+                "Candidate Next Moves": (
+                    "### User Pain\n"
+                    "Next move: test whether repeated frustration maps to a must-have workflow rather than a convenience.\n\n"
+                    "### Workflow Frequency\n"
+                    "Next move: estimate how often active job seekers repeat the exact task sequence.\n\n"
+                    "### Willingness To Pay\n"
+                    "Next move: compare paid tools and ask for direct price commitment.\n\n"
+                    "### Policy Constraints\n"
+                    "Next move: inspect official terms before designing any automation path.\n\n"
+                    "### Substitutes\n"
+                    "Next move: compare spreadsheets, trackers, and browser extensions as substitute paths.\n\n"
+                    "### Distribution\n"
+                    "Next move: identify search, community, and workflow-entry channels.\n\n"
+                    "### Implementation Difficulty\n"
+                    "Next move: split the build into assisted workflow, user confirmation, and automation boundary."
+                ),
                 "Preferred Exploration Path": "Check policy and pricing next.",
                 "Design Notes For Next Round": "Use primary ToS pages and pricing evidence.",
             },
@@ -1028,7 +1313,22 @@ Sources were checked during this round and remain directional.
             survey_dir / "01-redteam.md",
             "Round 1 Red-Team Challenge",
             {
-                "Strongest Objections": "Users may not trust automation.",
+                "Strongest Objections": (
+                    "### User Pain\n"
+                    "Objection: frustration may not be painful enough to change behavior if current workarounds are adequate.\n\n"
+                    "### Workflow Frequency\n"
+                    "Objection: the workflow may be intense only during short job-search windows, weakening retention.\n\n"
+                    "### Willingness To Pay\n"
+                    "Objection: users may like the idea but refuse to pay before outcomes are proven.\n\n"
+                    "### Policy Constraints\n"
+                    "Objection: platform terms may block the most valuable automation path.\n\n"
+                    "### Substitutes\n"
+                    "Objection: spreadsheets and existing trackers may be good enough for most users.\n\n"
+                    "### Distribution\n"
+                    "Objection: reaching active job seekers at the right moment may be expensive.\n\n"
+                    "### Implementation Difficulty\n"
+                    "Objection: reliability, user confirmation, and privacy constraints can turn a simple concept into a complex product."
+                ),
                 "Incumbent Response": "Job boards can block the workflow.",
                 "Alternative Explanations Or Substitutes": "Users may prefer manual spreadsheets or existing job trackers.",
                 "Data And Access Risks": "Data access can change without notice.",
@@ -1046,10 +1346,21 @@ Sources were checked during this round and remain directional.
                 "Confidence": "Medium.",
                 "Decision Rationale": "Continue because demand signals exist, but narrow around policy risk.",
                 "Framework-Based Synthesis": (
-                    "Strongest dimensions: workflow repetition and policy risk evidence.\n"
-                    "Weakest dimensions: direct willingness to pay and distribution economics.\n"
-                    "Cross-dimension judgment: demand is plausible, but policy and payment constraints should drive the next round.\n"
-                    "Framework gaps that affect confidence: no direct buyer interviews and no legal review."
+                    "### User Pain\n"
+                    "Judgment: user pain is plausible and supports continued discovery, but intensity still needs direct validation.\n\n"
+                    "### Workflow Frequency\n"
+                    "Judgment: repeated use is plausible during active job searches, though long-term retention is uncertain.\n\n"
+                    "### Willingness To Pay\n"
+                    "Judgment: this is one of the weakest dimensions because comparable pricing is not direct commitment.\n\n"
+                    "### Policy Constraints\n"
+                    "Judgment: policy is a veto dimension and should drive the next round before implementation.\n\n"
+                    "### Substitutes\n"
+                    "Judgment: substitutes are credible, so the product must outperform manual tracking on outcome or effort.\n\n"
+                    "### Distribution\n"
+                    "Judgment: channels are still speculative and should constrain confidence.\n\n"
+                    "### Implementation Difficulty\n"
+                    "Judgment: a narrow assisted workflow can reduce technical risk, but full automation remains risky.\n\n"
+                    "Cross-dimension judgment: demand is plausible, but policy and payment constraints should drive the next round."
                 ),
                 "What Changed": "Policy risk became the main blocker.",
                 "Remaining Unknowns": "Actual willingness to pay is unknown.",
@@ -1074,11 +1385,21 @@ Sources were checked during this round and remain directional.
                 ),
                 "Decision": evolver_decision,
                 "Round Evidence Quality Gate": (
-                    "Evidence coverage this round: directional signals exist, but buyer payment and policy constraints remain weak.\n"
-                    "Framework coverage this round: demand and policy dimensions are covered; direct payment and distribution remain weak.\n"
-                    "Weakest evidence or framework dimensions: evidence completeness, payment proof, and distribution depth.\n"
-                    "Continue / stop implication: continue unless the raw decision is Kill and final report quality later passes.\n"
-                    "Next-round focus: official policy pages, direct buyer signals, and contradiction checks."
+                    "### User Pain\n"
+                    "Coverage quality: medium. Weakest gap: direct severity evidence. Next target: confirm whether pain changes behavior.\n\n"
+                    "### Workflow Frequency\n"
+                    "Coverage quality: medium. Weakest gap: segment-level frequency. Next target: estimate repeated use during active searches.\n\n"
+                    "### Willingness To Pay\n"
+                    "Coverage quality: weak. Weakest gap: direct payment proof. Next target: collect pricing commitment or comparable conversion evidence.\n\n"
+                    "### Policy Constraints\n"
+                    "Coverage quality: medium. Weakest gap: exact automation boundary. Next target: inspect official ToS pages.\n\n"
+                    "### Substitutes\n"
+                    "Coverage quality: medium. Weakest gap: substitute satisfaction. Next target: compare manual trackers and incumbents.\n\n"
+                    "### Distribution\n"
+                    "Coverage quality: weak. Weakest gap: acquisition channel proof. Next target: identify high-intent entry points.\n\n"
+                    "### Implementation Difficulty\n"
+                    "Coverage quality: medium. Weakest gap: reliability under policy constraints. Next target: narrow the build path.\n\n"
+                    "Continue / stop implication: continue unless the raw decision is Kill and final report quality later passes."
                 ),
                 "Next Research Target": "Can active US software job seekers use a browser-assisted copilot under platform constraints?",
                 "Evidence Needed Next": evolver_evidence_needed,

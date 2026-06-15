@@ -27,7 +27,7 @@ Useful lenses:
 
 The lens is not the answer. It only decides which claims require stronger evidence.
 
-After choosing lenses, write an explicit research framework. The framework is the reader-visible method: it says which dimensions the report covers, what each dimension is meant to answer, and where coverage is weak or intentionally out of scope.
+After choosing lenses, write an explicit research framework. The framework is the reader-visible method: it says which dimensions the survey covers, what each dimension is meant to answer, and where coverage is weak or intentionally out of scope.
 
 Framework starters:
 
@@ -48,6 +48,26 @@ Securities-style research can compose these domain frameworks:
 
 Do not treat a framework as a prewritten conclusion. If a framework dimension is weak, say so and make it a candidate next-round target.
 
+The framework must structure the whole workflow, not just the final `report.md`. In `00-brief.md`, each dimension should become a `###` subsection that states the core question, evidence needed, and current boundary. In each round file, the framework-relevant section should use the same dimension subheadings:
+
+- `NN-research.md`: findings, evidence IDs, contradictions, confidence, and next evidence need by dimension.
+- `NN-brainstorm.md`: next evidence moves or reframes by dimension.
+- `NN-redteam.md`: strongest objection, alternative explanation, falsifier, and decision implication by dimension.
+- `NN-synthesis.md`: current judgment, confidence, contradictions, and decision effect by dimension.
+- `NN-evolver.md`: coverage quality, weakest gap, and whether a concrete next evidence target remains by dimension.
+
+Keep these subsections concise in quick mode. The important rule is structural: the reader should see how each stage reasoned through the framework rather than seeing only a final audit note.
+
+## Evidence-Driven Framework Refinement
+
+A framework is allowed to evolve when evidence shows that the initial dimensions are wrong, too broad, or missing a veto dimension. Do not revise the framework silently in a later round or final report. Record the revision in `index.md` under `Framework Refinement Log`:
+
+- `Current dimensions: ...`
+- `Evidence trigger for changes: ...`
+- `Original question/core preserved: ...`
+
+After this log is written, later round artifacts should use the refined dimensions. The revision must preserve the user's original decision frame; it cannot make the question easier to kill or easier to prove.
+
 ## Claim-Level Evidence
 
 Important claims should be evaluated individually. The canonical records live in `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`; `NN-research.md` should reference `source_id`, `claim_id`, and `evidence_id` values instead of copying a full evidence table into the round body.
@@ -66,14 +86,36 @@ Guidance:
 
 Do not let one strong claim hide a weak critical claim. Buyer clarity, data access, compliance, and willingness to pay often deserve separate evidence rows.
 
+The helper performs a lightweight support check for supported/partial claims: duplicate IDs, orphan links, missing linked evidence, and obvious claim-evidence mismatch are errors. This catches cases where a claim cites an unrelated evidence item. It does not replace human review of quote interpretation, source credibility, or nuanced inference.
+
 ## Framework Coverage
 
-At the end of each `NN-research.md`, summarize framework coverage in prose or a compact appendix-style view. Keep source and evidence details referenced by ID so the registry remains the source of truth:
+In `NN-research.md`, write framework coverage as prose under one `###` subheading per framework dimension. Keep source and evidence details referenced by ID so the registry remains the source of truth. A compact table may be used in an appendix, but the round body should stay readable.
 
 | Framework Dimension | Evidence Status | Confidence | Contradictions | Next Evidence Need |
 |---|---|---|---|---|
 
-Good coverage means the report can explain both what was checked and what remains weak. If a dimension matters to the decision but lacks evidence, do not hide it in a generic "limitations" paragraph; either continue another round or name why desk research cannot reduce it.
+Good coverage means the report can explain both what was checked and what remains weak. If a dimension matters to the decision but lacks evidence, do not hide it in a generic "limitations" paragraph or a one-line "framework checked" audit note; either continue another round or name why desk research cannot reduce it.
+
+## Final Report Framework Chapters
+
+In final `report.md`, framework dimensions are not just audit metadata. After `Research Method And Framework`, add a body section such as `Framework Dimension Analysis` and make each dimension its own Markdown subheading.
+
+Example:
+
+```markdown
+## Framework Dimension Analysis
+
+### Market Environment
+
+### Industry Theme
+
+### Company Business Structure
+```
+
+For securities-style reports, dimensions such as market environment, industry theme, company business structure, financial quality, valuation, institutional expectations, fund flows, technicals, catalysts, and risks should be readable as report chapters before the appendices. Evidence tables and source audits still belong in appendices.
+
+Write final reports section by section. Each body section should state its decision purpose, key claim, supporting or weakening evidence IDs, strongest counterpoint, and implication for the reader. If a section can only be written as a checklist or source table, keep researching or narrow the section question before finalizing.
 
 ## Required Checks
 

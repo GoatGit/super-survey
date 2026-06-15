@@ -12,7 +12,8 @@ It focuses on three jobs:
 
 ## First Principles
 
-The world is noisy, random, and not reliably predictable from an initial hunch. Super Survey is built around that premise: every research task must avoid the trap of deciding first and then collecting evidence to support the decision.
+1. The world is noisy, random, and not reliably predictable from an initial hunch. Every research task must avoid the trap of deciding first and then collecting evidence to support the decision.
+2. A research report is written for human decision-makers, not as an agent task-audit log. Evidence trails, source registers, red-team notes, and quality checks are necessary, but they should support a readable judgment rather than replace it.
 
 ## What It Does
 
@@ -115,7 +116,7 @@ The lightweight registry keeps report prose readable while preserving auditabili
 - `evidence.jsonl`: `evidence_id`, `source_id`, `quote_or_summary`, `locator`, `confidence`
 - `claims.jsonl`: `claim_id`, `claim`, `supporting_evidence_ids`, `status`
 
-Every evidence item must reference an existing source. Every supported, partial, or contested claim must reference existing evidence. Dense evidence tables belong in appendices or JSONL, not in the main report body.
+Every evidence item must reference an existing source. Every supported, partial, or contested claim must reference existing evidence. The checker also catches duplicate IDs and obvious weak-support cases where a supported/partial claim does not match its linked evidence. Dense evidence tables belong in appendices or JSONL, not in the main report body.
 
 ## skills.sh Readiness
 
@@ -135,7 +136,11 @@ npx skills add GoatGit/super-survey --list
 
 ## Research Frameworks
 
-`Research lens` decides what evidence deserves emphasis. `Research framework` tells the reader how the report systematically examines the question. Every survey should name a framework, list its dimensions, and disclose weak or intentionally omitted dimensions.
+`Research lens` decides what evidence deserves emphasis. `Research framework` tells the reader how the whole survey systematically examines the question. Every survey should name a framework, list its dimensions, disclose weak or intentionally omitted dimensions, and use those dimensions as the structure for `00-brief.md`, each round artifact, and the final report.
+
+This is the main writing rule: the framework is not an audit checklist at the end. `00-brief.md` defines the dimensions; `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` each expand those same dimensions with Markdown subheadings. The final `report.md` then turns the dimensions into readable body chapters before appendices.
+
+If evidence shows the framework should change, record it in `index.md` under `Framework Refinement Log`: current dimensions, evidence trigger for the change, and confirmation that the original question/core is preserved. Later rounds then use the refined dimensions. Silent framework drift is invalid.
 
 Common starters:
 
@@ -155,7 +160,7 @@ README gives the operational shape; the full agent checklist lives in `SKILL.md`
 
 There are three gates:
 
-- `check` is the round gate. It validates artifacts, registry links, framework coverage, companion/wiki notes, and the latest raw evolver decision. It can pass with a continuation warning when the decision is `Keep`, `Narrow`, or `Pivot`.
+- `check` is the round gate. It validates artifacts, registry links and weak-support checks, framework coverage including explicit refinements, companion/wiki notes, and the latest raw evolver decision. It can pass with a continuation warning when the decision is `Keep`, `Narrow`, or `Pivot`.
 - The evolver is the stop gate. `Keep`, `Narrow`, and `Pivot` mean create another round and update `index.md`; `Kill` means the survey may move to final report writing.
 - `check-final` is the delivery gate. It requires a complete prose-first `report.md`, a passing mode score, and the latest raw evolver decision to be `Kill`.
 
@@ -172,7 +177,7 @@ Final `report.md` uses a 100-point quality gate:
 
 Mode thresholds are hard gates: `quick >=80`, `standard >=90`, and `deep >=95`. A final report below the selected threshold must continue another round focused on the weakest dimensions. The helper uses only the raw evolver decision plus the score threshold for stopping; it does not parse report prose such as "future disclosure" or "external validation" as a stopping rule.
 
-The final report should read like a human memo: answer, reader's path, research method and framework, narrative, decision logic, recommendation, change triggers, next actions, and limits first; evidence registers, source quality, red-team notes, scenarios, quality score, and source inventory in appendices.
+The final report should read like a human memo: answer, reader's path, research method and framework, framework dimension analysis, narrative, decision logic, recommendation, change triggers, next actions, and limits first; evidence registers, source quality, red-team notes, scenarios, quality score, and source inventory in appendices. If the method names dimensions, those dimensions must appear as Markdown subheadings in the body, not only in the method note or appendices. A body dominated by bullets or audit tables does not pass.
 
 Companion skills are optional helpers for search, long reports, VOC/customer research, competitor analysis, brainstorming, and wiki persistence. Current-source discovery should try `tavily-search` first and record any fallback. Use `deep-research` for formal long reports, many citations, HTML/PDF output, or strict citation validation. Super Survey still owns the judgment loop.
 
@@ -201,7 +206,7 @@ flowchart TD
     H --> Q{Evolver decision}
     Q -->|Keep / Narrow / Pivot| I[index.md<br/>workbench: next target and why not final]
     I --> C
-    Q -->|Kill| J[Write report.md<br/>complete final report]
+    Q -->|Kill| J[Write report.md<br/>framework dimensions as body chapters]
     J --> R[check-final<br/>score and prose-first gate]
     R -->|Score below threshold| I
     R -->|Score passes| K[Final answer<br/>decision-oriented summary]

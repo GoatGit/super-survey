@@ -159,7 +159,7 @@ Write `00-brief.md` with:
 - Superpowers Brainstorming Gate
 - Practical decision to make
 - Research lens
-- Research framework
+- Research framework with explicit dimensions and one `###` subsection per dimension
 - Decision evidence standard
 - Decision frame integrity
 - Target user/customer
@@ -169,6 +169,8 @@ Write `00-brief.md` with:
 - Continuation policy
 
 Do not predict how many rounds the survey will take, and do not prewrite a stop conclusion in `00-brief.md`. `00-brief.md` must preserve the user's original question and record the decision frame without rewriting it into a stronger or easier-to-kill claim. Any narrowing must say what evidence, assumption, or red-team objection justifies the narrower frame. `00-brief.md` must state only the continuation policy: start with the next evidence round, update `index.md` after the round, then decide whether to continue only after evidence, red-team critique, synthesis, and the raw evolver decision are written. Actual round history belongs in `index.md`, not in the brief.
+
+The research framework is not a report-only appendix. Once `00-brief.md` names framework dimensions, every round artifact must use those dimensions as its thinking structure. Keep each dimension lightweight when needed, but do not collapse the work into a generic audit note such as "framework coverage checked."
 
 If the user only wants a quick answer, use `--mode quick` and keep the full artifact set lightweight. A quick survey still needs `00-brief.md`, `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, `NN-evolver.md`, `index.md`, and registry JSONL files. It needs `report.md` only at final delivery. The sections can be concise, but validation should not bypass red-team critique or the evolver.
 
@@ -186,7 +188,7 @@ Minimum JSONL schemas:
 - `evidence.jsonl`: `evidence_id`, `source_id`, `quote_or_summary`, `locator`, `confidence`
 - `claims.jsonl`: `claim_id`, `claim`, `supporting_evidence_ids`, `status`
 
-Use stable IDs such as `S1`, `E1`, and `C1`. Every evidence item must reference an existing `source_id`. Every supported, partial, or contested claim must reference existing `evidence_id` values.
+Use stable IDs such as `S1`, `E1`, and `C1`. Every evidence item must reference an existing `source_id`. Every supported, partial, or contested claim must reference existing `evidence_id` values. The helper also rejects duplicate IDs and obviously weak claim-support pairs, such as a claim with numbers, entities, or key terms that do not appear in the linked evidence. This is a lightweight guard, not a substitute for human citation judgment.
 
 ### 2. Research Round
 
@@ -206,7 +208,7 @@ index.md
 - Research question for this round
 - Source registry updates by `source_id`; `sources.jsonl` remains the canonical source list
 - Claim and evidence notes by `claim_id` / `evidence_id`; `claims.jsonl` and `evidence.jsonl` remain the canonical evidence registry
-- Framework coverage: which framework dimensions are covered, weak, missing, contradictory, or driving the next evidence target
+- Framework coverage: one `### <framework dimension>` subsection per brief-defined dimension, covering findings, evidence IDs, contradictions, confidence, and next evidence target
 - Notes on data quality, freshness, and whether Tavily or a fallback search path was used
 
 `NN-brainstorm.md` should contain:
@@ -214,13 +216,13 @@ index.md
 - Brainstorming status
 - Current framing after the research pass
 - Clarifying questions or explicit assumptions
-- 2-3 candidate next moves
+- Candidate next moves organized under one `### <framework dimension>` subsection per brief-defined dimension
 - Preferred exploration path, not a final continue/stop decision
 - Design notes for the next round
 
 `NN-redteam.md` should contain:
 
-- Strongest objections
+- Strongest objections organized under one `### <framework dimension>` subsection per brief-defined dimension
 - Better-funded incumbent response
 - Alternative explanations or substitutes
 - Data, legal, distribution, trust, and monetization risks
@@ -233,7 +235,7 @@ index.md
 - Updated conclusion
 - Confidence: low / medium / high
 - Decision rationale: why the recommendation follows from the evidence
-- Framework-based synthesis: strongest dimensions, weakest dimensions, cross-dimension judgment, and framework gaps affecting confidence
+- Framework-based synthesis: one `### <framework dimension>` subsection per brief-defined dimension, then strongest dimensions, weakest dimensions, cross-dimension judgment, and framework gaps affecting confidence
 - What changed from prior round
 - Best next question
 - Recommended next action
@@ -244,11 +246,14 @@ When the stop gate is ready, `report.md` should be a complete, standalone report
 
 Prose-first rule: before the first evidence appendix, `report.md` should read as narrative prose with short lists where helpful. Do not place Markdown evidence tables, source inventories, claim registers, or audit checklists in the body. Tables belong in appendices or the JSONL registry.
 
+Draft the report section by section, not by pasting the audit trail. For each body section, write the section's decision purpose, the key claim, the evidence IDs that support or weaken it, the strongest counterpoint, and the implication for the reader. If a section cannot do that in prose, the survey probably needs another evidence pass or a narrower section question.
+
 The readable body should contain:
 
 - Executive summary with the answer, confidence, key reason, strongest caveat, and next action.
 - Reader's path: who the report is for, what decision it supports, and what to read first.
 - Research method and framework: the framework used, why it fits, which dimensions were covered, and which dimensions remain weak or out of scope.
+- Framework dimension analysis: each framework dimension must become a body subheading, such as `### Market environment` or `### User pain`, with narrative analysis under it. Do not leave dimensions only in the method section, scorecard, evidence appendix, or source audit.
 - Main narrative: the situation, why it matters, what changed across rounds, and why the conclusion follows.
 - Decision logic: the reasoning chain, tradeoffs, and why alternatives were rejected.
 - Final recommendation: who should act, who should not act, conditions, and confidence.
@@ -265,7 +270,7 @@ Appendices should contain:
 - Report quality score with total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
 - Source notes with source inventory, dates checked, URLs, and companion/wiki/indexing notes.
 
-For non-trivial surveys, `report.md` must be longer and more complete than `NN-synthesis.md`, but length alone is not quality. It should read like a coherent memo with supporting appendices, not a pile of evidence tables. A report that only contains a few bullets is incomplete; a report that opens with long source tables before explaining the judgment is also incomplete.
+For non-trivial surveys, `report.md` must be longer and more complete than `NN-synthesis.md`, but length alone is not quality. It should read like a coherent memo with supporting appendices, not a pile of evidence tables. A report that only contains a few bullets is incomplete; a report that opens with long source tables before explaining the judgment is also incomplete. A report that names a research framework but does not analyze those dimensions as body subchapters is incomplete.
 
 New surveys use report schema v2. Legacy reports with the older six-section structure remain readable, but they do not satisfy the final delivery gate. Run `survey_round.py upgrade-report <survey-dir>` and then expand the appended sections before final delivery. `upgrade-report` appends missing v2 sections and updates metadata; it does not write the report for you.
 
@@ -285,6 +290,16 @@ Pick or write 1-3 lenses that best match the question:
 
 After choosing lenses, select or write a research framework with explicit dimensions. The framework answers: what dimensions will this research cover, what question does each dimension answer, and which dimensions are weak or intentionally out of scope?
 
+The framework must travel through the whole workflow. `00-brief.md` defines the dimensions; `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` each expand those same dimensions with `###` subheadings in their framework-relevant section. The final `report.md` then turns the dimensions into readable body chapters. This prevents the common failure mode where the agent lists materials first and only adds a framework audit note afterward.
+
+Evidence can refine the framework, but only explicitly. If a round shows that the initial dimensions are too broad, missing a veto dimension, or no longer match the evidence, update `index.md` under `Framework Refinement Log` with:
+
+- `Current dimensions: ...`
+- `Evidence trigger for changes: ...`
+- `Original question/core preserved: ...`
+
+After that, use the current dimensions from `index.md` in later round artifacts. Do not silently change the framework in `NN-research.md` or `report.md`. A framework revision is valid only when it is evidence-triggered and preserves the user's original decision frame.
+
 Useful framework starters:
 
 - **Product opportunity framework**: user pain, frequency, willingness to pay, substitutes, distribution, retention, trust/compliance, implementation difficulty.
@@ -300,14 +315,14 @@ For securities-style research, a domain framework can be composed without making
 - Industry view: demand, supply, competition, policy, technology, cycle, valuation.
 - Company view: business model, financial quality, growth, competitive advantage, valuation, catalysts, risks.
 
-Do not force every survey into a predefined category. The lens determines which evidence deserves extra attention; the framework makes the research method visible to readers. The common Super Survey loop still applies, and a framework is not a prewritten conclusion.
+Do not force every survey into a predefined category. The lens determines which evidence deserves extra attention; the framework makes the research method visible to readers. The common Super Survey loop still applies, and a framework is not a prewritten conclusion or a narrow decision-type branch.
 
 `NN-evolver.md` should contain the output of the built-in lightweight evolver:
 
 - Probe questions and answers
 - Persona judgments
 - Keep / Narrow / Pivot / Kill decision
-- Round evidence quality gate: evidence coverage, weakest dimensions, continue/stop implication, and next-round focus
+- Round evidence quality gate: one `### <framework dimension>` subsection per brief-defined dimension, then evidence coverage, weakest dimensions, continue/stop implication, and next-round focus
 - Next-round target
 - Evidence needed next
 
@@ -346,6 +361,7 @@ Always maintain `index.md` with:
 - Why the survey is not final yet
 - Open questions
 - Source inventory
+- Framework refinement log
 - Wiki / Graph Index Status
 - Decision log
 
@@ -387,7 +403,7 @@ Score the final `report.md` on a 100-point rubric before finalizing. Before `rep
 | Dimension | Points | What Good Looks Like |
 |---|---:|---|
 | Problem and scope definition | 15 | Clear decision, audience, assumptions, non-goals, and success/failure criteria |
-| Source, method, and framework quality | 20 | Current sources where needed, primary sources preferred, search tools/fallbacks recorded, research framework stated and coverage gaps disclosed |
+| Source, method, and framework quality | 20 | Current sources where needed, primary sources preferred, search tools/fallbacks recorded, research framework stated, body chapters cover the framework dimensions, and coverage gaps are disclosed |
 | Evidence completeness | 20 | Claim-level evidence, contradictions, confidence, source freshness, and enough coverage for the decision |
 | Analysis and red-team quality | 20 | Synthesis across evidence, alternatives, objections, kill criteria, and falsification tests |
 | Actionability | 15 | Concrete recommendation, next actions, owners/timeframes when useful, monitoring and stop/continue triggers |
@@ -433,25 +449,27 @@ Before reporting a round as complete:
 2. Use `survey_round.py validate-evidence <survey-dir>` only when debugging registry errors directly.
 3. Fix missing files, missing headings, empty required sections, or empty-template artifacts.
 4. Confirm every required section contains substantive content, not only placeholders such as `Status:`, `Notes:`, `Option A:`, or table headers.
-5. Confirm `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl` meet the selected mode's minimum coverage and have no orphan links.
+5. Confirm `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl` meet the selected mode's minimum coverage, have no duplicate IDs, have no orphan links, and do not contain obviously weak supported/partial claim-evidence pairs.
 6. Confirm `00-brief.md` has a research lens, research framework, and decision evidence standard specific enough to guide source selection and reader expectations.
-7. Confirm `NN-research.md` records source type, freshness, confidence, contradictions, framework coverage, search tool used, and Tavily fallback reason if Tavily was not used for current-source discovery.
-8. Confirm `NN-redteam.md` checks substitutes, alternative explanations, and explicit kill criteria.
-9. Confirm `NN-synthesis.md` states decision rationale and framework-based synthesis, not only a conclusion.
-10. Confirm `NN-evolver.md` has a concrete `Keep / Narrow / Pivot / Kill` decision.
-11. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
-12. Confirm `index.md` reflects the latest thesis, current evidence-bound conclusion, round ledger, continuation status, next research target, why it is not final yet, open questions, source inventory, wiki/graph status, and decision log.
-13. If the evolver says `Keep`, `Narrow`, or `Pivot`, update `index.md`, create the next round, and do not write `report.md` yet.
-14. If the evolver says `Kill`, write `report.md` as the final standalone report.
-15. Confirm `report.md` is complete, standalone, updated with the latest synthesis, and reads as a coherent report: executive summary, reader's path, research method and framework, main narrative, decision logic, final recommendation, change triggers, next actions, limits, then appendices for evidence, method/source quality, red-team notes, scenarios, quality score, and source notes.
-16. Confirm the `Report Quality Score` section includes total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
-17. Confirm the report body obeys prose-first rules and does not put evidence tables before the first appendix.
-18. Run `survey_round.py check-final <survey-dir>` before presenting the survey as final.
-19. If score is below the selected mode's threshold, create another round focused on the weakest dimensions and remove or revise premature final-report claims.
-20. Stop only when both gates pass: the mode/report score gate and the raw evolver decision gate.
-21. If `check-final` reports a legacy report schema error, run `upgrade-report` and fill the appended sections before presenting the report as final.
-22. Treat companion routing notes as auditable: the artifact must say which tool was used, what failed if fallback happened, and where the result was recorded.
-23. Confirm wiki persistence was attempted and `index.md` records `Wiki Tool Attempted`, `Wiki Ingest Result`, `Wiki Fallback Reason`, and `Wiki Artifact Path`.
+7. Confirm `00-brief.md` declares framework dimensions and expands each one under a `###` subheading; do not leave the framework as only a list.
+8. Confirm `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` each expand the brief-defined dimensions, or the evidence-refined dimensions recorded in `index.md`, under `###` subheadings in their framework-relevant sections.
+9. Confirm `NN-research.md` records source type, freshness, confidence, contradictions, framework coverage, search tool used, and Tavily fallback reason if Tavily was not used for current-source discovery.
+10. Confirm `NN-redteam.md` checks substitutes, alternative explanations, and explicit kill criteria.
+11. Confirm `NN-synthesis.md` states decision rationale and framework-based synthesis, not only a conclusion.
+12. Confirm `NN-evolver.md` has a concrete `Keep / Narrow / Pivot / Kill` decision.
+13. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
+14. Confirm `index.md` reflects the latest thesis, current evidence-bound conclusion, round ledger, continuation status, next research target, why it is not final yet, open questions, source inventory, framework refinement log, wiki/graph status, and decision log.
+15. If the evolver says `Keep`, `Narrow`, or `Pivot`, update `index.md`, create the next round, and do not write `report.md` yet.
+16. If the evolver says `Kill`, write `report.md` as the final standalone report.
+17. Confirm `report.md` is complete, standalone, updated with the latest synthesis, and reads as a coherent report: executive summary, reader's path, research method and framework, framework dimension analysis with one subheading per dimension, main narrative, decision logic, final recommendation, change triggers, next actions, limits, then appendices for evidence, method/source quality, red-team notes, scenarios, quality score, and source notes.
+18. Confirm the `Report Quality Score` section includes total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
+19. Confirm the report body obeys prose-first rules: it is not bullet-dominated and does not put evidence tables before the first appendix.
+20. Run `survey_round.py check-final <survey-dir>` before presenting the survey as final.
+21. If score is below the selected mode's threshold, create another round focused on the weakest dimensions and remove or revise premature final-report claims.
+22. Stop only when both gates pass: the mode/report score gate and the raw evolver decision gate.
+23. If `check-final` reports a legacy report schema error, run `upgrade-report` and fill the appended sections before presenting the report as final.
+24. Treat companion routing notes as auditable: the artifact must say which tool was used, what failed if fallback happened, and where the result was recorded.
+25. Confirm wiki persistence was attempted and `index.md` records `Wiki Tool Attempted`, `Wiki Ingest Result`, `Wiki Fallback Reason`, and `Wiki Artifact Path`.
 
 If the check fails, say the round is still in progress; do not present it as finished.
 
@@ -496,4 +514,5 @@ Use the same language as the user's request unless they ask otherwise. When writ
 - **Index-as-report**: `index.md` is updated but no standalone final report exists. Fix by writing `report.md` before answering.
 - **Thin final report**: `report.md` repeats only a short synthesis and omits methodology, evidence table, red-team critique, scenarios, action plan, or open questions. Fix by expanding it into a standalone report.
 - **Audit-table report**: `report.md` starts with dense source tables, claim registers, or checklist sections and never becomes readable. Fix by writing a narrative body first and moving audit material into appendices.
+- **Framework-as-audit-note**: framework dimensions appear only as a list or coverage checklist, while `brief`, `research`, `brainstorm`, `redteam`, `synthesis`, `evolver`, or `report.md` jump to generic narrative. Fix by using the brief-defined dimensions as `###` subheadings in every framework-relevant stage and as body chapters in the final report.
 - **Round-count autopilot**: the survey stops because it reached a familiar count, while the report score is weak or unknowns remain desk-researchable. Fix by scoring the report and creating the next round around the lowest-scoring dimensions.
