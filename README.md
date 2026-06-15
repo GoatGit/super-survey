@@ -4,6 +4,12 @@ Language: English | [中文](README.zh-CN.md) | [日本語](README.ja.md)
 
 Super Survey is a reusable agent skill and research workflow for multi-round product, market, technical, and open-source research. It turns a vague research target into evidence-backed Markdown artifacts with red-team critique, synthesis, and a sharper next-round question. It is designed for Skills-compatible agents and can also be used directly through its bundled CLI.
 
+## First Principles
+
+The world is noisy, random, and not reliably predictable from an initial hunch. Super Survey is built around that premise: every research task must avoid the trap of deciding first and then collecting evidence to support the decision.
+
+The workflow keeps conclusions provisional until evidence, contradictions, red-team critique, synthesis, and the raw evolver decision have all been written down. `00-brief.md` defines the decision frame and continuation policy, but it must not predict the number of rounds or prewrite the conclusion.
+
 ## What It Does
 
 Super Survey is for decisions that should not stop at a link dump:
@@ -75,7 +81,7 @@ python3 scripts/survey_round.py check-final surveys/2026-06-13-ai-recruiting-age
 python3 scripts/survey_round.py upgrade-report surveys/2026-06-13-ai-recruiting-agent
 ```
 
-`check` validates round artifacts, `index.md`, the evidence registry, companion-routing notes, and the latest raw evolver decision. It does not require `report.md`. `check-final` validates the same round artifacts plus final `report.md`, prose-first report rules, and the mode-specific quality score. `validate-evidence` checks `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl` directly. Round numbers must be positive integers. Older six-section reports are accepted by `check-final` with a warning; run `upgrade-report` to append the full report schema and then fill the new sections.
+`check` validates round artifacts, `index.md`, the evidence registry, companion-routing notes, and the latest raw evolver decision. It does not require `report.md`; when the latest decision is `Keep`, `Narrow`, or `Pivot`, it can pass with a continuation warning so the next round can proceed without forcing a premature `Kill`. `check-final` validates the same round artifacts plus final `report.md`, prose-first report rules, the mode-specific quality score, and the requirement that the latest raw evolver decision is `Kill`. `validate-evidence` checks `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl` directly. Round numbers must be positive integers. Older six-section reports are readable but do not pass the final gate; run `upgrade-report` to append the full report schema and then fill the new sections.
 
 ## Modes And Evidence Registry
 
@@ -123,8 +129,8 @@ A complete round must include:
 - red-team critique with substitutes, alternative explanations, and kill criteria checked
 - synthesis with confidence, decision rationale, and unknowns
 - lightweight evolver output with `Keep / Narrow / Pivot / Kill`
-- explicit continue/stop decision driven by the latest evolver decision and final report quality, not a fixed round count
-- updated `index.md` as the per-round workbench: current thesis, best conclusion, round ledger, continuation status, next target, why not final yet, sources, wiki status, and decision log
+- explicit continue/stop decision driven by the latest evolver decision and final report quality, not a fixed round count or a prewritten conclusion
+- updated `index.md` as the per-round workbench: current thesis, evidence-bound conclusion, round ledger, continuation status, next target, why not final yet, sources, wiki status, and decision log
 - standalone `report.md` only after the stop gate passes: readable narrative first, appendices for evidence/source/method/red-team/scenario details second
 
 Final `report.md` uses a 100-point quality gate:
@@ -140,7 +146,7 @@ Final `report.md` uses a 100-point quality gate:
 
 Mode thresholds are hard gates: `quick >=80`, `standard >=90`, and `deep >=95`. A final report below the selected threshold must continue another round focused on the weakest dimensions.
 
-The final report should read like a human memo, not an audit table. Start with the answer, reader's path, main narrative, decision logic, recommendation, change triggers, next actions, and limits. Put evidence registers, source quality, red-team notes, scenarios, quality score, and source inventory in appendices so rigor is preserved without breaking readability.
+After the final gate passes, the final report should read like a human memo, not an audit table. Start with the answer, reader's path, main narrative, decision logic, recommendation, change triggers, next actions, and limits. Put evidence registers, source quality, red-team notes, scenarios, quality score, and source inventory in appendices so rigor is preserved without breaking readability.
 
 The evolver runs before final report writing. It is a round-level gate that converts the latest synthesis and red-team critique into `Keep / Narrow / Pivot / Kill` plus a sharper next-round focus. If the evolver says `Keep`, `Narrow`, or `Pivot`, continue another round and update `index.md`; do not draft `report.md` yet. If the evolver says `Kill`, write the final report, score it, and run `check-final`. A survey may stop only when both raw gates pass: the final report meets the selected mode threshold, and the latest evolver decision is `Kill`. The helper does not use `report.md` prose such as "future disclosure" or "external validation" to override the raw evolver decision.
 

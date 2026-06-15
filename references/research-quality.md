@@ -103,21 +103,23 @@ Score each opportunity from 1 to 5:
 
 Do not average blindly. A single score of 1 in data access, buyer clarity, or compliance may disqualify the idea.
 
-## Stopping Rules
+## Evidence-First Stopping Rules
 
 Stop or switch from research to validation when:
 
 - The decision is clear enough for the user's stated stakes.
 - More desk research will not improve the answer without interviews, experiments, legal review, or implementation tests.
-- A kill criterion is met.
+- A kill criterion is met for the user's original decision frame, not for an exaggerated or easier-to-reject rewrite.
 - The next useful step is build/test/ask users, not another evidence sweep.
-- The user requested a fixed number of rounds.
+- The user explicitly requested a bounded checkpoint.
 
-Continue only when the next round has a specific evidence target that could change the decision.
+Do not stop because an early brief predicted a round count, because the report prose says "external validation", or because a broad question was silently rewritten into a stronger claim. A bounded checkpoint is not proof of convergence; report unresolved quality risks and the next evidence target.
+
+Continue only when the next round has a specific evidence target that could change the original decision.
 
 ## Evolver Gate
 
-Before continuing to another round, apply the lightweight evolver. Continue only if the next round has a specific evidence target. If the next question is still generic, narrow by:
+Before continuing to another round, apply the lightweight evolver. Continue only if the next round has a specific evidence target tied to claims, contradictions, or unknowns from the latest artifacts. If the next question is still generic, narrow by:
 
 - customer segment
 - geography

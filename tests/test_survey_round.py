@@ -144,9 +144,12 @@ Evidence is directional, not decisive.
 
         self.assertIn("## Research Lens", brief)
         self.assertIn("## Decision Evidence Standard", brief)
+        self.assertIn("## Decision Frame Integrity", brief)
         self.assertIn("## Initial Assumptions", brief)
-        self.assertIn("## Planned Rounds", brief)
-        self.assertIn("report quality is below the pass threshold", brief)
+        self.assertIn("## Continuation Policy", brief)
+        self.assertNotIn("## Planned Rounds", brief)
+        self.assertNotIn("Round 1:", brief)
+        self.assertIn("Do not predict the number of rounds", brief)
         self.assertIn("Source Type", research)
         self.assertIn("Freshness", research)
         self.assertIn("Contradictions", research)
@@ -156,9 +159,12 @@ Evidence is directional, not decisive.
         self.assertIn("## Kill Criteria Checked", redteam)
         self.assertIn("## Decision Rationale", synthesis)
         self.assertIn("Alternative", evolver)
-        self.assertIn("## Report Quality Gate", evolver)
+        self.assertIn("## Round Evidence Quality Gate", evolver)
+        self.assertNotIn("## Report Quality Gate", evolver)
+        self.assertNotIn("Current report quality score", evolver)
         self.assertFalse((survey_dir / "report.md").exists())
-        self.assertIn("## Current Best Conclusion", index)
+        self.assertIn("## Current Evidence-Bound Conclusion", index)
+        self.assertNotIn("## Current Best Conclusion", index)
         self.assertIn("## Round Ledger", index)
         self.assertIn("## Continuation Status", index)
         self.assertIn("## Next Research Target", index)
@@ -217,6 +223,25 @@ Evidence is directional, not decisive.
         self.assertEqual(result.returncode, 1)
         self.assertIn("sources.jsonl: expected at least", result.stdout)
 
+    def test_check_rejects_predictive_round_plan_in_brief(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        brief = survey_dir / "00-brief.md"
+        text = brief.read_text(encoding="utf-8").replace(
+            "Start with the next research round; decide whether to continue only after evidence, red-team critique, synthesis, and the raw evolver decision are written.",
+            "Round 1: collect enough sources and stop if the first pass supports a conclusion.",
+        )
+        brief.write_text(text, encoding="utf-8")
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("00-brief.md: continuation policy must not predict specific round outcomes", result.stdout)
+
     def test_deep_mode_requires_higher_quality_score(self) -> None:
         survey_dir = self.init_round(mode="deep")
         self._write_substantive_required_files(survey_dir, report_score=91)
@@ -251,10 +276,13 @@ Evidence is directional, not decisive.
         self.assertEqual(result.returncode, 1)
         self.assertIn("Wiki / Graph Index Status must record wiki tool attempt and ingest result", result.stdout)
 
-    def test_legacy_report_schema_warns_but_does_not_fail(self) -> None:
+    def test_legacy_report_schema_fails_final_until_upgraded(self) -> None:
         survey_dir = self.init_round()
         metadata = survey_dir / ".super-survey.json"
-        metadata.write_text('{"topic": "AI recruiting agent", "language": "en"}\n', encoding="utf-8")
+        metadata.write_text(
+            '{"topic": "AI recruiting agent", "language": "en", "report_schema_version": 1}\n',
+            encoding="utf-8",
+        )
         (survey_dir / "report.md").write_text(
             """# AI recruiting agent
 
@@ -284,17 +312,25 @@ Sources were checked during this round and remain directional.
 """,
             encoding="utf-8",
         )
-        self._write_substantive_required_files(survey_dir, include_report=False)
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
 
         result = run_cli("check-final", str(survey_dir))
 
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(result.returncode, 1)
         self.assertIn("legacy report schema detected", result.stdout)
 
     def test_upgrade_report_appends_v2_sections_and_metadata(self) -> None:
         survey_dir = self.init_round()
         metadata = survey_dir / ".super-survey.json"
-        metadata.write_text('{"topic": "AI recruiting agent", "language": "en"}\n', encoding="utf-8")
+        metadata.write_text(
+            '{"topic": "AI recruiting agent", "language": "en", "report_schema_version": 1}\n',
+            encoding="utf-8",
+        )
         (survey_dir / "report.md").write_text(
             """# AI recruiting agent
 
@@ -430,6 +466,34 @@ Thin.
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_evolver_decision_uses_only_first_canonical_line(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            report_score=92,
+            evolver_decision="Narrow.\n\nKill would be tempting only if policy blocks the workflow.",
+            evolver_evidence_needed="Official ToS pages and direct pricing evidence.",
+        )
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("evolver decision Narrow requires another round", result.stdout)
+
+    def test_evolver_rejects_explanatory_decision_line(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            report_score=92,
+            evolver_decision="Kill is possible, but the actual decision is Narrow.",
+            evolver_evidence_needed="Official ToS pages and direct pricing evidence.",
+        )
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Decision first non-empty line must be exactly one of", result.stdout)
+
     def test_evolver_narrow_with_desk_research_evidence_requires_continuation(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(
@@ -510,6 +574,20 @@ Thin.
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_check_allows_continuation_round_without_forcing_kill(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Narrow.",
+            evolver_evidence_needed="Official ToS pages and direct buyer signals.",
+        )
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("continuation required: evolver decision Narrow requires another round", result.stdout)
+
     def test_check_final_requires_final_report(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(
@@ -523,6 +601,50 @@ Thin.
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("missing file: report.md", result.stdout)
+
+    def test_legacy_schema_does_not_skip_evolver_final_gate(self) -> None:
+        survey_dir = self.init_round()
+        metadata = survey_dir / ".super-survey.json"
+        metadata.write_text(
+            '{"topic": "AI recruiting agent", "language": "en", "report_schema_version": 1}\n',
+            encoding="utf-8",
+        )
+        (survey_dir / "report.md").write_text(
+            """# AI recruiting agent
+
+## Executive Summary
+
+Continue with a narrower policy-first validation path.
+
+## Key Findings
+
+Demand signals exist, but payment and policy evidence are incomplete.
+
+## Comparison Or Analysis
+
+Manual workflows and job trackers are the main substitutes.
+
+## Recommendation
+
+Run a policy-first round before building.
+
+## Limitations
+
+No direct buyer interviews were conducted.
+
+## Source Notes
+
+Sources were checked during this round and remain directional.
+""",
+            encoding="utf-8",
+        )
+        self._write_substantive_required_files(survey_dir, include_report=False)
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("legacy report schema detected", result.stdout)
+        self.assertIn("evolver decision Narrow requires another round", result.stdout)
 
     def test_validate_evidence_rejects_duplicate_claim_ids(self) -> None:
         survey_dir = self.init_round()
@@ -624,6 +746,13 @@ Use a general product opportunity lens with policy and willingness-to-pay checks
 
 Require current primary sources for policy claims and direct signals for payment claims.
 
+## Decision Frame Integrity
+
+Original question: should we build this?
+Decision frame: evaluate whether to continue discovery, not whether guaranteed success is proven.
+Not pre-decided: do not rewrite the question into an easier-to-kill demand for certainty.
+Allowed narrowing: narrow only when evidence or red-team critique justifies the narrower target.
+
 ## Target Customer
 
 US software engineers actively applying for jobs.
@@ -640,9 +769,10 @@ Platform rules block reliable delivery.
 
 Users already apply repeatedly.
 
-## Planned Rounds
+## Continuation Policy
 
-Round 1 checks demand and policy risk.
+Start with the next research round; decide whether to continue only after evidence, red-team critique, synthesis, and the raw evolver decision are written.
+Do not predict the number of rounds or prewrite a stop conclusion in the brief.
 """,
             encoding="utf-8",
         )
@@ -653,7 +783,7 @@ Round 1 checks demand and policy risk.
 
 The thesis is plausible but unproven.
 
-## Current Best Conclusion
+## Current Evidence-Bound Conclusion
 
 Continue one narrowed round before final reporting.
 
@@ -930,12 +1060,12 @@ The job seeker workflow may be viable if policy risk is manageable.
 
 {evolver_decision}
 
-## Report Quality Gate
+## Round Evidence Quality Gate
 
-Current report quality score: 92 / 100.
-Lowest-scoring dimensions: evidence completeness and analysis depth.
-Pass / continue reason: pass because no decision-changing unknown remains desk-researchable.
-Next-round focus if score is below threshold: none.
+Evidence coverage this round: directional signals exist, but buyer payment and policy constraints remain weak.
+Weakest evidence dimensions: evidence completeness and analysis depth.
+Continue / stop implication: continue unless the raw decision is Kill and final report quality later passes.
+Next-round focus: official policy pages, direct buyer signals, and contradiction checks.
 
 ## Next Research Target
 

@@ -70,15 +70,16 @@ LABELS = {
             "Decision To Make",
             "Research Lens",
             "Decision Evidence Standard",
+            "Decision Frame Integrity",
             "Target Customer",
             "Success Criteria",
             "Disqualifying Conditions",
             "Initial Assumptions",
-            "Planned Rounds",
+            "Continuation Policy",
         ],
         "index_headings": [
             "Current Thesis",
-            "Current Best Conclusion",
+            "Current Evidence-Bound Conclusion",
             "Round Ledger",
             "Continuation Status",
             "Next Research Target",
@@ -159,7 +160,7 @@ LABELS = {
             "Probe Results",
             "Persona Judgments",
             "Decision",
-            "Report Quality Gate",
+            "Round Evidence Quality Gate",
             "Next Research Target",
             "Evidence Needed Next",
         ],
@@ -172,9 +173,15 @@ LABELS = {
             "Tavily Fallback Reason: none / not installed / not authenticated / failed / insufficient results / unsuitable source surface",
             "Query And Filter Notes: queries, domains, date filters, source-type filters",
         ],
-        "planned_rounds_note": "- Round 1:\n- Continue while report quality is below the pass threshold or unresolved decision-changing unknowns remain desk-researchable. Stop because quality passes, not because a fixed round count was reached.",
+        "decision_frame_note": (
+            "- Original question preserved:\n"
+            "- Decision frame supported:\n"
+            "- Stronger claim not assumed:\n"
+            "- Allowed narrowing:"
+        ),
+        "continuation_policy_note": "- Start with the next research round; decide whether to continue only after evidence, red-team critique, synthesis, and the raw evolver decision are written.\n- Do not predict the number of rounds or prewrite a stop conclusion in the brief.\n- Record actual round history and next targets in index.md, not here.",
         "report_template_notes": [
-            "Answer first: decision, confidence, key reason, strongest caveat, next action",
+            "After the final gate passes, answer first: decision, confidence, key reason, strongest caveat, next action",
             "Tell the reader how to read the report: who it is for, what decision it supports, and what to skip if time is short",
             "Readable narrative that explains the situation, why it matters, how the evidence changes the thesis, and what judgment follows",
             "Reasoning chain from question to recommendation, including tradeoffs and why alternatives were rejected",
@@ -228,15 +235,16 @@ LABELS = {
             "需要做出的决策",
             "研究镜头",
             "决策证据标准",
+            "决策框架完整性",
             "目标客户",
             "成功标准",
             "放弃条件",
             "初始假设",
-            "计划轮次",
+            "继续策略",
         ],
         "index_headings": [
             "当前论点",
-            "当前最佳结论",
+            "当前证据约束结论",
             "轮次台账",
             "继续状态",
             "下一轮调研目标",
@@ -317,7 +325,7 @@ LABELS = {
             "探针结果",
             "角色判断",
             "决策",
-            "报告质量门",
+            "轮次证据质量门",
             "下一轮调研目标",
             "下一轮所需证据",
         ],
@@ -330,9 +338,15 @@ LABELS = {
             "Tavily fallback 原因：无 / 未安装 / 未认证 / 失败 / 结果不足 / 不适合所需来源",
             "查询与过滤备注：查询词、域名、日期过滤、来源类型过滤",
         ],
-        "planned_rounds_note": "- Round 1:\n- 当报告质量分未通过门限，或仍有可通过桌面调研降低的决策性未知时继续。停止应因为质量通过，而不是因为达到固定轮数。",
+        "decision_frame_note": (
+            "- 原始问题已保留：\n"
+            "- 支持的决策框架：\n"
+            "- 未预设更强命题：\n"
+            "- 允许收窄的依据："
+        ),
+        "continuation_policy_note": "- 从下一轮调研开始；只有在证据、反方挑战、综合结论和原始进化器决策写入后，才能决定是否继续。\n- 不要在 brief 中预测轮数，也不要预写停止结论。\n- 实际轮次历史和下一轮目标记录在 index.md，而不是这里。",
         "report_template_notes": [
-            "先给答案：决策、置信度、核心理由、最大保留意见和下一步",
+            "最终门通过后，先给答案：决策、置信度、核心理由、最大保留意见和下一步",
             "告诉读者如何阅读：适合谁、支持什么决策、时间有限先看哪里",
             "用连贯正文解释背景、为什么重要、证据如何改变判断、最终判断为何成立",
             "从问题到建议的推理链，包括取舍和为什么排除其他选择",
@@ -370,15 +384,16 @@ LABELS = {
             "判断すべきこと",
             "調査レンズ",
             "判断に必要な証拠基準",
+            "判断枠の整合性",
             "対象顧客",
             "成功基準",
             "中止条件",
             "初期仮説",
-            "予定ラウンド",
+            "継続ポリシー",
         ],
         "index_headings": [
             "現在の仮説",
-            "現在の最良結論",
+            "現在の証拠制約付き結論",
             "ラウンド台帳",
             "継続状態",
             "次回調査目標",
@@ -459,7 +474,7 @@ LABELS = {
             "プローブ結果",
             "ペルソナ判断",
             "判断",
-            "レポート品質ゲート",
+            "ラウンド証拠品質ゲート",
             "次回調査目標",
             "次に必要な証拠",
         ],
@@ -472,9 +487,15 @@ LABELS = {
             "Tavily fallback 理由: なし / 未インストール / 未認証 / 失敗 / 結果不足 / 必要な情報源に不向き",
             "クエリとフィルタのメモ: クエリ、ドメイン、日付フィルタ、情報源タイプ",
         ],
-        "planned_rounds_note": "- Round 1:\n- レポート品質スコアが合格基準未満、または desk research で減らせる意思決定上の不明点が残る間は継続する。固定ラウンド数ではなく品質合格で停止する。",
+        "decision_frame_note": (
+            "- 元の問いを保持:\n"
+            "- 支援する判断枠:\n"
+            "- より強い主張を仮定しない:\n"
+            "- 絞り込みを許す根拠:"
+        ),
+        "continuation_policy_note": "- 次の調査ラウンドから始める。証拠、レッドチーム、統合結論、生のエボルバー判断を書いた後にだけ継続可否を決める。\n- brief でラウンド数を予測したり、停止結論を先に書いたりしない。\n- 実際のラウンド履歴と次回目標はここではなく index.md に記録する。",
         "report_template_notes": [
-            "結論を先に示す: 判断、信頼度、主要理由、最大の留保、次の行動",
+            "最終ゲート通過後に結論を先に示す: 判断、信頼度、主要理由、最大の留保、次の行動",
             "読者向けの読み方: 対象読者、支援する判断、時間がない場合に読む箇所",
             "背景、重要性、証拠が仮説をどう変えたか、判断がなぜ成立するかを読みやすく説明する",
             "問いから推奨までの推論、トレードオフ、却下した代替案の理由",
@@ -568,7 +589,7 @@ def metadata_warnings(survey_dir: Path) -> list[str]:
     if not isinstance(data, dict):
         return ["metadata warning: .super-survey.json must contain a JSON object; assuming current schema for validation"]
     if "report_schema_version" not in data:
-        return ["metadata warning: .super-survey.json has no report_schema_version; legacy compatibility may apply"]
+        return ["metadata warning: .super-survey.json has no report_schema_version; assuming current schema for validation"]
     return []
 
 
@@ -614,7 +635,7 @@ def report_schema_version(survey_dir: Path) -> int:
         return value
     if isinstance(value, str) and value.isdigit():
         return int(value)
-    return 1
+    return REPORT_SCHEMA_VERSION
 
 
 def table(cols: str) -> str:
@@ -654,7 +675,8 @@ def structural_values(language: str) -> frozenset[str]:
     values.update(str(probe) for probe in label["probes"])
     values.update(str(persona) for persona in label["personas"])
     values.update(str(note) for note in label["search_tool_notes"])
-    values.update(str(note) for note in str(label["planned_rounds_note"]).splitlines())
+    values.update(str(note) for note in str(label["decision_frame_note"]).splitlines())
+    values.update(str(note) for note in str(label["continuation_policy_note"]).splitlines())
     values.update(str(note) for note in label["report_template_notes"])
     return frozenset(values)
 
@@ -716,9 +738,9 @@ def required_evolver_headings(label: dict[str, object], schema_version: int) -> 
     if schema_version >= REPORT_SCHEMA_VERSION:
         return headings
     quality_heading = {
-        "en": "Report Quality Gate",
-        "zh": "报告质量门",
-        "ja": "レポート品質ゲート",
+        "en": "Round Evidence Quality Gate",
+        "zh": "轮次证据质量门",
+        "ja": "ラウンド証拠品質ゲート",
     }
     return [heading for heading in headings if heading not in quality_heading.values()]
 
@@ -767,7 +789,7 @@ def validate_report_quality(
 
     if schema_version < REPORT_SCHEMA_VERSION:
         if not report_has_v2_headings(report_path, label):
-            warnings.append("report.md: legacy report schema detected; run 'upgrade-report' and expand the new sections")
+            errors.append("report.md: legacy report schema detected; run 'upgrade-report' and expand the new sections before final delivery")
             return
 
     mode_config = MODE_CONFIG[mode]
@@ -823,7 +845,8 @@ def init_survey(args: argparse.Namespace) -> None:
     create_registry_files(survey_dir)
 
     headings = label["brief_headings"]
-    planned_rounds_note = str(label["planned_rounds_note"])
+    decision_frame_note = str(label["decision_frame_note"])
+    continuation_policy_note = str(label["continuation_policy_note"])
     write_once(
         survey_dir / "00-brief.md",
         f"""# {label['brief_title']}: {args.topic}
@@ -856,11 +879,11 @@ def init_survey(args: argparse.Namespace) -> None:
 
 ## {headings[5]}
 
-- 
+{decision_frame_note}
 
 ## {headings[6]}
 
-- 
+-
 
 ## {headings[7]}
 
@@ -872,7 +895,11 @@ def init_survey(args: argparse.Namespace) -> None:
 
 ## {headings[9]}
 
-{planned_rounds_note}
+-
+
+## {headings[10]}
+
+{continuation_policy_note}
 """,
     )
     headings = label["index_headings"]
@@ -1100,18 +1127,18 @@ def create_round(args: argparse.Namespace) -> None:
 
 ## {headings[4]}
 
-- 
+- Evidence coverage this round:
+- Weakest evidence dimensions:
+- Continue / stop implication:
+- Next-round focus:
 
 ## {headings[5]}
 
-- Current report quality score:
-- Lowest-scoring dimensions:
-- Pass / continue reason:
-- Next-round focus if score is below threshold:
+-
 
 ## {headings[6]}
 
-- 
+-
 """,
     )
     print(survey_dir)
@@ -1191,40 +1218,77 @@ def check_wiki_status_notes(
             errors.append(message)
 
 
+def check_continuation_policy(errors: list[str], brief_path: Path, label: dict[str, object]) -> None:
+    if not brief_path.exists():
+        return
+    text = brief_path.read_text(encoding="utf-8")
+    heading = str(label["brief_headings"][-1])
+    body = section_body(text, heading) or ""
+    predictive_patterns = (
+        r"(?im)^\s*-?\s*round\s+\d+\s*[:：]",
+        r"(?im)^\s*-?\s*第\s*\d+\s*轮\s*[:：]",
+        r"(?im)^\s*-?\s*第\s*\d+\s*回\s*[:：]",
+    )
+    if any(re.search(pattern, body) for pattern in predictive_patterns):
+        errors.append("00-brief.md: continuation policy must not predict specific round outcomes")
+
+
 def parse_evolver_decision(path: Path, label: dict[str, object]) -> str | None:
     if not path.exists():
         return None
     text = path.read_text(encoding="utf-8")
     body = section_body(text, str(label["evolver_headings"][3])) or ""
-    normalized = body.lower()
-    if re.search(r"\bkill\b|放弃|中止", normalized):
-        return "Kill"
-    if re.search(r"\bpivot\b|转向|ピボット", normalized):
-        return "Pivot"
-    if re.search(r"\bnarrow\b|收窄|絞り込み", normalized):
-        return "Narrow"
-    if re.search(r"\bkeep\b|保留|維持", normalized):
-        return "Keep"
+    first_line = next((line.strip() for line in body.splitlines() if line.strip()), "")
+    token = re.sub(r"^[\-\*\d\.\)\s]+", "", first_line).strip()
+    token = re.sub(r"[。.!！、,，；;：:]+$", "", token).strip()
+    normalized = token.lower()
+    exact_tokens = {
+        "kill": "Kill",
+        "放弃": "Kill",
+        "中止": "Kill",
+        "pivot": "Pivot",
+        "转向": "Pivot",
+        "ピボット": "Pivot",
+        "narrow": "Narrow",
+        "收窄": "Narrow",
+        "絞り込み": "Narrow",
+        "keep": "Keep",
+        "保留": "Keep",
+        "維持": "Keep",
+    }
+    if normalized in exact_tokens:
+        return exact_tokens[normalized]
+    if token in exact_tokens:
+        return exact_tokens[token]
     return None
 
 
 def validate_evolver_gate(
     errors: list[str],
+    warnings: list[str],
     evolver_path: Path,
     label: dict[str, object],
+    *,
+    final: bool,
 ) -> None:
     if not evolver_path.exists():
         return
     decision = parse_evolver_decision(evolver_path, label)
     if decision is None:
-        errors.append(f"{evolver_path.name}: Decision must contain Keep, Narrow, Pivot, or Kill")
+        errors.append(
+            f"{evolver_path.name}: Decision first non-empty line must be exactly one of Keep, Narrow, Pivot, or Kill"
+        )
         return
 
     if decision == "Kill":
         return
 
     if decision in {"Keep", "Narrow", "Pivot"}:
-        errors.append(f"evolver decision {decision} requires another round")
+        message = f"evolver decision {decision} requires another round"
+        if final:
+            errors.append(message)
+        else:
+            warnings.append(f"continuation required: {message}")
 
 
 def read_jsonl(path: Path, errors: list[str]) -> list[dict[str, object]]:
@@ -1368,7 +1432,9 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
     schema_version = report_schema_version(survey_dir)
     warnings.extend(metadata_warnings(survey_dir))
 
-    check_required_file(errors, survey_dir / "00-brief.md", list(label["brief_headings"]), language)
+    brief_path = survey_dir / "00-brief.md"
+    check_required_file(errors, brief_path, list(label["brief_headings"]), language)
+    check_continuation_policy(errors, brief_path, label)
     index_path = survey_dir / "index.md"
     check_required_file(errors, index_path, list(label["index_headings"]), language)
     check_wiki_status_notes(errors, warnings, index_path, label, schema_version)
@@ -1376,10 +1442,7 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
         report_path = survey_dir / "report.md"
         check_required_file(errors, report_path, required_report_headings(label, schema_version), language)
         validate_report_quality(errors, warnings, report_path, label, language, schema_version, mode)
-    if schema_version >= REPORT_SCHEMA_VERSION:
-        errors.extend(validate_evidence_registry(survey_dir, mode))
-    elif not metadata_path(survey_dir).exists():
-        errors.extend(validate_evidence_registry(survey_dir, mode))
+    errors.extend(validate_evidence_registry(survey_dir, mode))
 
     rounds = detect_rounds(survey_dir)
     if not rounds:
@@ -1395,9 +1458,9 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
         check_required_file(errors, survey_dir / f"{prefix}-synthesis.md", list(label["synthesis_headings"]), language)
         evolver_path = survey_dir / f"{prefix}-evolver.md"
         check_required_file(errors, evolver_path, required_evolver_headings(label, schema_version), language)
-    if schema_version >= REPORT_SCHEMA_VERSION and rounds:
+    if rounds:
         latest_evolver_path = survey_dir / f"{rounds[-1]:02d}-evolver.md"
-        validate_evolver_gate(errors, latest_evolver_path, label)
+        validate_evolver_gate(errors, warnings, latest_evolver_path, label, final=final)
 
     if errors:
         label_text = "final check" if final else "check"
