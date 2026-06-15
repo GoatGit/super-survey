@@ -18,7 +18,7 @@ When the latest files include a research framework or framework coverage section
 
 ## Step 1: Probe Assumptions
 
-List the current thesis in one sentence, copied or tightly derived from the latest `NN-synthesis.md` and `index.md`. Do not invent a stronger thesis, rewrite the user's original question into an easier-to-kill claim, or state a final recommendation before the probes are answered. Then answer:
+List the current thesis in one sentence, copied or tightly derived from the latest `NN-synthesis.md` and `index.md`. Keep it faithful to the user's original question and the latest artifacts, and reserve the final recommendation until the probes are answered. Then answer:
 
 | Probe | Required Answer |
 |---|---|
@@ -54,12 +54,13 @@ Choose exactly one:
 - **Narrow**: same idea, but restrict customer, geography, workflow, or feature surface.
 - **Pivot**: adjacent idea is better than current thesis.
 - **Kill**: the current thesis is not worth another desk-research round because the evidence, red-team critique, and original decision frame now support stopping or switching to non-desk validation.
+- **Final**: no desk-research target remains that could materially change the user's original decision, so the work can move to the final report quality gate.
 
-Do not choose `Keep` if buyer, data, and distribution are all weak or unknown.
+Choose `Narrow`, `Pivot`, or `Kill` when buyer, data, and distribution are all weak or unknown.
 
 Before choosing, check whether an explicit kill criterion was met and whether it applies to the user's original decision frame. If the kill criterion only rejects an exaggerated version of the question, choose `Narrow` or `Pivot` and write the corrected next target instead.
 
-The `Decision` section's first non-empty line must be exactly one raw label: `Keep`, `Narrow`, `Pivot`, or `Kill` (or the selected language equivalent). Put explanation in the surrounding sections, not on the decision line.
+The `Decision` section's first non-empty line must be exactly one raw label: `Keep`, `Narrow`, `Pivot`, `Kill`, or `Final` (or the selected language equivalent). Put explanation in the surrounding sections, not on the decision line.
 
 ## Step 4: Generate Next Target
 
@@ -93,7 +94,7 @@ Name the next round's evidence requirements:
 - Small validation test if possible
 - Kill criteria or stopping evidence to check first
 
-If the next evidence requirement needs interviews, experiments, legal review, or implementation rather than more desk research, say so in `Evidence Needed Next`. That can justify `Kill` only when no desk-research target remains that could change the original decision; otherwise choose `Narrow` or `Pivot` and continue with the desk-research target.
+If the next evidence requirement needs interviews, experiments, legal review, or implementation rather than more desk research, say so in `Evidence Needed Next`. That can justify `Final` when the thesis remains usable and no desk-research target remains, or `Kill` when the current thesis should stop or switch to non-desk validation. Otherwise choose `Narrow` or `Pivot` and continue with the desk-research target.
 
 ## Output Template
 
@@ -118,7 +119,7 @@ Save this as `NN-evolver.md`:
 
 ## Decision
 
-Keep / Narrow / Pivot / Kill
+Keep / Narrow / Pivot / Kill / Final
 
 ## Round Evidence Quality Gate
 

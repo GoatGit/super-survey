@@ -145,6 +145,15 @@ SECTION_SCHEMAS = {
         "Next Research Target",
         "Evidence Needed Next",
     ),
+    "quick_round_headings": (
+        "Research Question",
+        "Evidence And Sources",
+        "Brainstorming Checkpoint",
+        "Red-Team Challenge",
+        "Synthesis",
+        "Decision",
+        "Next Step",
+    ),
 }
 
 LABELS = {
@@ -159,7 +168,7 @@ LABELS = {
         "evolver": "Lightweight Evolver",
         "empty": "- ",
         "confidence": "Low / Medium / High",
-        "decision": "Keep / Narrow / Pivot / Kill",
+        "decision": "Keep / Narrow / Pivot / Kill / Final",
         "strength": "strong / weak / unknown",
         "verdict": "support / concern / reject",
         "brief_headings": [
@@ -205,6 +214,7 @@ LABELS = {
             "Next Round Focus:",
         ],
         "wiki_status_notes": [
+            "Wiki Persistence Needed: yes / no",
             "Wiki Tool Attempted: karpathy-llm-wiki / llm-wiki / pin-llm-wiki / other / none",
             "Wiki Ingest Result: ingested / initialized then ingested / failed / not built",
             "Wiki Fallback Reason: none / unavailable / not initialized / command failed / user skipped",
@@ -285,9 +295,19 @@ LABELS = {
             "Next Research Target",
             "Evidence Needed Next",
         ],
+        "quick_round_headings": [
+            "Research Question",
+            "Evidence And Sources",
+            "Brainstorming Checkpoint",
+            "Red-Team Challenge",
+            "Synthesis",
+            "Decision",
+            "Next Step",
+        ],
         "probe_cols": "Probe | Answer | Strength",
         "persona_cols": "Persona | Verdict | Reason",
         "search_tool_notes": [
+            "Current Source Discovery: yes / no",
             "Search Tool Used: tavily-search / fallback web search / other",
             "Tavily Fallback Reason: none / not installed / not authenticated / failed / insufficient results / unsuitable source surface",
             "Query And Filter Notes: queries, domains, date filters, source-type filters",
@@ -295,7 +315,7 @@ LABELS = {
         "source_registry_note": "- Canonical source registry: sources.jsonl\n- Round source changes: add source_id values and short notes only",
         "claim_registry_note": (
             "- Canonical claim/evidence registry: claims.jsonl and evidence.jsonl\n"
-            "- Round evidence notes: reference claim_id and evidence_id values; do not duplicate the full registry table"
+            "- Round evidence notes: reference claim_id and evidence_id values; keep the full registry table in JSONL"
         ),
         "research_framework_note": (
             "- Selected framework:\n"
@@ -339,12 +359,12 @@ LABELS = {
             "- Stronger claim not assumed:\n"
             "- Allowed narrowing:"
         ),
-        "continuation_policy_note": "- Start with the next research round; decide whether to continue only after evidence, red-team critique, synthesis, and the raw evolver decision are written.\n- Do not predict the number of rounds or prewrite a stop conclusion in the brief.\n- Record actual round history and next targets in index.md, not here.",
+        "continuation_policy_note": "- Start with the next research round.\n- Keep the round count open until evidence, red-team critique, synthesis, and the raw evolver decision are written.\n- Record actual round history, next targets, and any stop conclusion in index.md after each completed round.",
         "report_template_notes": [
             "After the final gate passes, answer first: decision, confidence, key reason, strongest caveat, next action",
             "Readable narrative that explains the situation, why it matters, how the evidence changes the thesis, and what judgment follows",
             "Reasoning chain from question to recommendation, including tradeoffs and why alternatives were rejected",
-            "Final recommendation with conditions, who should act, who should not act, and confidence",
+            "Final recommendation with conditions, who should act, who should wait, and confidence",
             "Concrete evidence or events that would upgrade, downgrade, pivot, or kill the conclusion",
             "Concrete next actions, monitoring metrics, owners/timeframes where useful, and stop/continue triggers",
             "Limits, uncertainty, missing data, freshness caveats, and external validation needs",
@@ -384,7 +404,7 @@ LABELS = {
         "evolver": "轮轻量进化器",
         "empty": "- ",
         "confidence": "低 / 中 / 高",
-        "decision": "保留 / 收窄 / 转向 / 放弃",
+        "decision": "保留 / 收窄 / 转向 / 放弃 / 最终成稿",
         "strength": "强 / 弱 / 未知",
         "verdict": "支持 / 担忧 / 反对",
         "brief_headings": [
@@ -430,6 +450,7 @@ LABELS = {
             "下一轮重点：",
         ],
         "wiki_status_notes": [
+            "Wiki Persistence Needed: yes / no",
             "Wiki Tool Attempted: karpathy-llm-wiki / llm-wiki / pin-llm-wiki / other / none",
             "Wiki Ingest Result: ingested / initialized then ingested / failed / not built",
             "Wiki Fallback Reason: none / unavailable / not initialized / command failed / user skipped",
@@ -510,9 +531,19 @@ LABELS = {
             "下一轮调研目标",
             "下一轮所需证据",
         ],
+        "quick_round_headings": [
+            "本轮问题",
+            "证据与来源",
+            "Brainstorming 检查点",
+            "反方挑战",
+            "综合结论",
+            "决策",
+            "下一步",
+        ],
         "probe_cols": "探针 | 回答 | 强度",
         "persona_cols": "角色 | 判断 | 理由",
         "search_tool_notes": [
+            "Current Source Discovery: yes / no",
             "使用的搜索工具：tavily-search / fallback web search / other",
             "Tavily fallback 原因：无 / 未安装 / 未认证 / 失败 / 结果不足 / 不适合所需来源",
             "查询与过滤备注：查询词、域名、日期过滤、来源类型过滤",
@@ -564,7 +595,7 @@ LABELS = {
             "- 未预设更强命题：\n"
             "- 允许收窄的依据："
         ),
-        "continuation_policy_note": "- 从下一轮调研开始；只有在证据、反方挑战、综合结论和原始进化器决策写入后，才能决定是否继续。\n- 不要在 brief 中预测轮数，也不要预写停止结论。\n- 实际轮次历史和下一轮目标记录在 index.md，而不是这里。",
+        "continuation_policy_note": "- 从下一轮调研开始。\n- 让轮次数量保持开放，等证据、反方挑战、综合结论和原始进化器决策写入后再判断继续或停止。\n- 每轮完成后，把实际轮次历史、下一轮目标和停止结论记录到 index.md。",
         "report_template_notes": [
             "最终门通过后，先给答案：决策、置信度、核心理由、最大保留意见和下一步",
             "用连贯正文解释背景、为什么重要、证据如何改变判断、最终判断为何成立",
@@ -593,7 +624,7 @@ LABELS = {
         "evolver": "回軽量エボルバー",
         "empty": "- ",
         "confidence": "低 / 中 / 高",
-        "decision": "維持 / 絞り込み / ピボット / 中止",
+        "decision": "維持 / 絞り込み / ピボット / 中止 / 最終化",
         "strength": "強い / 弱い / 不明",
         "verdict": "支持 / 懸念 / 反対",
         "brief_headings": [
@@ -639,6 +670,7 @@ LABELS = {
             "次回ラウンドの焦点:",
         ],
         "wiki_status_notes": [
+            "Wiki Persistence Needed: yes / no",
             "Wiki Tool Attempted: karpathy-llm-wiki / llm-wiki / pin-llm-wiki / other / none",
             "Wiki Ingest Result: ingested / initialized then ingested / failed / not built",
             "Wiki Fallback Reason: none / unavailable / not initialized / command failed / user skipped",
@@ -719,9 +751,19 @@ LABELS = {
             "次回調査目標",
             "次に必要な証拠",
         ],
+        "quick_round_headings": [
+            "今回の調査問い",
+            "証拠と情報源",
+            "Brainstorming チェックポイント",
+            "レッドチーム",
+            "統合結論",
+            "判断",
+            "次の行動",
+        ],
         "probe_cols": "プローブ | 回答 | 強度",
         "persona_cols": "ペルソナ | 判断 | 理由",
         "search_tool_notes": [
+            "Current Source Discovery: yes / no",
             "使用した検索ツール: tavily-search / fallback web search / other",
             "Tavily fallback 理由: なし / 未インストール / 未認証 / 失敗 / 結果不足 / 必要な情報源に不向き",
             "クエリとフィルタのメモ: クエリ、ドメイン、日付フィルタ、情報源タイプ",
@@ -773,7 +815,7 @@ LABELS = {
             "- より強い主張を仮定しない:\n"
             "- 絞り込みを許す根拠:"
         ),
-        "continuation_policy_note": "- 次の調査ラウンドから始める。証拠、レッドチーム、統合結論、生のエボルバー判断を書いた後にだけ継続可否を決める。\n- brief でラウンド数を予測したり、停止結論を先に書いたりしない。\n- 実際のラウンド履歴と次回目標はここではなく index.md に記録する。",
+        "continuation_policy_note": "- 次の調査ラウンドから始める。\n- ラウンド数は、証拠、レッドチーム、統合結論、生のエボルバー判断を書き終えるまで開いたままにする。\n- 完了した各ラウンドの後、実際のラウンド履歴、次回目標、停止結論を index.md に記録する。",
         "report_template_notes": [
             "最終ゲート通過後に結論を先に示す: 判断、信頼度、主要理由、最大の留保、次の行動",
             "背景、重要性、証拠が仮説をどう変えたか、判断がなぜ成立するかを読みやすく説明する",
@@ -1338,6 +1380,28 @@ def validate_report_prose_first(errors: list[str], text: str, label: dict[str, o
         errors.append("report.md: prose-first rule violated; report body uses too many list lines")
 
 
+def strip_urls_and_code(text: str) -> str:
+    text = re.sub(r"```.*?```", "", text, flags=re.DOTALL)
+    text = re.sub(r"`[^`]*`", "", text)
+    text = re.sub(r"https?://[^\s)>\]]+", "", text)
+    return text
+
+
+def unresolved_registry_citation_ids(text: str) -> list[str]:
+    scan_text = strip_urls_and_code(text)
+    ids = set(re.findall(r"(?<![A-Za-z0-9_-])([CE]\d+)(?![A-Za-z0-9_-])", scan_text))
+    return sorted(ids, key=lambda value: (value[0], int(value[1:])))
+
+
+def validate_report_standalone_citations(errors: list[str], text: str) -> None:
+    unresolved_ids = unresolved_registry_citation_ids(text)
+    if unresolved_ids:
+        errors.append(
+            "report.md: replace registry IDs with standalone source links instead of C/E IDs: "
+            + ", ".join(unresolved_ids)
+        )
+
+
 def validate_dimension_body_depth(
     errors: list[str],
     path_name: str,
@@ -1457,6 +1521,7 @@ def validate_report_quality(
     validate_report_removed_headings(errors, text, label)
     validate_report_framework_dimension_chapters(errors, text, label, framework_dimensions)
     validate_report_prose_first(errors, text, label)
+    validate_report_standalone_citations(errors, text)
 
     appendix_heading = str(label["appendix_start_heading"])
     body_before_appendix = report_body_before_appendix(text, appendix_heading)
@@ -1618,12 +1683,62 @@ def round_title(label: dict[str, object], round_number: int, suffix: str) -> str
     return f"{label['round']}{round_number}{suffix}"
 
 
+def create_quick_round_template(survey_dir: Path, label: dict[str, object], round_number: int, prefix: str) -> None:
+    headings = label["quick_round_headings"]
+    write_once(
+        survey_dir / f"{prefix}-round.md",
+        f"""# {round_title(label, round_number, "Quick Survey")}
+
+## {headings[0]}
+
+-
+
+## {headings[1]}
+
+- Registry: sources.jsonl, claims.jsonl, evidence.jsonl
+- Key source/evidence notes:
+
+## {headings[2]}
+
+- Status:
+- Assumptions:
+- Candidate next moves:
+
+## {headings[3]}
+
+- Strongest objection:
+- Alternative explanation:
+- Kill or pivot trigger:
+
+## {headings[4]}
+
+- Current answer:
+- Confidence:
+- What changed:
+
+## {headings[5]}
+
+{label['decision']}
+
+## {headings[6]}
+
+-
+""",
+    )
+
+
 def create_round(args: argparse.Namespace) -> None:
     survey_dir = Path(args.survey_dir).expanduser().resolve()
     survey_dir.mkdir(parents=True, exist_ok=True)
     language = read_language(survey_dir, args.language)
+    mode = read_mode(survey_dir, None)
     label = labels(language)
     prefix = f"{int(args.round):02d}"
+
+    if mode == "quick":
+        create_quick_round_template(survey_dir, label, int(args.round), prefix)
+        print(survey_dir)
+        return
 
     headings = label["research_headings"]
     search_tool_notes = "\n".join(f"- {note}" for note in label["search_tool_notes"])
@@ -1854,6 +1969,24 @@ def check_required_file(errors: list[str], path: Path, headings: list[str], lang
         errors.append(f"{path.name}: appears to be only an empty template")
 
 
+def body_marks_requirement(body: str, label: str) -> bool | None:
+    normalized_label = re.escape(label)
+    match = re.search(rf"(?im)^\s*[-*]?\s*{normalized_label}\s*[:：]\s*(.+?)\s*$", body)
+    if match:
+        value = match.group(1).strip().lower()
+        if value.startswith(("yes", "required", "needed", "enabled", "true", "是", "はい")):
+            return True
+        if value.startswith(("no", "not", "none", "false", "否", "いいえ")):
+            return False
+    lowered = body.lower()
+    phrase = label.lower()
+    if f"{phrase} was not required" in lowered or f"{phrase} not required" in lowered:
+        return False
+    if f"{phrase} was required" in lowered or f"{phrase} required" in lowered:
+        return True
+    return None
+
+
 def check_research_tool_notes(
     errors: list[str],
     warnings: list[str],
@@ -1867,12 +2000,14 @@ def check_research_tool_notes(
     body = section_body(text, str(label["research_headings"][-1]))
     if body is None:
         return
-    expected_notes = [str(note).split(":")[0].split("：")[0] for note in label["search_tool_notes"][:2]]
+    current_source_required = body_marks_requirement(body, "Current Source Discovery")
+    expected_notes = [str(note).split(":")[0].split("：")[0] for note in label["search_tool_notes"][1:3]]
     missing = [note for note in expected_notes if note and note not in body]
     if missing:
         message = f"{path.name}: Data Quality Notes must record search tool and Tavily fallback status"
-        if schema_version < REPORT_SCHEMA_VERSION:
-            warnings.append(message)
+        warning = f"{path.name}: Data Quality Notes should record search tool and Tavily fallback status when current sources matter"
+        if schema_version < REPORT_SCHEMA_VERSION or current_source_required is not True:
+            warnings.append(warning)
         else:
             errors.append(message)
 
@@ -1890,12 +2025,14 @@ def check_wiki_status_notes(
     body = section_body(text, str(label["index_headings"][-2]))
     if body is None:
         return
-    expected_notes = [str(note).split(":")[0] for note in label["wiki_status_notes"][:2]]
+    wiki_required = body_marks_requirement(body, "Wiki Persistence Needed")
+    expected_notes = [str(note).split(":")[0] for note in label["wiki_status_notes"][1:3]]
     missing = [note for note in expected_notes if note and note not in body]
     if missing:
         message = "index.md: Wiki / Graph Index Status must record wiki tool attempt and ingest result"
-        if schema_version < REPORT_SCHEMA_VERSION:
-            warnings.append(message)
+        warning = "index.md: Wiki / Graph Index Status should record wiki tool attempt and ingest result when persistence is needed"
+        if schema_version < REPORT_SCHEMA_VERSION or wiki_required is not True:
+            warnings.append(warning)
         else:
             errors.append(message)
 
@@ -1912,7 +2049,7 @@ def check_continuation_policy(errors: list[str], brief_path: Path, label: dict[s
         r"(?im)^\s*-?\s*第\s*\d+\s*回\s*[:：]",
     )
     if any(re.search(pattern, body) for pattern in predictive_patterns):
-        errors.append("00-brief.md: continuation policy must not predict specific round outcomes")
+        errors.append("00-brief.md: continuation policy should keep round outcomes open until round artifacts are complete")
 
 
 def check_brief_framework_dimensions(errors: list[str], brief_path: Path, label: dict[str, object]) -> list[str]:
@@ -1968,6 +2105,17 @@ def parse_evolver_decision(path: Path, label: dict[str, object]) -> str | None:
         "keep": "Keep",
         "保留": "Keep",
         "維持": "Keep",
+        "final": "Final",
+        "finalize": "Final",
+        "finalise": "Final",
+        "finalizable": "Final",
+        "ready": "Final",
+        "ready for final report": "Final",
+        "最终成稿": "Final",
+        "可最终成稿": "Final",
+        "最终": "Final",
+        "最終化": "Final",
+        "最終": "Final",
     }
     if normalized in exact_tokens:
         return exact_tokens[normalized]
@@ -1989,11 +2137,11 @@ def validate_evolver_gate(
     decision = parse_evolver_decision(evolver_path, label)
     if decision is None:
         errors.append(
-            f"{evolver_path.name}: Decision first non-empty line must be exactly one of Keep, Narrow, Pivot, or Kill"
+            f"{evolver_path.name}: Decision first non-empty line must be exactly one of Keep, Narrow, Pivot, Kill, or Final"
         )
         return
 
-    if decision == "Kill":
+    if decision in {"Kill", "Final"}:
         return
 
     if decision in {"Keep", "Narrow", "Pivot"}:
@@ -2203,6 +2351,17 @@ def create_registry_files(survey_dir: Path) -> None:
         write_once(survey_dir / filename, "")
 
 
+def quick_round_path(survey_dir: Path, round_number: int) -> Path:
+    return survey_dir / f"{round_number:02d}-round.md"
+
+
+def decision_artifact_path(survey_dir: Path, round_number: int, mode: str) -> Path:
+    quick_path = quick_round_path(survey_dir, round_number)
+    if mode == "quick" and quick_path.exists():
+        return quick_path
+    return survey_dir / f"{round_number:02d}-evolver.md"
+
+
 def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
     survey_dir = Path(args.survey_dir).expanduser().resolve()
     errors: list[str] = []
@@ -2253,6 +2412,10 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
 
     for round_number in rounds:
         prefix = f"{round_number:02d}"
+        quick_path = quick_round_path(survey_dir, round_number)
+        if mode == "quick" and quick_path.exists():
+            check_required_file(errors, quick_path, list(label["quick_round_headings"]), language)
+            continue
         research_path = survey_dir / f"{prefix}-research.md"
         check_required_file(errors, research_path, list(label["research_headings"]), language)
         check_research_tool_notes(errors, warnings, research_path, label, schema_version)
@@ -2295,7 +2458,7 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
             effective_framework_dimensions,
         )
     if rounds:
-        latest_evolver_path = survey_dir / f"{rounds[-1]:02d}-evolver.md"
+        latest_evolver_path = decision_artifact_path(survey_dir, rounds[-1], mode)
         validate_evolver_gate(errors, warnings, latest_evolver_path, label, final=final)
 
     if errors:

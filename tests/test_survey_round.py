@@ -110,34 +110,32 @@ Can this target customer pay for this workflow?
         self.assertIn("01-research.md: section '## Source Registry Updates' appears to be empty", result.stdout)
         self.assertIn("01-research.md: section '## Claim And Evidence Notes' appears to be empty", result.stdout)
 
-    def test_check_rejects_missing_search_tool_notes(self) -> None:
+    def test_check_warns_for_missing_search_tool_notes_when_current_sources_not_required(self) -> None:
         survey_dir = self.init_round()
+        self._write_substantive_required_files(survey_dir, include_report=False)
         research = survey_dir / "01-research.md"
-        research.write_text(
-            """# Round 1 Research
-
-## Research Question
-
-Can this target customer pay for this workflow?
-
-## Source Registry Updates
-
-Canonical source registry: sources.jsonl. This round added S1 for the primary page.
-
-## Claim And Evidence Notes
-
-Canonical claim/evidence registry: claims.jsonl and evidence.jsonl. C1 uses E1; no direct payment proof was found.
-
-## Findings
-
-There are repeated workflow signals.
-
-## Data Quality Notes
-
-Evidence is directional, not decisive.
-""",
-            encoding="utf-8",
+        text = re.sub(
+            r"(?ms)^## Data Quality Notes\n\n.*?(?=^## |\Z)",
+            "## Data Quality Notes\n\nEvidence came from stable local/project artifacts, so current-source discovery was not required.\n",
+            research.read_text(encoding="utf-8"),
         )
+        research.write_text(text, encoding="utf-8")
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Data Quality Notes should record search tool and Tavily fallback status when current sources matter", result.stdout)
+
+    def test_check_requires_search_tool_notes_when_current_sources_are_enabled(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(survey_dir, include_report=False)
+        research = survey_dir / "01-research.md"
+        text = re.sub(
+            r"(?ms)^## Data Quality Notes\n\n.*?(?=^## |\Z)",
+            "## Data Quality Notes\n\nCurrent Source Discovery: yes. Recent policy and pricing facts were needed.\n",
+            research.read_text(encoding="utf-8"),
+        )
+        research.write_text(text, encoding="utf-8")
 
         result = run_cli("check", str(survey_dir))
 
@@ -174,7 +172,7 @@ Evidence is directional, not decisive.
         self.assertIn("## Continuation Policy", brief)
         self.assertNotIn("## Planned Rounds", brief)
         self.assertNotIn("Round 1:", brief)
-        self.assertIn("Do not predict the number of rounds", brief)
+        self.assertIn("Keep the round count open until evidence", brief)
         self.assertIn("Source Registry Updates", research)
         self.assertIn("Claim And Evidence Notes", research)
         self.assertIn("Search Tool Used", research)
@@ -199,6 +197,7 @@ Evidence is directional, not decisive.
         self.assertIn("## Framework Refinement Log", index)
         self.assertIn("Wiki Tool Attempted", index)
         self.assertIn("Wiki Ingest Result", index)
+        self.assertIn("Wiki Persistence Needed", index)
         self.assertIn("Mode:", brief)
         self.assertIn("Minimum Sources:", brief)
         self.assertIn("Target Report Length:", brief)
@@ -306,7 +305,10 @@ Evidence is directional, not decisive.
         result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
-        self.assertIn("00-brief.md: continuation policy must not predict specific round outcomes", result.stdout)
+        self.assertIn(
+            "00-brief.md: continuation policy should keep round outcomes open until round artifacts are complete",
+            result.stdout,
+        )
 
     def test_deep_mode_requires_higher_quality_score(self) -> None:
         survey_dir = self.init_round(mode="deep")
@@ -332,6 +334,28 @@ Evidence is directional, not decisive.
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("prose-first rule violated", result.stdout)
+
+    def test_final_report_rejects_bare_registry_citations(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        report_path = survey_dir / "report.md"
+        report = report_path.read_text(encoding="utf-8")
+        report = report.replace(
+            "Job seekers repeat a frustrating workflow across many applications",
+            "Job seekers repeat a frustrating workflow across many applications (C1/E1)",
+        )
+        report_path.write_text(report, encoding="utf-8")
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("report.md: replace registry IDs with standalone source links", result.stdout)
+        self.assertIn("C1", result.stdout)
+        self.assertIn("E1", result.stdout)
 
     def test_chinese_framework_dimensions_are_extracted_from_framework_body(self) -> None:
         module = load_survey_round_module()
@@ -384,9 +408,25 @@ Evidence is directional, not decisive.
         self.assertEqual(result.stdout.count("Executive Summary"), 1)
         self.assertNotIn("sections need substantive content", result.stdout)
 
-    def test_check_rejects_missing_wiki_attempt_notes(self) -> None:
+    def test_check_warns_for_missing_wiki_attempt_notes_when_not_required(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(survey_dir, include_wiki_notes=False)
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Wiki / Graph Index Status should record wiki tool attempt and ingest result when persistence is needed", result.stdout)
+
+    def test_check_requires_wiki_attempt_notes_when_persistence_enabled(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(survey_dir, include_wiki_notes=False, evolver_decision="Kill.", evolver_evidence_needed="None.")
+        index_path = survey_dir / "index.md"
+        index = re.sub(
+            r"(?ms)^## Wiki / Graph Index Status\n\n.*?(?=^## |\Z)",
+            "## Wiki / Graph Index Status\n\nWiki Persistence Needed: yes. Long-term knowledge reuse was requested.\n",
+            index_path.read_text(encoding="utf-8"),
+        )
+        index_path.write_text(index, encoding="utf-8")
 
         result = run_cli("check-final", str(survey_dir))
 
@@ -585,6 +625,20 @@ Thin.
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_evolver_final_allows_final_report_when_score_passes(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            report_score=90,
+            continuation_decision="Pass / Continue Decision: final report is ready.",
+            evolver_decision="Final.",
+            evolver_evidence_needed="No desk-research target remains that could change this decision.",
+        )
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_evolver_decision_uses_only_first_canonical_line(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(
@@ -612,6 +666,55 @@ Thin.
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("Decision first non-empty line must be exactly one of", result.stdout)
+
+    def test_quick_mode_accepts_single_round_artifact(self) -> None:
+        survey_dir = self.init_round(mode="quick")
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            include_wiki_notes=False,
+            evolver_decision="Final.",
+            evolver_evidence_needed="No desk-research target remains.",
+        )
+        for suffix in ("research", "brainstorm", "redteam", "synthesis", "evolver"):
+            path = survey_dir / f"01-{suffix}.md"
+            if path.exists():
+                path.unlink()
+        write_markdown(
+            survey_dir / "01-round.md",
+            "Round 1 Quick Survey",
+            {
+                "Research Question": "Should this be pursued as a direction?",
+                "Evidence And Sources": "S1/E1/C1 support a directional read; source detail remains in JSONL.",
+                "Brainstorming Checkpoint": "The practical next move is to decide whether more desk research would change the answer.",
+                "Red-Team Challenge": "The strongest objection is that public evidence is too thin for a high-stakes decision.",
+                "Synthesis": "The directional answer is sufficient for quick mode and can move to a final memo.",
+                "Decision": "Final.",
+                "Next Step": "Write the short final report and disclose that this was quick mode.",
+            },
+        )
+
+        result = run_cli("check", str(survey_dir), "--mode", "quick")
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_skill_describes_deep_research_as_optional_capability_route(self) -> None:
+        skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertNotIn("`deep-research` routing is required", skill)
+        self.assertIn("prefer `deep-research`", skill)
+
+    def test_skill_keeps_tavily_as_conditional_current_source_route(self) -> None:
+        skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertNotIn("For current-source discovery, default to `tavily-search`", skill)
+        self.assertIn("When current-source discovery matters and Tavily fits the source surface", skill)
+
+    def test_skill_keeps_wiki_persistence_conditional(self) -> None:
+        skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertNotIn("Skipped wiki persistence**: the survey ends with only local Markdown even though", skill)
+        self.assertIn("when long-term persistence was needed", skill)
 
     def test_evolver_narrow_with_desk_research_evidence_requires_continuation(self) -> None:
         survey_dir = self.init_round()
@@ -1102,7 +1205,7 @@ Sources were checked during this round and remain directional.
                 "Decision Frame Integrity": (
                     "Original question: should we build this?\n"
                     "Decision frame: evaluate whether to continue discovery, not whether guaranteed success is proven.\n"
-                    "Not pre-decided: do not rewrite the question into an easier-to-kill demand for certainty.\n"
+                    "Not pre-decided: keep the original question intact instead of turning it into an easier-to-kill demand for certainty.\n"
                     "Allowed narrowing: narrow only when evidence or red-team critique justifies the narrower target."
                 ),
                 "Target Customer": "US software engineers actively applying for jobs.",
@@ -1111,7 +1214,7 @@ Sources were checked during this round and remain directional.
                 "Initial Assumptions": "Users already apply repeatedly.",
                 "Continuation Policy": (
                     "Start with the next research round; decide whether to continue only after evidence, red-team critique, synthesis, and the raw evolver decision are written.\n"
-                    "Do not predict the number of rounds or prewrite a stop conclusion in the brief."
+                    "Keep the round count open until the round artifacts determine whether to continue or stop."
                 ),
             },
         )
@@ -1122,9 +1225,9 @@ Sources were checked during this round and remain directional.
                 "Current Thesis": "The thesis is plausible but unproven.",
                 "Current Evidence-Bound Conclusion": "Continue one narrowed round before final reporting.",
                 "Round Ledger": "Round 1 found demand signals.",
-                "Continuation Status": "Continue if the evolver says Narrow, Pivot, or Keep; finalize only after Kill plus passing report quality.",
+                "Continuation Status": "Continue if the evolver says Narrow, Pivot, or Keep; finalize after Final/Kill plus passing report quality.",
                 "Next Research Target": "Can policy and pricing evidence support a narrower workflow?",
-                "Why Not Final Yet": "The latest round still needs either a Kill decision or a final report gate.",
+                "Why Not Final Yet": "The latest round still needs either a Final/Kill decision or a final report gate.",
                 "Open Questions": "Policy risk remains open.",
                 "Source Inventory": "Official platform terms and competitor pages.",
                 "Framework Refinement Log": (
@@ -1186,7 +1289,7 @@ Sources were checked during this round and remain directional.
                     ),
                     "Final Recommendation": (
                         "Run a policy-first validation round before building.\n"
-                        "Do not start full implementation until the compliance boundary and willingness to pay are clearer."
+                        "Start full implementation after the compliance boundary and willingness to pay are clearer."
                     ),
                     "What Could Change This Conclusion": (
                         "The conclusion would improve if official terms allow the assisted workflow and users commit to paid trials.\n"
@@ -1378,7 +1481,7 @@ Sources were checked during this round and remain directional.
                     "Coverage quality: weak. Weakest gap: acquisition channel proof. Next target: identify high-intent entry points.\n\n"
                     "### Implementation Difficulty\n"
                     "Coverage quality: medium. Weakest gap: reliability under policy constraints. Next target: narrow the build path.\n\n"
-                    "Continue / stop implication: continue unless the raw decision is Kill and final report quality later passes."
+                    "Continue / stop implication: continue unless the raw decision is Final/Kill and final report quality later passes."
                 ),
                 "Next Research Target": "Can active US software job seekers use a browser-assisted copilot under platform constraints?",
                 "Evidence Needed Next": evolver_evidence_needed,

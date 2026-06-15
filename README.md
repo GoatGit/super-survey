@@ -94,7 +94,7 @@ python3 scripts/survey_round.py validate-evidence surveys/2026-06-13-ai-recruiti
 Command meanings:
 
 - `check`: validates round artifacts, `index.md`, the evidence registry, companion-routing notes, and the latest raw evolver decision. It does not require `report.md`.
-- `check-final`: runs the same checks plus final `report.md`, prose-first report rules, the mode-specific quality score recorded in `index.md`, and the requirement that the latest raw evolver decision is `Kill`.
+- `check-final`: runs the same checks plus final `report.md`, prose-first report rules, the mode-specific quality score recorded in `index.md`, and the requirement that the latest raw evolver decision is `Final` or `Kill`.
 - `upgrade-report`: appends the full report schema to an older report. Older six-section reports are readable but do not pass the final gate; after upgrading, fill the new sections.
 - `validate-evidence`: narrow debugging command for `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`; normal round validation uses `check` / `check-final`.
 
@@ -110,6 +110,8 @@ Choose the depth explicitly when speed or rigor matters:
 | `standard` | Default reusable research report | 3 sources, 3 claims, 3 evidence items | score >=90 |
 | `deep` | Formal or high-stakes report, many citations, strict audit needs | 8 sources, 6 claims, 8 evidence items | score >=95 |
 
+In `quick` mode, one combined `NN-round.md` can replace the five split round artifacts when it contains the essential research question, evidence and sources, brainstorming checkpoint, red-team challenge, synthesis, raw decision, and next step.
+
 The lightweight registry keeps report prose readable while preserving auditability:
 
 - `sources.jsonl`: `source_id`, `title`, `url`, `source_type`, `date_checked`, `credibility`
@@ -117,6 +119,8 @@ The lightweight registry keeps report prose readable while preserving auditabili
 - `claims.jsonl`: `claim_id`, `claim`, `supporting_evidence_ids`, `status`
 
 Every evidence item must reference an existing source. Every supported, partial, or contested claim must reference existing evidence. The checker also catches duplicate IDs and obvious weak-support cases where a supported/partial claim does not match its linked evidence. Dense evidence tables belong in appendices or JSONL, not in the main report body.
+
+Registry IDs such as `C1` and `E1` are for working files only. Final `report.md` must replace them with source titles, Markdown links, footnotes, or appendix references that include URLs, so the report can be read without opening the JSONL registry.
 
 ## skills.sh Readiness
 
@@ -160,9 +164,9 @@ README gives the operational shape; the full agent checklist lives in `SKILL.md`
 
 There are three gates:
 
-- `check` is the round gate. It validates artifacts, registry links and weak-support checks, framework coverage including explicit refinements, companion/wiki notes, and the latest raw evolver decision. It can pass with a continuation warning when the decision is `Keep`, `Narrow`, or `Pivot`.
-- The evolver is the stop gate. `Keep`, `Narrow`, and `Pivot` mean create another round and update `index.md`; `Kill` means the survey may move to final report writing.
-- `check-final` is the delivery gate. It requires a complete prose-first `report.md`, a passing mode score recorded in `index.md`, and the latest raw evolver decision to be `Kill`.
+- `check` is the round gate. It validates artifacts, registry links and weak-support checks, framework coverage including explicit refinements, companion notes when required, and the latest raw evolver decision. It can pass with a continuation warning when the decision is `Keep`, `Narrow`, or `Pivot`.
+- The evolver is the stop gate. `Keep`, `Narrow`, and `Pivot` mean create another round and update `index.md`; `Final` means the survey can move to final report writing; `Kill` means the current thesis should stop or switch away from desk research.
+- `check-final` is the delivery gate. It requires a complete prose-first `report.md`, a passing mode score recorded in `index.md`, and the latest raw evolver decision to be `Final` or `Kill`.
 
 Final delivery uses a 100-point quality gate recorded in `index.md`:
 
@@ -177,9 +181,9 @@ Final delivery uses a 100-point quality gate recorded in `index.md`:
 
 Mode thresholds are hard gates: `quick >=80`, `standard >=90`, and `deep >=95`. A final report below the selected threshold must continue another round focused on the weakest dimensions. The helper uses only the raw evolver decision plus the score threshold for stopping; it does not parse report prose such as "future disclosure" or "external validation" as a stopping rule.
 
-The final report should read like a human memo: answer, framework dimension chapters, narrative, decision logic, recommendation, change triggers, next actions, and limits first; evidence registers, source quality, red-team notes, scenarios, and source inventory in appendices. Quality scoring belongs in `index.md` under the final report quality gate, not in `report.md`. Framework dimensions must appear as top-level Markdown headings in the body, not only in method notes or appendices. A body dominated by bullets or audit tables does not pass.
+The final report should read like a human memo: answer, framework dimension chapters, narrative, decision logic, recommendation, change triggers, next actions, and limits first; evidence registers, source quality, red-team notes, scenarios, and source inventory in appendices. Quality scoring belongs in `index.md` under the final report quality gate, not in `report.md`. Framework dimensions must appear as top-level Markdown headings in the body, not only in method notes or appendices. Citations must be standalone links or source references, not `C*` / `E*` registry IDs. A body dominated by bullets or audit tables does not pass.
 
-Companion skills are optional helpers for search, long reports, VOC/customer research, competitor analysis, brainstorming, and wiki persistence. Current-source discovery should try `tavily-search` first and record any fallback. Use `deep-research` for formal long reports, many citations, HTML/PDF output, or strict citation validation. Super Survey still owns the judgment loop.
+Companion skills are optional helpers for search, long reports, VOC/customer research, competitor analysis, brainstorming, and wiki persistence. When current-source discovery matters, prefer `tavily-search` and record the search path or fallback. Prefer `deep-research` for formal long reports, many citations, HTML/PDF output, or strict citation validation when it is available. Use wiki persistence when long-term knowledge reuse is needed. Super Survey still owns the judgment loop.
 
 ## Workflow
 
@@ -188,11 +192,11 @@ flowchart TD
     A[User research question] --> B[00-brief.md<br/>decision, lens, framework, evidence standard]
     B --> C[Round research<br/>sources, claim-level evidence, framework coverage]
     C --> D{Need companion skill?}
-    D -->|Current sources| D1[Tavily first<br/>fallback web search]
-    D -->|Long report| D2[Deep Research]
+    D -->|Current sources needed| D1[Prefer Tavily<br/>or fitting search tool]
+    D -->|Long report capability| D2[Prefer Deep Research]
     D -->|VOC / user language| D3[Customer or Reddit research]
     D -->|Competitors| D4[Competitive research]
-    D -->|Knowledge persistence| D5[Astro-Han/karpathy-llm-wiki<br/>or llm-wiki fallback]
+    D -->|Persistence needed| D5[Astro-Han/karpathy-llm-wiki<br/>or other wiki/indexer]
     D -->|No| E[Brainstorm checkpoint]
     D1 --> C
     D2 --> C
@@ -202,11 +206,11 @@ flowchart TD
     C --> E[Brainstorm checkpoint]
     E --> F[Red-team critique<br/>risks, substitutes, kill criteria]
     F --> G[Synthesis<br/>confidence and rationale]
-    G --> H[Evolver<br/>Keep / Narrow / Pivot / Kill]
+    G --> H[Evolver<br/>Keep / Narrow / Pivot / Kill / Final]
     H --> Q{Evolver decision}
     Q -->|Keep / Narrow / Pivot| I[index.md<br/>workbench: next target and why not final]
     I --> C
-    Q -->|Kill| J[Write report.md<br/>framework dimensions as body chapters]
+    Q -->|Final / Kill| J[Write report.md<br/>framework dimensions as body chapters]
     J --> R[check-final<br/>score and prose-first gate]
     R -->|Score below threshold| I
     R -->|Score passes| K[Final answer<br/>decision-oriented summary]
@@ -223,7 +227,7 @@ Super Survey adapts that loop to product, market, technical, and open-source res
 | Goal | Improve a model or code path through experiments | Sharpen a research thesis into an actionable decision |
 | Input | Training code, fixed evaluation, experiment logs | Evidence, sources, constraints, red-team critique |
 | Feedback | A comparable scalar metric such as validation loss | Structured judgment: evidence strength, risks, confidence |
-| Decision | Keep or discard a code change | Keep, Narrow, Pivot, or Kill a thesis |
+| Decision | Keep or discard a code change | Keep, Narrow, Pivot, Kill, or finalize a thesis |
 | Output | Better code/model plus experiment history | A narrower next-round research target plus evidence needs |
 
 In short: autoresearch is metric-driven optimization; Super Survey is judgment-driven narrowing. When a survey has a measurable benchmark, Super Survey can borrow more of the autoresearch style. When the question is about buyer intent, compliance, distribution, or strategic risk, the loop stays evidence-first and decision-oriented instead of pretending every answer can be reduced to one number.

@@ -46,7 +46,7 @@ Securities-style research can compose these domain frameworks:
 - Industry view: demand, supply, competition, policy, technology, cycle, valuation.
 - Company view: business model, financial quality, growth, competitive advantage, valuation, catalysts, risks.
 
-Do not treat a framework as a prewritten conclusion. If a framework dimension is weak, say so and make it a candidate next-round target.
+Treat a framework as a research method rather than a prewritten conclusion. If a framework dimension is weak, say so and make it a candidate next-round target.
 
 The framework must structure the whole workflow, not just the final `report.md`. In `00-brief.md`, each dimension should become a `###` subsection that states the core question, evidence needed, and current boundary. In each round file, the framework-relevant section should use the same dimension subheadings:
 
@@ -60,13 +60,13 @@ Keep these subsections concise in quick mode. The important rule is structural: 
 
 ## Evidence-Driven Framework Refinement
 
-A framework is allowed to evolve when evidence shows that the initial dimensions are wrong, too broad, or missing a veto dimension. Do not revise the framework silently in a later round or final report. Record the revision in `index.md` under `Framework Refinement Log`:
+A framework is allowed to evolve when evidence shows that the initial dimensions are wrong, too broad, or missing a veto dimension. Record every framework revision in `index.md` under `Framework Refinement Log`:
 
 - `Current dimensions: ...`
 - `Evidence trigger for changes: ...`
 - `Original question/core preserved: ...`
 
-After this log is written, later round artifacts should use the refined dimensions. The revision must preserve the user's original decision frame; it cannot make the question easier to kill or easier to prove.
+After this log is written, later round artifacts should use the refined dimensions. The revision must preserve the user's original decision frame and keep the question equally faithful to the user's intent.
 
 ## Claim-Level Evidence
 
@@ -84,9 +84,11 @@ Guidance:
 - **Confidence**: high, medium, low, based on the claim's own evidence, not the overall thesis.
 - **Contradictions**: conflicting evidence, missing evidence, or "none found after checking X".
 
-Do not let one strong claim hide a weak critical claim. Buyer clarity, data access, compliance, and willingness to pay often deserve separate evidence rows.
+Evaluate critical claims separately so weak critical claims stay visible even when another claim is strong. Buyer clarity, data access, compliance, and willingness to pay often deserve separate evidence rows.
 
 The helper performs a lightweight support check for supported/partial claims: duplicate IDs, orphan links, missing linked evidence, and obvious claim-evidence mismatch are errors. This catches cases where a claim cites an unrelated evidence item. It does not replace human review of quote interpretation, source credibility, or nuanced inference.
+
+Registry IDs are process references, not final-report citations. `C1`, `E1`, and similar IDs are useful inside `NN-research.md` and other working files, while final `report.md` uses source titles, Markdown links, footnotes, or an appendix reference list with URLs. A standalone report should be understandable without opening `claims.jsonl` or `evidence.jsonl`.
 
 ## Framework Coverage
 
@@ -95,11 +97,11 @@ In `NN-research.md`, write framework coverage as prose under one `###` subheadin
 | Framework Dimension | Evidence Status | Confidence | Contradictions | Next Evidence Need |
 |---|---|---|---|---|
 
-Good coverage means the report can explain both what was checked and what remains weak. If a dimension matters to the decision but lacks evidence, do not hide it in a generic "limitations" paragraph or a one-line "framework checked" audit note; either continue another round or name why desk research cannot reduce it.
+Good coverage means the report can explain both what was checked and what remains weak. If a dimension matters to the decision but lacks evidence, surface it as a concrete gap: either continue another round or name why desk research has reached its limit.
 
 ## Final Report Framework Chapters
 
-In final `report.md`, framework dimensions are not just audit metadata. Make each effective framework dimension its own top-level body chapter before the appendices. Do not add a generic `Research Method And Framework` or `Framework Dimension Analysis` wrapper to the final report.
+In final `report.md`, framework dimensions are body-level analysis, not just audit metadata. Make each effective framework dimension its own top-level body chapter before the appendices.
 
 Example:
 
@@ -111,7 +113,7 @@ Example:
 ## Company Business Structure
 ```
 
-For securities-style reports, dimensions such as market environment, industry theme, company business structure, financial quality, valuation, institutional expectations, fund flows, technicals, catalysts, and risks should be readable as report chapters before the appendices. Evidence tables, source audits, and final quality scores belong outside the report body; record the quality gate in `index.md`.
+For securities-style reports, dimensions such as market environment, industry theme, company business structure, financial quality, valuation, institutional expectations, fund flows, technicals, catalysts, and risks should be readable as report chapters before the appendices. Evidence tables, source audits, registry IDs, and final quality scores belong outside the report body; record the quality gate in `index.md` and use source links in `report.md`.
 
 Write final reports section by section. Each body section should state its decision purpose, key claim, supporting or weakening evidence IDs, strongest counterpoint, and implication for the reader. If a section can only be written as a checklist or source table, keep researching or narrow the section question before finalizing.
 
@@ -173,7 +175,7 @@ Score each opportunity from 1 to 5:
 - Implementation difficulty, reverse scored
 - Compliance risk, reverse scored
 
-Do not average blindly. A single score of 1 in data access, buyer clarity, or compliance may disqualify the idea.
+Use the rubric with veto awareness. A single score of 1 in data access, buyer clarity, or compliance may disqualify the idea.
 
 ## Evidence-First Stopping Rules
 
@@ -185,9 +187,11 @@ Stop or switch from research to validation when:
 - The next useful step is build/test/ask users, not another evidence sweep.
 - The user explicitly requested a bounded checkpoint.
 
-Do not stop because an early brief predicted a round count, because the report prose says "external validation", or because a broad question was silently rewritten into a stronger claim. A bounded checkpoint is not proof of convergence; report unresolved quality risks and the next evidence target.
+Stop based on the raw evolver decision, the quality gate, and the user's original decision frame. Treat early round-count plans, report prose about "external validation", and stronger rewrites of broad questions as warning signs; report unresolved quality risks and the next evidence target.
 
 Continue only when the next round has a specific evidence target that could change the original decision.
+
+Use `Final` when the research has converged enough for the user's original decision and the remaining useful work is reporting, monitoring, user validation, legal review, or implementation. Use `Kill` when the current thesis should stop or switch away from desk research because the evidence and red-team critique no longer support another research round.
 
 ## Evolver Gate
 
