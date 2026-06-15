@@ -2,6 +2,8 @@
 
 Use this reference for Super Survey rounds where the conclusion may drive product, investment, legal, or public positioning decisions.
 
+The foundational theory paper for Super Survey's anti-sycophancy stance is `如何拒绝AI谄媚人类.md`. It uses an investment example to show a broader pattern: open-ended research can fall into local optima when the agent accepts the user's initial wording as the objective function. This reference translates that paper into reusable quality checks for product, market, technical, open-source, and diligence research.
+
 ## Source Hierarchy
 
 Prefer sources in this order:
@@ -39,6 +41,64 @@ Treat the user's question as the initial point, not the objective function. Befo
 - Use a decision tree when the facts are still uncertain: if A is true, recommend one path; if B is true, recommend another.
 
 Good research challenges the user's frame without being adversarial for its own sake. The goal is a more faithful decision model, not a more comfortable answer.
+
+## Decision Robustness Tools
+
+Use these tools when a conclusion may drive spending, investment, adoption, architecture, legal, public, or strategic choices.
+
+### Object Quality vs Action Attractiveness
+
+Separate "is the object good?" from "is the action attractive now?" A good object is not automatically a good action:
+
+- Good company does not automatically mean good stock.
+- Good product does not automatically mean good business.
+- Good technology does not automatically mean good project.
+- Good open-source library does not automatically mean good dependency.
+
+Action attractiveness depends on current constraints, price or cost, timing, opportunity cost, maintenance burden, reversibility, and alternatives.
+
+### Constraint Model
+
+Record:
+
+- Hard constraints: legal, platform, budget, time, security, data access, policy, irreversible risk.
+- Soft constraints: preferences, operational capacity, acceptable complexity, brand/reputation sensitivity.
+- User-specific constraints: horizon, budget, risk tolerance, existing exposure, team skill, deployment environment.
+- Missing constraints: information that would materially change the recommendation if supplied.
+
+When constraints are missing, make the recommendation conditional rather than pretending a universal answer exists.
+
+### Implied Expectations
+
+Ask what must already be true for the current action to be attractive. Examples:
+
+- Product: current pricing or adoption assumes what conversion, retention, and distribution costs?
+- Technical: current architecture assumes what reliability, scale, latency, vendor stability, and maintenance capacity?
+- Open source: adopting this dependency assumes what maintainer health, API stability, license safety, and ecosystem support?
+- Investment/diligence: current price implies what growth, margin, valuation, risk appetite, and opportunity cost?
+
+If implied expectations are aggressive, the report should show what evidence would need to beat those expectations.
+
+### Scenario And Decision Tree
+
+Prefer conditional actions when facts remain uncertain:
+
+- If favorable assumptions hold, what action follows?
+- If neutral assumptions hold, what should be watched or delayed?
+- If adverse assumptions hold, what should be avoided, reduced, pivoted, or stopped?
+- If the user is already committed, what is the hold/reduce/exit path?
+- If the user is not yet committed, what is the wait/test/enter path?
+
+This keeps the output useful without collapsing uncertainty into one overconfident conclusion.
+
+### Bayesian Update Table
+
+For high-stakes decisions, track the hypothesis dynamically:
+
+| Hypothesis | Current Evidence Strength | Raises Confidence | Lowers Confidence | Falsifies |
+|---|---|---|---|---|
+
+Use this in `NN-synthesis.md`, `NN-evolver.md`, or the final report appendix when the decision should be updated as new evidence arrives.
 
 After choosing lenses, write an explicit research framework. The framework is the reader-visible method: it says which dimensions the survey covers, what each dimension is meant to answer, and where coverage is weak or intentionally out of scope.
 

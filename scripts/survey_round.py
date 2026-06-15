@@ -345,13 +345,19 @@ LABELS = {
             "- Strongest dimensions:\n"
             "- Weakest dimensions:\n"
             "- Cross-dimension judgment:\n"
-            "- Framework gaps that affect confidence:"
+            "- Framework gaps that affect confidence:\n"
+            "- Action attractiveness vs object quality:\n"
+            "- Bayesian update:\n"
+            "- Decision tree:"
         ),
         "framework_synthesis_expansion_note": (
             "- For each dimension from 00-brief.md, add `### <framework dimension>` and synthesize current judgment, confidence, contradictions, and effect on the decision."
         ),
         "framework_evolver_gate_note": (
-            "- For each dimension from 00-brief.md, add `### <framework dimension>` and record coverage quality, weakest gap, and whether a concrete next evidence target remains."
+            "- For each dimension from 00-brief.md, add `### <framework dimension>` and record coverage quality, weakest gap, and whether a concrete next evidence target remains.\n"
+            "- Implied expectation check:\n"
+            "- Decision tree triggers:\n"
+            "- Bayesian update needed:"
         ),
         "decision_frame_note": (
             "- Original user frame:\n"
@@ -362,6 +368,12 @@ LABELS = {
             "- Stakeholders:\n"
             "- Reframed objective:\n"
             "- Competing objectives:\n"
+            "- Object quality vs action attractiveness:\n"
+            "- Hard constraints:\n"
+            "- Soft constraints:\n"
+            "- User-specific constraints:\n"
+            "- Missing constraints:\n"
+            "- Implied expectations:\n"
             "- What not to optimize for:\n"
             "- Original question preserved:\n"
             "- Decision frame supported:\n"
@@ -590,13 +602,19 @@ LABELS = {
             "- 最强维度：\n"
             "- 最弱维度：\n"
             "- 跨维度综合判断：\n"
-            "- 影响置信度的框架缺口："
+            "- 影响置信度的框架缺口：\n"
+            "- 行动吸引力 vs 对象质量：\n"
+            "- 贝叶斯更新：\n"
+            "- 决策树："
         ),
         "framework_synthesis_expansion_note": (
             "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并综合当前判断、置信度、矛盾证据和对决策的影响。"
         ),
         "framework_evolver_gate_note": (
-            "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并记录覆盖质量、最弱缺口，以及是否仍有具体下一步证据目标。"
+            "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并记录覆盖质量、最弱缺口，以及是否仍有具体下一步证据目标。\n"
+            "- 隐含预期检查：\n"
+            "- 决策树触发条件：\n"
+            "- 是否需要贝叶斯更新："
         ),
         "decision_frame_note": (
             "- 用户原始框架：\n"
@@ -607,6 +625,12 @@ LABELS = {
             "- 关键利益相关方：\n"
             "- 重述后的目标：\n"
             "- 互相竞争的目标：\n"
+            "- 对象质量 vs 行动吸引力：\n"
+            "- 硬约束：\n"
+            "- 软约束：\n"
+            "- 用户特定约束：\n"
+            "- 缺失约束：\n"
+            "- 隐含预期：\n"
             "- 不应优化的方向：\n"
             "- 原始问题已保留：\n"
             "- 支持的决策框架：\n"
@@ -819,13 +843,19 @@ LABELS = {
             "- 最も強い次元:\n"
             "- 最も弱い次元:\n"
             "- 次元横断の統合判断:\n"
-            "- 信頼度に影響するフレームワーク上の欠落:"
+            "- 信頼度に影響するフレームワーク上の欠落:\n"
+            "- 行動の魅力度 vs 対象の品質:\n"
+            "- ベイズ更新:\n"
+            "- 意思決定ツリー:"
         ),
         "framework_synthesis_expansion_note": (
             "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、現在の判断、信頼度、矛盾、判断への影響を統合する。"
         ),
         "framework_evolver_gate_note": (
-            "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、網羅品質、最も弱い欠落、具体的な次回証拠目標の有無を記録する。"
+            "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、網羅品質、最も弱い欠落、具体的な次回証拠目標の有無を記録する。\n"
+            "- 暗黙の期待値チェック:\n"
+            "- 意思決定ツリーのトリガー:\n"
+            "- ベイズ更新の必要性:"
         ),
         "decision_frame_note": (
             "- ユーザーの元のフレーム:\n"
@@ -836,6 +866,12 @@ LABELS = {
             "- 主要ステークホルダー:\n"
             "- 再定義した目的:\n"
             "- 競合する目的:\n"
+            "- 対象の品質 vs 行動の魅力度:\n"
+            "- ハード制約:\n"
+            "- ソフト制約:\n"
+            "- ユーザー固有の制約:\n"
+            "- 欠落している制約:\n"
+            "- 暗黙の期待値:\n"
             "- 最適化しないこと:\n"
             "- 元の問いを保持:\n"
             "- 支援する判断枠:\n"

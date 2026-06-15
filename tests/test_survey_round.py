@@ -213,6 +213,26 @@ Can this target customer pay for this workflow?
         self.assertIn("### <framework dimension>", synthesis)
         self.assertIn("### <framework dimension>", evolver)
 
+    def test_templates_include_decision_robustness_tools(self) -> None:
+        survey_dir = self.init_round()
+
+        brief = (survey_dir / "00-brief.md").read_text(encoding="utf-8")
+        synthesis = (survey_dir / "01-synthesis.md").read_text(encoding="utf-8")
+        evolver = (survey_dir / "01-evolver.md").read_text(encoding="utf-8")
+
+        self.assertIn("Object quality vs action attractiveness", brief)
+        self.assertIn("Hard constraints", brief)
+        self.assertIn("Soft constraints", brief)
+        self.assertIn("User-specific constraints", brief)
+        self.assertIn("Missing constraints", brief)
+        self.assertIn("Implied expectations", brief)
+        self.assertIn("Action attractiveness", synthesis)
+        self.assertIn("Bayesian update", synthesis)
+        self.assertIn("Decision tree", synthesis)
+        self.assertIn("Implied expectation check", evolver)
+        self.assertIn("Decision tree triggers", evolver)
+        self.assertIn("Bayesian update needed", evolver)
+
     def test_docs_describe_anti_sycophancy_and_local_optimum_checks(self) -> None:
         docs = {
             "README.md": (ROOT / "README.md").read_text(encoding="utf-8"),
@@ -229,6 +249,41 @@ Can this target customer pay for this workflow?
         self.assertIn("Anti-Sycophancy / Anti-Local-Optimum Checks", docs["references/research-quality.md"])
         self.assertIn("known facts, unverified assumptions, subjective judgments, missing information, and stakeholders", docs["SKILL.md"])
         self.assertIn("decision tree", docs["references/research-quality.md"])
+        self.assertIn("good object is not automatically a good action", docs["SKILL.md"])
+        self.assertIn("Decision Robustness Tools", docs["references/research-quality.md"])
+        self.assertIn("implied expectations", docs["references/research-quality.md"])
+
+    def test_readmes_frame_super_survey_as_decision_optimization(self) -> None:
+        readme_en = (ROOT / "README.md").read_text(encoding="utf-8")
+        readme_zh = (ROOT / "README.zh-CN.md").read_text(encoding="utf-8")
+        readme_ja = (ROOT / "README.ja.md").read_text(encoding="utf-8")
+
+        self.assertIn("constrained decision-optimization workflow", readme_en)
+        self.assertIn("rebuilds the objective function", readme_en)
+        self.assertIn("带约束的决策优化工作流", readme_zh)
+        self.assertIn("重建目标函数", readme_zh)
+        self.assertIn("制約付き意思決定最適化ワークフロー", readme_ja)
+        self.assertIn("目的関数を再構築", readme_ja)
+        self.assertIn("通过多轮迭代不断逼近人类决策者需要的最终报告", readme_zh)
+        self.assertIn("初始直觉很容易导致偏见或不完整信息", readme_zh)
+        self.assertNotIn("调研报告是写给人类决策者看的判断报告，不是智能体的任务审计日志", readme_zh)
+
+    def test_foundational_anti_sycophancy_paper_is_included(self) -> None:
+        paper = ROOT / "如何拒绝AI谄媚人类.md"
+
+        self.assertTrue(paper.exists())
+        paper_text = paper.read_text(encoding="utf-8")
+        self.assertIn("用数学优化思路改造 AI 投资调研问题", paper_text)
+        self.assertIn("局部最优", paper_text)
+        self.assertIn("贝叶斯更新", paper_text)
+        self.assertIn("决策树", paper_text)
+
+        readme = (ROOT / "README.zh-CN.md").read_text(encoding="utf-8")
+        skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+        quality = (ROOT / "references" / "research-quality.md").read_text(encoding="utf-8")
+        self.assertIn("如何拒绝AI谄媚人类.md", readme)
+        self.assertIn("如何拒绝AI谄媚人类.md", skill)
+        self.assertIn("如何拒绝AI谄媚人类.md", quality)
 
     def test_round_template_uses_registry_as_evidence_source_of_truth(self) -> None:
         survey_dir = self.init_round()

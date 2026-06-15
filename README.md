@@ -2,19 +2,22 @@
 
 Language: English | [中文](README.zh-CN.md) | [日本語](README.ja.md)
 
-Super Survey is a reusable agent skill for multi-round product, market, technical, and open-source research. It turns a vague research target into evidence-backed Markdown artifacts with red-team critique, synthesis, and a sharper next-round question. It is designed for Skills-compatible agents and can also be used directly through its bundled CLI.
+Super Survey is a reusable agent skill for multi-round product, market, technical, open-source, and diligence research. It turns a vague research target into a constrained decision-optimization workflow: first it rebuilds the objective function, constraints, and hidden assumptions; then it uses evidence, red-team critique, synthesis, and a sharper next-round question to produce auditable, readable Markdown reports. It is designed for Skills-compatible agents and can also be used directly through its bundled CLI.
 
 It focuses on three jobs:
 
-- Turn vague questions into an executable research frame.
-- Reduce gut-feel conclusions with evidence, red-team critique, and synthesis.
-- Produce either a sharper next-round question or a final report at the end of each round.
+- Turn vague questions into research tasks with clear objectives, constraints, frameworks, and evidence standards.
+- Reduce gut-feel conclusions with evidence, red-team critique, implied-expectation checks, scenarios, and Bayesian updates.
+- Use multi-round iteration to keep moving toward the final report a human decision-maker actually needs.
 
 ## First Principles
 
-1. The world is noisy, random, and not reliably predictable from an initial hunch. Every research task must avoid the trap of deciding first and then collecting evidence to support the decision.
-2. A research report is written for human decision-makers, not as an agent task-audit log. Evidence trails, source registers, red-team notes, and quality checks are necessary, but they should support a readable judgment rather than replace it.
-3. The user's question is the starting point, not the objective function. Super Survey first checks the user's framing, hidden assumptions, and optimization target before it searches for evidence or converges on an answer.
+1. The world is noisy, random, and not reliably predictable; an initial hunch can easily become bias or incomplete information. Every task must avoid the trap of deciding first and then collecting evidence to support the decision.
+2. The user's question is the starting point, not the objective function. Inspect the user's framing, hidden assumptions, and real optimization target before searching for evidence or converging on an answer.
+
+## Theory
+
+The project includes [如何拒绝AI谄媚人类.md](如何拒绝AI谄媚人类.md) as its foundational anti-sycophancy paper. The paper uses an investment example to explain a general rule: open-ended research should be treated as constrained decision optimization, not answer generation. Super Survey generalizes that idea across domains by rebuilding the objective, constraints, implied expectations, counterfactuals, scenarios, and update rules before converging.
 
 ## What It Does
 
@@ -144,6 +147,8 @@ npx skills add GoatGit/super-survey --list
 `Research lens` decides what evidence deserves emphasis. `Research framework` tells the reader how the whole survey systematically examines the question. Every survey should name a framework, list its dimensions, disclose weak or intentionally omitted dimensions, and use those dimensions as the structure for `00-brief.md`, each round artifact, and the final report.
 
 Before selecting the framework, do an anti-sycophancy framing pass. Split the user's wording into known facts, unverified assumptions, subjective judgments, missing information, and stakeholders; then restate the objective in decision terms. This prevents the survey from optimizing the user's initial wording, a stronger easy-to-kill claim, or a comfortable answer that fits the prompt but misses the real decision.
+
+A good object is not automatically a good action. Good company does not automatically mean good stock; good product does not automatically mean good business; good technology does not automatically mean good project; good open-source library does not automatically mean good dependency. Super Survey should evaluate action attractiveness under current constraints, prices, timing, maintenance cost, risk, and alternatives.
 
 This is the main writing rule: the framework is not an audit checklist at the end. `00-brief.md` defines the dimensions; `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` each expand those same dimensions with Markdown subheadings. The final `report.md` then turns the dimensions into readable body chapters before appendices.
 

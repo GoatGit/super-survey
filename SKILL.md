@@ -9,6 +9,8 @@ description: Use when researching product opportunities, markets, open-source pr
 
 Super Survey turns a vague research target into progressively sharper conclusions through repeated research, red-team critique, synthesis, and persisted artifacts. Use it for product discovery, market validation, open-source project scouting, investment-style diligence, or strategic decisions.
 
+The foundational anti-sycophancy theory paper for this skill is `如何拒绝AI谄媚人类.md`. It explains why open-ended research should be treated as constrained decision optimization rather than direct answer generation. Use it as the conceptual basis for objective reconstruction, constraint modeling, implied-expectation checks, scenarios, Bayesian updating, and decision-tree output.
+
 ## Required Behavior
 
 Every survey round must:
@@ -172,6 +174,8 @@ Write `00-brief.md` with:
 
 In `Decision Frame Integrity`, split the user's wording into known facts, unverified assumptions, subjective judgments, missing information, and stakeholders. Then state the reframed objective, competing objectives, and what the survey should not optimize for. This is the anti-sycophancy / anti-local-optimum check: the survey should optimize the real decision, not the user's first phrasing, emotional stance, or an easier-to-kill stronger claim.
 
+Also separate object quality from action attractiveness. A good object is not automatically a good action: good company does not automatically mean good stock; good product does not automatically mean good business; good technology does not automatically mean good project; good open-source library does not automatically mean good dependency. Record hard constraints, soft constraints, user-specific constraints, missing constraints, and implied expectations before deciding what evidence can change the action.
+
 Keep the number of rounds open, and reserve stop conclusions for completed round artifacts. `00-brief.md` must preserve the user's original question and record the decision frame without rewriting it into a stronger or easier-to-kill claim. Any narrowing must say what evidence, assumption, or red-team objection justifies the narrower frame. `00-brief.md` states the continuation policy: start with the next evidence round, update `index.md` after the round, then decide whether to continue only after evidence, red-team critique, synthesis, and the raw evolver decision are written. Actual round history belongs in `index.md`.
 
 Make the research framework travel through the whole workflow. Once `00-brief.md` names framework dimensions, every round artifact must use those dimensions as its thinking structure. Keep each dimension lightweight when needed, and write actual dimension-level reasoning instead of a generic audit note such as "framework coverage checked."
@@ -241,7 +245,7 @@ For quick mode, a single `NN-round.md` can replace the five split round artifact
 - Updated conclusion
 - Confidence: low / medium / high
 - Decision rationale: why the recommendation follows from the evidence
-- Framework-based synthesis: one `### <framework dimension>` subsection per brief-defined dimension, then strongest dimensions, weakest dimensions, cross-dimension judgment, and framework gaps affecting confidence
+- Framework-based synthesis: one `### <framework dimension>` subsection per brief-defined dimension, then strongest dimensions, weakest dimensions, cross-dimension judgment, framework gaps affecting confidence, action attractiveness vs object quality, Bayesian update, and decision tree
 - What changed from prior round
 - Best next question
 - Recommended next action
@@ -330,18 +334,24 @@ Use these checks across domains:
 
 - Facts vs assumptions: separate known facts, unverified assumptions, subjective judgments, missing information, and stakeholders.
 - Objective reconstruction: restate the decision objective and list competing objectives such as accuracy, speed, risk, cost, upside, compliance, relationships, or reversibility.
+- Constraint modeling: record hard constraints, soft constraints, user-specific constraints, and missing constraints before offering action advice.
+- Object/action split: evaluate whether the object is good separately from whether the proposed action is attractive under current constraints, timing, price/cost, risk, and alternatives.
+- Implied expectations: ask what adoption, price, growth, maintenance, reliability, or ecosystem assumptions are already priced into the current opportunity.
 - Multi-start perspectives: evaluate the question from at least several decision-relevant roles, not only the user's role.
 - Sensitivity analysis: name the assumptions that would change the conclusion if they were false.
+- Bayesian update: state what evidence would raise, lower, or falsify confidence in the current thesis.
 - Decision tree: when facts are uncertain, express recommendations as conditional branches rather than one overconfident path.
 
 For example, do not turn "is this stock a buy opportunity over the next six months?" into "prove the stock will definitely rise" or "reject it unless immediate heavy buying is justified." The reframed objective should preserve the user's actual decision and stakes.
+
+For high-stakes work, make the final recommendation conditional: if the key favorable assumptions hold, act one way; if they weaken, wait, reduce, pivot, or stop. Include a branch for "already committed/holding/using this" and a branch for "not yet committed" when those states matter.
 
 `NN-evolver.md` should contain the output of the built-in lightweight evolver:
 
 - Probe questions and answers
 - Persona judgments
 - Keep / Narrow / Pivot / Kill / Final decision
-- Round evidence quality gate: one `### <framework dimension>` subsection per brief-defined dimension, then evidence coverage, weakest dimensions, continue/stop implication, and next-round focus
+- Round evidence quality gate: one `### <framework dimension>` subsection per brief-defined dimension, then evidence coverage, weakest dimensions, implied expectation check, decision tree triggers, Bayesian update needed, continue/stop implication, and next-round focus
 - Next-round target
 - Evidence needed next
 
