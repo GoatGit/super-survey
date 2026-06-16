@@ -273,7 +273,8 @@ Can this target customer pay for this workflow?
 
         self.assertTrue(paper.exists())
         paper_text = paper.read_text(encoding="utf-8")
-        self.assertIn("用数学优化思路改造 AI 投资调研问题", paper_text)
+        self.assertIn("拒绝AI谄媚人类：用约束优化方法重构开放式调研", paper_text)
+        self.assertIn("以“英伟达现阶段是否值得买入”为例", paper_text)
         self.assertIn("局部最优", paper_text)
         self.assertIn("贝叶斯更新", paper_text)
         self.assertIn("决策树", paper_text)
