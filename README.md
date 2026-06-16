@@ -15,6 +15,8 @@ It focuses on three jobs:
 1. The world is noisy, random, and not reliably predictable; an initial hunch can easily become bias or incomplete information. Every task must avoid the trap of deciding first and then collecting evidence to support the decision.
 2. The user's question is the starting point, not the objective function. Inspect the user's framing, hidden assumptions, and real optimization target before searching for evidence or converging on an answer.
 
+Super Survey favors front-loaded guidance over harder after-the-fact gates: define the objective, constraints, decision-critical variables, minimum direct evidence, implied expectations, and anti-narrative regularizers before the evidence pass begins.
+
 ## Theory
 
 The project includes [如何拒绝AI谄媚人类.md](如何拒绝AI谄媚人类.md) as its foundational anti-sycophancy paper. The paper uses an investment example to explain a general rule: open-ended research should be treated as constrained decision optimization, not answer generation. Super Survey generalizes that idea across domains by rebuilding the objective, constraints, implied expectations, counterfactuals, scenarios, and update rules before converging.
@@ -151,6 +153,8 @@ Before selecting the framework, do an anti-sycophancy framing pass. Split the us
 A good object is not automatically a good action. Good company does not automatically mean good stock; good product does not automatically mean good business; good technology does not automatically mean good project; good open-source library does not automatically mean good dependency. Super Survey should evaluate action attractiveness under current constraints, prices, timing, maintenance cost, risk, and alternatives.
 
 This is the main writing rule: the framework is not an audit checklist at the end. `00-brief.md` defines the dimensions; `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` each expand those same dimensions with Markdown subheadings. The final `report.md` then turns the dimensions into readable body chapters before appendices.
+
+The helper can scaffold all round files at once, but their content has a strict dependency order: write `NN-research.md` first, then `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and finally `NN-evolver.md`. Downstream artifacts should cite written upstream findings instead of predicting the final conclusion.
 
 If evidence shows the framework should change, record it in `index.md` under `Framework Refinement Log`: current dimensions, evidence trigger for the change, and confirmation that the original question/core is preserved. Later rounds then use the refined dimensions. Silent framework drift is invalid.
 

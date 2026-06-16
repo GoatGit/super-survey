@@ -8,15 +8,20 @@ Read these files for the current survey:
 
 - `00-brief.md`
 - latest `NN-research.md`
+- latest `NN-brainstorm.md`
 - latest `NN-redteam.md`
 - latest `NN-synthesis.md`
 - `index.md`
 
 If prior `NN-evolver.md` files exist, read the latest one to avoid repeating the same question.
 
+Follow the artifact dependency order. `NN-evolver.md` is the last round artifact: complete it only after the current round's research, brainstorming, red-team, and synthesis files contain written content. The evolver should judge upstream evidence and synthesis already on disk, not invent what those artifacts would have said.
+
 When the latest files include a research framework or framework coverage section, treat weak or missing framework dimensions as first-class inputs. A next round should usually target the weakest decision-relevant dimension rather than collect more generic sources.
 
 Also read the `Decision Frame Integrity` section in `00-brief.md`. Treat the user's original wording as an initial point, not the objective function. If the current thesis relies on unverified assumptions, subjective judgments, or a stronger easy-to-kill rewrite of the user's question, prefer `Narrow` or `Pivot` with a corrected next target instead of `Kill`.
+
+Also read the `Decision Optimization Contract`. Carry forward its decision-critical variables, minimum direct evidence, implied expectations, constraint-specific recommendation branches, and anti-narrative regularizers.
 
 ## Step 1: Probe Assumptions
 
@@ -32,6 +37,8 @@ List the current thesis in one sentence, copied or tightly derived from the late
 | Incumbent | Who can copy or block this? |
 | Compliance | What law, ToS, privacy, or platform rule can break it? |
 | Alternative | What substitute or non-product explanation could explain the signal? |
+| Implied expectation reverse-check | What current action, price, adoption, dependency, or strategy assumption must be true? |
+| Constraint branch | What recommendation changes for different user states, budgets, horizons, reversibility, or risk tolerance? |
 | Falsifier | What evidence would make us stop? |
 
 Mark each answer as strong, weak, or unknown.
@@ -48,6 +55,8 @@ Run five short persona judgments. Each persona must give a verdict and one sente
 
 Use `support`, `concern`, or `reject` as the persona verdict.
 
+For each useful persona, keep the target function explicit: what that persona optimizes, what evidence they need, and what error they are most likely to make.
+
 ## Step 3: Decision
 
 Choose exactly one:
@@ -61,6 +70,14 @@ Choose exactly one:
 Choose `Narrow`, `Pivot`, or `Kill` when buyer, data, and distribution are all weak or unknown.
 
 Before choosing, check whether an explicit kill criterion was met and whether it applies to the user's original decision frame. If the kill criterion only rejects an exaggerated version of the question, choose `Narrow` or `Pivot` and write the corrected next target instead.
+
+Before choosing, also check:
+
+- Implied expectation reverse-check: which hidden future assumptions remain unsupported?
+- Future facts vs desk-researchable gaps: which uncertainties require time/interviews/experiments, and which can still be reduced by another desk research round?
+- Anti-narrative regularizers: what popular story, user preference, recency signal, or elegant explanation could be overfitting the answer?
+- Constraint-specific recommendation branches: does the best action differ by user state, budget, horizon, reversibility, or risk tolerance?
+- Most conclusion-changing variable: what single variable would most change the next decision if updated?
 
 The `Decision` section's first non-empty line must be exactly one raw label: `Keep`, `Narrow`, `Pivot`, `Kill`, or `Final` (or the selected language equivalent). Put explanation in the surrounding sections, not on the decision line.
 
@@ -125,9 +142,15 @@ Keep / Narrow / Pivot / Kill / Final
 
 ## Round Evidence Quality Gate
 
+- For each framework dimension, record coverage quality, weakest gap, and whether a concrete next evidence target remains.
 - Evidence coverage this round:
 - Framework coverage this round:
 - Weakest evidence or framework dimensions:
+- Implied expectation reverse-check:
+- future facts vs desk-researchable gaps:
+- Anti-narrative regularizers:
+- Constraint-specific recommendation branches:
+- Most conclusion-changing variable:
 - Continue / stop implication:
 - Next-round focus:
 

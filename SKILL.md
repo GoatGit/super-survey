@@ -40,6 +40,8 @@ Empty templates are not artifacts. A round is incomplete until each file contain
 
 `index.md` is the per-round workbench, navigation page, and decision log. Reserve `report.md` for the final complete deliverable: a full standalone report in the selected artifact language, written only after the stop gate passes and before the user-facing answer. During continuing rounds, update `index.md` for progress, decisions, and next targets.
 
+Use front-loaded guidance to improve research quality before the agent starts collecting evidence. Do not compensate for weak research by raising after-the-fact thresholds. The brief and round templates should surface decision-critical variables, minimum direct evidence, implied-expectation reverse-checks, constraint-specific recommendation branches, and anti-narrative regularizers early enough to guide source selection and synthesis.
+
 ## Workflow
 
 ### Optional Companion Skills
@@ -166,7 +168,7 @@ Write `00-brief.md` with:
 - Research framework with explicit dimensions and one `###` subsection per dimension
 - Decision evidence standard
 - Decision frame integrity
-- Decision Optimization Contract: original question, reconstructed objective function, candidate actions, wait/continue option, constraints, success/failure criteria, opportunity cost, reversibility, implied expectations, and decision-changing evidence
+- Decision Optimization Contract: original question, reconstructed objective function, candidate actions, wait/continue option, constraints, success/failure criteria, opportunity cost, reversibility, implied expectations, implied-expectation reverse-check, decision-critical variables, minimum direct evidence, constraint-specific recommendations, anti-narrative regularizers, and decision-changing evidence
 - Target user/customer
 - Success criteria
 - Disqualifying conditions
@@ -214,6 +216,16 @@ NN-evolver.md
 index.md
 ```
 
+These files may be scaffolded together, but their content has a strict artifact dependency order:
+
+1. `NN-research.md`: write evidence, registry changes, framework coverage, direct evidence gaps, and source quality first.
+2. `NN-brainstorm.md`: complete after `NN-research.md`; compare next evidence moves and reframes based on written research findings.
+3. `NN-redteam.md`: complete after research and brainstorming; attack the strongest current argument, substitutes, hidden assumptions, and anti-narrative regularizers.
+4. `NN-synthesis.md`: complete after red-team critique; synthesize evidence, sensitivities, implied expectations, constraint-specific recommendation branches, scenarios, and decision impact.
+5. `NN-evolver.md`: complete after synthesis; decide Keep / Narrow / Pivot / Kill / Final and name the next-round target or finalization rationale.
+
+The artifact dependency order matters because downstream files should cite upstream content already written to disk. They should not predict the final answer, pre-fill the stop decision, or invent a red-team result before the evidence pass exists.
+
 For quick mode, a single `NN-round.md` can replace the five split round artifacts when it contains the same essential thinking: research question, evidence and sources, brainstorming checkpoint, red-team challenge, synthesis, raw decision, and next step.
 
 `NN-research.md` should contain:
@@ -221,7 +233,7 @@ For quick mode, a single `NN-round.md` can replace the five split round artifact
 - Research question for this round
 - Source registry updates by `source_id`; `sources.jsonl` remains the canonical source list
 - Claim and evidence notes by `claim_id` / `evidence_id`; `claims.jsonl` and `evidence.jsonl` remain the canonical evidence registry
-- Framework coverage: one `### <framework dimension>` subsection per brief-defined dimension, covering findings, evidence IDs, contradictions, confidence, and next evidence target
+- Framework coverage: one `### <framework dimension>` subsection per brief-defined dimension, covering findings, source role, minimum direct evidence, evidence IDs, contradictions, confidence, decision-critical variables tested, and next evidence target
 - Notes on data quality, freshness, and whether Tavily or a fallback search path was used
 
 `NN-brainstorm.md` should contain:
@@ -230,6 +242,8 @@ For quick mode, a single `NN-round.md` can replace the five split round artifact
 - Current framing after the research pass
 - Clarifying questions or explicit assumptions
 - Candidate next moves organized under one `### <framework dimension>` subsection per brief-defined dimension
+- Multi-start perspective notes: each useful role should state its target function, needed evidence, and most likely error
+- The decision-critical uncertainty that the next evidence move would reduce
 - Preferred exploration path, not a final continue/stop decision
 - Design notes for the next round
 
@@ -239,6 +253,7 @@ For quick mode, a single `NN-round.md` can replace the five split round artifact
 - Better-funded incumbent response
 - Alternative explanations or substitutes
 - Data, legal, distribution, trust, and monetization risks
+- Anti-narrative regularizers: what popular narrative, user preference, recent signal, or easy story could be overfitting the answer
 - Kill criteria checked
 - Reasons users may not care
 - What would make the thesis false
@@ -249,7 +264,9 @@ For quick mode, a single `NN-round.md` can replace the five split round artifact
 - Confidence: low / medium / high
 - Decision rationale: why the recommendation follows from the evidence
 - Framework-based synthesis: one `### <framework dimension>` subsection per brief-defined dimension, then strongest dimensions, weakest dimensions, cross-dimension judgment, framework gaps affecting confidence, action attractiveness vs object quality, Bayesian update, and decision tree
-- Sensitivity And Counterfactuals: key variables, current assumptions, favorable/adverse counterfactuals, evidence needed, and decision impact
+- Sensitivity And Counterfactuals: key variables, the most conclusion-changing variable, current assumptions, favorable/adverse counterfactuals, evidence needed, desk-researchable gaps, and decision impact
+- Implied-expectation reverse-check: what current action, price, choice, adoption, or commitment already assumes, and what direct evidence would have to support those expectations
+- Constraint-specific recommendation branches: what changes for different budgets, horizons, risk tolerance, existing exposure, team capacity, reversibility, or other user/context states
 - What changed from prior round
 - Best next question
 - Recommended next action
@@ -345,6 +362,9 @@ Use these checks across domains:
 - Sensitivity analysis: name the assumptions that would change the conclusion if they were false.
 - Bayesian update: state what evidence would raise, lower, or falsify confidence in the current thesis.
 - Decision tree: when facts are uncertain, express recommendations as conditional branches rather than one overconfident path.
+- Implied-expectation reverse-check: infer what the current action, price, adoption, architecture, dependency, or strategic choice already assumes, then ask what evidence would need to be true for those assumptions to hold.
+- Anti-narrative regularization: name the popular story, user preference, recency effect, or elegant explanation that could overfit the answer, then keep it as a penalty term in red-team and synthesis.
+- Constraint-specific recommendations: branch advice by the decision-maker's context when constraints differ, such as already committed vs not committed, high vs low reversibility, limited vs flexible budget, or short vs long horizon.
 
 For example, do not turn "is this stock a buy opportunity over the next six months?" into "prove the stock will definitely rise" or "reject it unless immediate heavy buying is justified." The reframed objective should preserve the user's actual decision and stakes.
 
@@ -355,7 +375,7 @@ For high-stakes work, make the final recommendation conditional: if the key favo
 - Probe questions and answers
 - Persona judgments
 - Keep / Narrow / Pivot / Kill / Final decision
-- Round evidence quality gate: one `### <framework dimension>` subsection per brief-defined dimension, then evidence coverage, weakest dimensions, implied expectation check, decision tree triggers, Bayesian update needed, Kill scope, original question still open, continue/stop implication, and next-round focus
+- Round evidence quality gate: one `### <framework dimension>` subsection per brief-defined dimension, then evidence coverage, weakest dimensions, implied expectation check and reverse-check, future facts vs desk-researchable gaps, anti-narrative regularizers, decision tree triggers, Bayesian update needed, Kill scope, original question still open, continue/stop implication, and next-round focus
 - Next-round target
 - Evidence needed next
 

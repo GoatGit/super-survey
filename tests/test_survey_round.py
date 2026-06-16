@@ -285,6 +285,63 @@ Can this target customer pay for this workflow?
         self.assertIn("Objective reconstruction quality", index)
         self.assertIn("User-frame challenge quality", index)
 
+    def test_templates_frontload_decision_critical_evidence_guidance(self) -> None:
+        survey_dir = self.init_round()
+
+        brief = (survey_dir / "00-brief.md").read_text(encoding="utf-8")
+        research = (survey_dir / "01-research.md").read_text(encoding="utf-8")
+        brainstorm = (survey_dir / "01-brainstorm.md").read_text(encoding="utf-8")
+        synthesis = (survey_dir / "01-synthesis.md").read_text(encoding="utf-8")
+        evolver = (survey_dir / "01-evolver.md").read_text(encoding="utf-8")
+
+        self.assertIn("Decision-critical variables", brief)
+        self.assertIn("Minimum direct evidence", brief)
+        self.assertIn("Source role", research)
+        self.assertIn("Dynamic source reproducibility", research)
+        self.assertIn("decision-critical uncertainty", brainstorm)
+        self.assertIn("desk-researchable gaps", synthesis)
+        self.assertIn("future facts vs desk-researchable gaps", evolver)
+
+    def test_templates_strengthen_weak_anti_sycophancy_methods(self) -> None:
+        survey_dir = self.init_round()
+
+        brief = (survey_dir / "00-brief.md").read_text(encoding="utf-8")
+        research = (survey_dir / "01-research.md").read_text(encoding="utf-8")
+        brainstorm = (survey_dir / "01-brainstorm.md").read_text(encoding="utf-8")
+        redteam = (survey_dir / "01-redteam.md").read_text(encoding="utf-8")
+        synthesis = (survey_dir / "01-synthesis.md").read_text(encoding="utf-8")
+        evolver = (survey_dir / "01-evolver.md").read_text(encoding="utf-8")
+
+        self.assertIn("Implied expectation reverse-check", brief)
+        self.assertIn("Current action, price, or choice implies", brief)
+        self.assertIn("Constraint-specific recommendations", brief)
+        self.assertIn("Anti-narrative regularizers", brief)
+        self.assertIn("narrative, user preference, or recent signal", brief)
+        self.assertIn("Minimum direct evidence", research)
+        self.assertIn("Perspective target function", brainstorm)
+        self.assertIn("most likely error", brainstorm)
+        self.assertIn("Anti-narrative regularizers", redteam)
+        self.assertIn("Most conclusion-changing variable", synthesis)
+        self.assertIn("Constraint-specific recommendation branches", synthesis)
+        self.assertIn("Implied expectation reverse-check", synthesis)
+        self.assertIn("Anti-narrative regularizers", evolver)
+
+    def test_round_templates_make_content_dependency_order_explicit(self) -> None:
+        survey_dir = self.init_round()
+
+        research = (survey_dir / "01-research.md").read_text(encoding="utf-8")
+        brainstorm = (survey_dir / "01-brainstorm.md").read_text(encoding="utf-8")
+        redteam = (survey_dir / "01-redteam.md").read_text(encoding="utf-8")
+        synthesis = (survey_dir / "01-synthesis.md").read_text(encoding="utf-8")
+        evolver = (survey_dir / "01-evolver.md").read_text(encoding="utf-8")
+
+        self.assertIn("Content dependency order", research)
+        self.assertIn("Complete this first", research)
+        self.assertIn("Complete after 01-research.md", brainstorm)
+        self.assertIn("Complete after 01-research.md and 01-brainstorm.md", redteam)
+        self.assertIn("Complete after 01-research.md, 01-brainstorm.md, and 01-redteam.md", synthesis)
+        self.assertIn("Complete after 01-synthesis.md", evolver)
+
     def test_docs_describe_anti_sycophancy_and_local_optimum_checks(self) -> None:
         docs = {
             "README.md": (ROOT / "README.md").read_text(encoding="utf-8"),
@@ -310,6 +367,33 @@ Can this target customer pay for this workflow?
         self.assertIn("Anti-sycophancy / objective-function integrity", docs["README.md"])
         self.assertIn("反谄媚 / 目标函数完整性", docs["README.zh-CN.md"])
         self.assertIn("反シコファンシー / 目的関数の整合性", docs["README.ja.md"])
+
+    def test_docs_prefer_front_loaded_guidance_over_harder_thresholds(self) -> None:
+        docs = {
+            "README.md": (ROOT / "README.md").read_text(encoding="utf-8"),
+            "README.zh-CN.md": (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
+            "README.ja.md": (ROOT / "README.ja.md").read_text(encoding="utf-8"),
+            "SKILL.md": (ROOT / "SKILL.md").read_text(encoding="utf-8"),
+            "references/research-quality.md": (ROOT / "references" / "research-quality.md").read_text(encoding="utf-8"),
+        }
+
+        self.assertIn("front-loaded guidance", docs["README.md"])
+        self.assertIn("事前引导", docs["README.zh-CN.md"])
+        self.assertIn("事前ガイダンス", docs["README.ja.md"])
+        self.assertIn("Do not compensate for weak research by raising after-the-fact thresholds", docs["SKILL.md"])
+        self.assertIn("decision-critical variables", docs["references/research-quality.md"])
+        self.assertIn("artifact dependency order", docs["SKILL.md"])
+        self.assertIn("Implied expectation reverse-check", docs["references/research-quality.md"])
+        self.assertIn("Anti-narrative regularizers", docs["references/research-quality.md"])
+
+    def test_lightweight_evolver_reference_includes_strengthened_methods(self) -> None:
+        evolver_ref = (ROOT / "references" / "lightweight-evolver.md").read_text(encoding="utf-8")
+
+        self.assertIn("artifact dependency order", evolver_ref)
+        self.assertIn("Implied expectation reverse-check", evolver_ref)
+        self.assertIn("future facts vs desk-researchable gaps", evolver_ref)
+        self.assertIn("Anti-narrative regularizers", evolver_ref)
+        self.assertIn("constraint-specific recommendation branches", evolver_ref)
 
     def test_readmes_frame_super_survey_as_decision_optimization(self) -> None:
         readme_en = (ROOT / "README.md").read_text(encoding="utf-8")

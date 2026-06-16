@@ -328,7 +328,12 @@ LABELS = {
             "- Selected framework:\n"
             "- Dimensions to cover:\n"
             "- Why this framework fits the decision:\n"
-            "- Dimensions intentionally out of scope:"
+            "- Dimensions intentionally out of scope:\n"
+            "- Decision-critical variables:\n"
+            "- Minimum direct evidence:\n"
+            "- Implied expectation reverse-check:\n"
+            "- Constraint-specific recommendations:\n"
+            "- Anti-narrative regularizers:"
         ),
         "framework_dimension_map_note": (
             "- After listing dimensions, add `### <framework dimension>` for every dimension and write the core question, evidence needed, and current weakness or boundary."
@@ -340,20 +345,33 @@ LABELS = {
             "- Next evidence target from framework gaps:"
         ),
         "framework_round_coverage_note": (
-            "- For each dimension from 00-brief.md, add `### <framework dimension>` and write findings, evidence IDs, contradictions, confidence, and next evidence need."
+            "- For each dimension from 00-brief.md, add `### <framework dimension>` and write findings, evidence IDs, contradictions, confidence, and next evidence need.\n"
+            "- Source role:\n"
+            "- Minimum direct evidence:\n"
+            "- Dynamic source reproducibility:\n"
+            "- Decision-critical variables tested:"
         ),
         "framework_brainstorm_note": (
-            "- For each dimension from 00-brief.md, add `### <framework dimension>` and compare possible next evidence moves or reframes."
+            "- For each dimension from 00-brief.md, add `### <framework dimension>` and compare possible next evidence moves or reframes.\n"
+            "- decision-critical uncertainty:\n"
+            "- Perspective target function:\n"
+            "- Perspective evidence need:\n"
+            "- Perspective most likely error:"
         ),
         "framework_redteam_note": (
-            "- For each dimension from 00-brief.md, add `### <framework dimension>` and write the strongest objection, alternative explanation, falsification test, and decision implication."
+            "- For each dimension from 00-brief.md, add `### <framework dimension>` and write the strongest objection, alternative explanation, falsification test, and decision implication.\n"
+            "- Anti-narrative regularizers:"
         ),
         "framework_synthesis_note": (
             "- Strongest dimensions:\n"
             "- Weakest dimensions:\n"
             "- Cross-dimension judgment:\n"
             "- Framework gaps that affect confidence:\n"
+            "- desk-researchable gaps:\n"
             "- Action attractiveness vs object quality:\n"
+            "- Implied expectation reverse-check:\n"
+            "- Constraint-specific recommendation branches:\n"
+            "- Anti-narrative regularizers:\n"
             "- Bayesian update:\n"
             "- Decision tree:"
         ),
@@ -362,6 +380,7 @@ LABELS = {
         ),
         "sensitivity_counterfactual_note": (
             "- Key variable:\n"
+            "- Most conclusion-changing variable:\n"
             "- Current assumption:\n"
             "- If better:\n"
             "- If worse:\n"
@@ -371,9 +390,18 @@ LABELS = {
         "framework_evolver_gate_note": (
             "- For each dimension from 00-brief.md, add `### <framework dimension>` and record coverage quality, weakest gap, and whether a concrete next evidence target remains.\n"
             "- Implied expectation check:\n"
+            "- Implied expectation reverse-check:\n"
+            "- future facts vs desk-researchable gaps:\n"
+            "- Anti-narrative regularizers:\n"
             "- Decision tree triggers:\n"
             "- Bayesian update needed:"
         ),
+        "artifact_dependency_markers": [
+            "Content dependency order:",
+            "Complete this first",
+            "Complete after",
+            "Scaffold files may be created together",
+        ],
         "evolver_quality_gate_notes": [
             "Evidence coverage this round:",
             "Framework coverage this round:",
@@ -415,6 +443,13 @@ LABELS = {
             "- Opportunity cost:\n"
             "- Reversibility:\n"
             "- Implied expectations:\n"
+            "- Implied expectation reverse-check:\n"
+            "- Current action, price, or choice implies:\n"
+            "- Evidence required for those expectations:\n"
+            "- Decision-critical variables:\n"
+            "- Minimum direct evidence:\n"
+            "- Constraint-specific recommendations:\n"
+            "- Anti-narrative regularizers: check whether a narrative, user preference, or recent signal is overfitting the answer.\n"
             "- Decision-changing evidence:"
         ),
         "evolver_decision_note": (
@@ -626,7 +661,12 @@ LABELS = {
             "- 选定框架：\n"
             "- 需要覆盖的维度：\n"
             "- 为什么该框架适合本决策：\n"
-            "- 有意排除的维度："
+            "- 有意排除的维度：\n"
+            "- 决策关键变量：\n"
+            "- 最低直接证据：\n"
+            "- 隐含预期反推：\n"
+            "- 按约束分层建议：\n"
+            "- 反叙事正则项："
         ),
         "framework_dimension_map_note": (
             "- 列出维度后，为每个维度添加 `### <框架维度>`，并写明核心问题、所需证据、当前薄弱点或边界。"
@@ -638,20 +678,33 @@ LABELS = {
             "- 由框架缺口导出的下一步证据目标："
         ),
         "framework_round_coverage_note": (
-            "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并写明发现、证据 ID、矛盾证据、置信度和下一步证据需求。"
+            "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并写明发现、证据 ID、矛盾证据、置信度和下一步证据需求。\n"
+            "- 来源角色：\n"
+            "- 最低直接证据：\n"
+            "- 动态来源可复现性：\n"
+            "- 已测试的决策关键变量："
         ),
         "framework_brainstorm_note": (
-            "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并比较可能的下一步证据动作或问题重构。"
+            "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并比较可能的下一步证据动作或问题重构。\n"
+            "- 决策关键不确定性：\n"
+            "- 视角目标函数：\n"
+            "- 视角所需证据：\n"
+            "- 该视角最可能犯的错误："
         ),
         "framework_redteam_note": (
-            "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并写明最强反对意见、替代解释、证伪测试和决策影响。"
+            "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并写明最强反对意见、替代解释、证伪测试和决策影响。\n"
+            "- 反叙事正则项："
         ),
         "framework_synthesis_note": (
             "- 最强维度：\n"
             "- 最弱维度：\n"
             "- 跨维度综合判断：\n"
             "- 影响置信度的框架缺口：\n"
+            "- 可通过桌面研究缩小的缺口：\n"
             "- 行动吸引力 vs 对象质量：\n"
+            "- 隐含预期反推：\n"
+            "- 按约束分层的建议分支：\n"
+            "- 反叙事正则项：\n"
             "- 贝叶斯更新：\n"
             "- 决策树："
         ),
@@ -660,6 +713,7 @@ LABELS = {
         ),
         "sensitivity_counterfactual_note": (
             "- 关键变量：\n"
+            "- 最能改变结论的变量：\n"
             "- 当前假设：\n"
             "- 如果更好：\n"
             "- 如果更差：\n"
@@ -669,9 +723,18 @@ LABELS = {
         "framework_evolver_gate_note": (
             "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并记录覆盖质量、最弱缺口，以及是否仍有具体下一步证据目标。\n"
             "- 隐含预期检查：\n"
+            "- 隐含预期反推：\n"
+            "- 未来事实 vs 可通过桌面研究缩小的缺口：\n"
+            "- 反叙事正则项：\n"
             "- 决策树触发条件：\n"
             "- 是否需要贝叶斯更新："
         ),
+        "artifact_dependency_markers": [
+            "内容依赖顺序：",
+            "先完成",
+            "在上游文件完成后",
+            "脚手架文件可以一次创建",
+        ],
         "evolver_quality_gate_notes": [
             "本轮证据覆盖：",
             "本轮框架覆盖：",
@@ -713,6 +776,13 @@ LABELS = {
             "- 机会成本：\n"
             "- 可逆性：\n"
             "- 隐含预期：\n"
+            "- 隐含预期反推：\n"
+            "- 当前行动、价格或选择隐含：\n"
+            "- 这些预期需要的证据：\n"
+            "- 决策关键变量：\n"
+            "- 最低直接证据：\n"
+            "- 按约束分层建议：\n"
+            "- 反叙事正则项：检查叙事、用户偏好或近期信号是否让答案过拟合。\n"
             "- 能改变决策的证据："
         ),
         "evolver_decision_note": (
@@ -908,7 +978,12 @@ LABELS = {
             "- 選択したフレームワーク:\n"
             "- 網羅すべき次元:\n"
             "- この判断に適している理由:\n"
-            "- 意図的に対象外とした次元:"
+            "- 意図的に対象外とした次元:\n"
+            "- 判断に重要な変数:\n"
+            "- 最低限の直接証拠:\n"
+            "- 暗黙期待の逆算チェック:\n"
+            "- 制約別の推奨分岐:\n"
+            "- 反ナラティブ正則化:"
         ),
         "framework_dimension_map_note": (
             "- 次元を列挙した後、各次元に `### <フレームワーク次元>` を追加し、中心問い、必要な証拠、現在の弱点または範囲を記載する。"
@@ -920,20 +995,33 @@ LABELS = {
             "- フレームワーク上の欠落から導く次の証拠目標:"
         ),
         "framework_round_coverage_note": (
-            "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、発見、証拠 ID、矛盾、信頼度、次に必要な証拠を記載する。"
+            "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、発見、証拠 ID、矛盾、信頼度、次に必要な証拠を記載する。\n"
+            "- 情報源の役割:\n"
+            "- 最低限の直接証拠:\n"
+            "- 動的情報源の再現性:\n"
+            "- 検証した判断重要変数:"
         ),
         "framework_brainstorm_note": (
-            "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、次の証拠取得や問いの再定義の候補を比較する。"
+            "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、次の証拠取得や問いの再定義の候補を比較する。\n"
+            "- 判断に重要な不確実性:\n"
+            "- 視点ごとの目的関数:\n"
+            "- 視点ごとに必要な証拠:\n"
+            "- その視点が最も犯しやすい誤り:"
         ),
         "framework_redteam_note": (
-            "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、最も強い反論、代替説明、反証テスト、判断への影響を記載する。"
+            "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、最も強い反論、代替説明、反証テスト、判断への影響を記載する。\n"
+            "- 反ナラティブ正則化:"
         ),
         "framework_synthesis_note": (
             "- 最も強い次元:\n"
             "- 最も弱い次元:\n"
             "- 次元横断の統合判断:\n"
             "- 信頼度に影響するフレームワーク上の欠落:\n"
+            "- デスク調査で縮小できる欠落:\n"
             "- 行動の魅力度 vs 対象の品質:\n"
+            "- 暗黙期待の逆算チェック:\n"
+            "- 制約別の推奨分岐:\n"
+            "- 反ナラティブ正則化:\n"
             "- ベイズ更新:\n"
             "- 意思決定ツリー:"
         ),
@@ -942,6 +1030,7 @@ LABELS = {
         ),
         "sensitivity_counterfactual_note": (
             "- 主要変数:\n"
+            "- 結論を最も変える変数:\n"
             "- 現在の仮定:\n"
             "- 良い方向に外れた場合:\n"
             "- 悪い方向に外れた場合:\n"
@@ -951,9 +1040,18 @@ LABELS = {
         "framework_evolver_gate_note": (
             "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、網羅品質、最も弱い欠落、具体的な次回証拠目標の有無を記録する。\n"
             "- 暗黙の期待値チェック:\n"
+            "- 暗黙期待の逆算チェック:\n"
+            "- 将来事実 vs デスク調査で縮小できる欠落:\n"
+            "- 反ナラティブ正則化:\n"
             "- 意思決定ツリーのトリガー:\n"
             "- ベイズ更新の必要性:"
         ),
+        "artifact_dependency_markers": [
+            "内容の依存順序:",
+            "最初に完了",
+            "完了後に作成",
+            "足場ファイルはまとめて作成可能",
+        ],
         "evolver_quality_gate_notes": [
             "今回の証拠網羅:",
             "今回のフレームワーク網羅:",
@@ -995,6 +1093,13 @@ LABELS = {
             "- 機会費用:\n"
             "- 可逆性:\n"
             "- 暗黙の期待値:\n"
+            "- 暗黙期待の逆算チェック:\n"
+            "- 現在の行動、価格、選択が示唆する前提:\n"
+            "- その期待に必要な証拠:\n"
+            "- 判断に重要な変数:\n"
+            "- 最低限の直接証拠:\n"
+            "- 制約別の推奨分岐:\n"
+            "- 反ナラティブ正則化: ナラティブ、ユーザー選好、直近シグナルが答えを過剰適合させていないか確認する。\n"
             "- 判断を変える証拠:"
         ),
         "evolver_decision_note": (
@@ -1223,6 +1328,10 @@ def is_substantive_line(line: str, language: str) -> bool:
     placeholders = placeholder_values(language)
     if not stripped or stripped.startswith("#") or stripped in placeholders:
         return False
+    dependency_candidate = stripped[2:].strip() if stripped.startswith("- ") else stripped
+    for marker in labels(language).get("artifact_dependency_markers", []):
+        if dependency_candidate.startswith(str(marker)):
+            return False
     if stripped in structural_values(language):
         return False
     if stripped.startswith("- ") and stripped[2:].strip() in structural_values(language):
@@ -1898,6 +2007,79 @@ def round_title(label: dict[str, object], round_number: int, suffix: str) -> str
     return f"{label['round']}{round_number}{suffix}"
 
 
+def artifact_dependency_note(language: str, stage: str, prefix: str) -> str:
+    if language == "zh":
+        notes = {
+            "research": (
+                "- 内容依赖顺序：脚手架文件可以一次创建，但内容必须按 research -> brainstorm -> redteam -> synthesis -> evolver 顺序完成。\n"
+                "- 先完成本文件；下游文件只引用已经写入的研究发现、证据登记和框架覆盖。"
+            ),
+            "brainstorm": (
+                f"- 内容依赖顺序：在上游文件完成后再填写。\n"
+                f"- 在上游文件完成后填写：Complete after {prefix}-research.md。"
+            ),
+            "redteam": (
+                f"- 内容依赖顺序：在上游文件完成后再填写。\n"
+                f"- 在上游文件完成后填写：Complete after {prefix}-research.md and {prefix}-brainstorm.md。"
+            ),
+            "synthesis": (
+                f"- 内容依赖顺序：在上游文件完成后再填写。\n"
+                f"- 在上游文件完成后填写：Complete after {prefix}-research.md, {prefix}-brainstorm.md, and {prefix}-redteam.md。"
+            ),
+            "evolver": (
+                f"- 内容依赖顺序：在上游文件完成后再填写。\n"
+                f"- 在上游文件完成后填写：Complete after {prefix}-synthesis.md。"
+            ),
+        }
+    elif language == "ja":
+        notes = {
+            "research": (
+                "- 内容の依存順序: 足場ファイルはまとめて作成可能だが、内容は research -> brainstorm -> redteam -> synthesis -> evolver の順で完成させる。\n"
+                "- 最初に完了するファイル。下流ファイルは、すでに書かれた調査発見、証拠レジストリ、フレームワーク網羅だけを参照する。"
+            ),
+            "brainstorm": (
+                f"- 内容の依存順序: 完了後に作成する。\n"
+                f"- 完了後に作成: Complete after {prefix}-research.md。"
+            ),
+            "redteam": (
+                f"- 内容の依存順序: 完了後に作成する。\n"
+                f"- 完了後に作成: Complete after {prefix}-research.md and {prefix}-brainstorm.md。"
+            ),
+            "synthesis": (
+                f"- 内容の依存順序: 完了後に作成する。\n"
+                f"- 完了後に作成: Complete after {prefix}-research.md, {prefix}-brainstorm.md, and {prefix}-redteam.md。"
+            ),
+            "evolver": (
+                f"- 内容の依存順序: 完了後に作成する。\n"
+                f"- 完了後に作成: Complete after {prefix}-synthesis.md。"
+            ),
+        }
+    else:
+        notes = {
+            "research": (
+                "- Content dependency order: Scaffold files may be created together, but fill content in research -> brainstorm -> redteam -> synthesis -> evolver order.\n"
+                "- Complete this first; downstream files should cite only written research findings, registry updates, and framework coverage."
+            ),
+            "brainstorm": (
+                f"- Content dependency order: Scaffold files may be created together, but fill content only after upstream files exist.\n"
+                f"- Complete after {prefix}-research.md."
+            ),
+            "redteam": (
+                f"- Content dependency order: Scaffold files may be created together, but fill content only after upstream files exist.\n"
+                f"- Complete after {prefix}-research.md and {prefix}-brainstorm.md."
+            ),
+            "synthesis": (
+                f"- Content dependency order: Scaffold files may be created together, but fill content only after upstream files exist.\n"
+                f"- Complete after {prefix}-research.md, {prefix}-brainstorm.md, and {prefix}-redteam.md."
+            ),
+            "evolver": (
+                f"- Content dependency order: Scaffold files may be created together, but fill content only after upstream files exist.\n"
+                f"- Complete after {prefix}-synthesis.md."
+            ),
+        }
+    return notes[stage]
+
+
 def create_quick_round_template(survey_dir: Path, label: dict[str, object], round_number: int, prefix: str) -> None:
     headings = label["quick_round_headings"]
     write_once(
@@ -1965,6 +2147,8 @@ def create_round(args: argparse.Namespace) -> None:
         survey_dir / f"{prefix}-research.md",
         f"""# {round_title(label, int(args.round), str(label['research']))}
 
+{artifact_dependency_note(language, "research", prefix)}
+
 ## {headings[0]}
 
 - 
@@ -1996,6 +2180,8 @@ def create_round(args: argparse.Namespace) -> None:
     write_once(
         survey_dir / f"{prefix}-brainstorm.md",
         f"""# {round_title(label, int(args.round), str(label['brainstorm']))}
+
+{artifact_dependency_note(language, "brainstorm", prefix)}
 
 ## {headings[0]}
 
@@ -2031,6 +2217,8 @@ def create_round(args: argparse.Namespace) -> None:
     write_once(
         survey_dir / f"{prefix}-redteam.md",
         f"""# {round_title(label, int(args.round), str(label['redteam']))}
+
+{artifact_dependency_note(language, "redteam", prefix)}
 
 ## {headings[0]}
 
@@ -2073,6 +2261,8 @@ def create_round(args: argparse.Namespace) -> None:
     write_once(
         survey_dir / f"{prefix}-synthesis.md",
         f"""# {round_title(label, int(args.round), str(label['synthesis']))}
+
+{artifact_dependency_note(language, "synthesis", prefix)}
 
 ## {headings[0]}
 
@@ -2119,6 +2309,8 @@ def create_round(args: argparse.Namespace) -> None:
     write_once(
         survey_dir / f"{prefix}-evolver.md",
         f"""# {round_title(label, int(args.round), str(label['evolver']))}
+
+{artifact_dependency_note(language, "evolver", prefix)}
 
 ## {headings[0]}
 

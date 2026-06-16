@@ -37,6 +37,7 @@ Treat the user's question as the initial point, not the objective function. Befo
 - Restate the real decision objective and list competing objectives.
 - Write a Decision Optimization Contract: original question, reconstructed objective function, candidate actions, wait/continue option, constraints, success/failure criteria, opportunity cost, reversibility, implied expectations, and decision-changing evidence.
 - Name what the survey should not optimize for, such as pleasing the user, proving an initial hunch, or rejecting an exaggerated version of the question.
+- Use front-loaded guidance before source collection: define decision-critical variables, minimum direct evidence, implied-expectation reverse-checks, constraint-specific recommendation branches, and anti-narrative regularizers in the brief or round templates.
 - Generate multiple plausible explanations before selecting a thesis.
 - Test sensitivity: which assumptions would change the conclusion if false?
 - Use a decision tree when the facts are still uncertain: if A is true, recommend one path; if B is true, recommend another.
@@ -58,6 +59,11 @@ The contract turns an open-ended prompt into an explicit optimization problem be
 - Success/failure criteria: what would make the decision good or bad.
 - Opportunity cost and reversibility: what acting now displaces and how hard it is to undo.
 - Implied expectations: what must already be true for the candidate action to be attractive.
+- Implied expectation reverse-check: infer what current action, price, adoption, dependency, architecture, or strategy already assumes, then ask what direct evidence would have to support those assumptions.
+- Decision-critical variables: the small set of variables that can actually flip the recommendation.
+- Minimum direct evidence: the evidence that must be observed directly, not only inferred from a narrative or secondary summary.
+- Constraint-specific recommendations: how the recommendation changes for different user states, budgets, horizons, risk tolerance, existing exposure, team capacity, or reversibility.
+- Anti-narrative regularizers: explicit penalties against overfitting a popular story, user preference, recent signal, elegant explanation, or consensus narrative.
 - Decision-changing evidence: what evidence would materially move the recommendation.
 
 This is a generic research control, not a securities-specific model. It applies equally to products, markets, technical choices, open-source adoption, diligence, and custom strategy questions.
@@ -95,6 +101,43 @@ Ask what must already be true for the current action to be attractive. Examples:
 
 If implied expectations are aggressive, the report should show what evidence would need to beat those expectations.
 
+### Implied Expectation Reverse-Check
+
+Use this when the decision has a visible price, cost, adoption level, user demand signal, dependency commitment, architecture choice, or strategic path. Work backward:
+
+1. What does the current action, price, or choice imply about the future?
+2. Which implied assumptions are strongest, weakest, or most fragile?
+3. What minimum direct evidence would need to exist for those assumptions to be reasonable?
+4. Which assumptions are only narratives, analogies, or extrapolations?
+
+The reverse-check is domain-generic. In product research it may reveal aggressive retention or distribution assumptions. In technical research it may reveal hidden reliability or maintenance assumptions. In open-source research it may reveal assumptions about maintainer health or ecosystem stability. In diligence research it may reveal growth, margin, policy, or opportunity-cost assumptions.
+
+### Anti-Narrative Regularizers
+
+Regularization means reducing overfit. In research, overfit often comes from a compelling story rather than too many model parameters. Add a small explicit "penalty" against:
+
+- the user's preferred answer
+- recent market or community excitement
+- one charismatic source or founder narrative
+- a technically elegant but operationally fragile solution
+- a consensus story with thin direct evidence
+- a convenient conclusion that makes the round easier to stop
+
+Use the regularizer in `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md`: name the narrative, state why it is attractive, state what evidence would keep it valid, and state what would make it misleading.
+
+### Constraint-Specific Recommendations
+
+Recommendations should reflect the decision-maker's state. When constraints differ, branch the advice instead of pretending one answer fits everyone:
+
+- already committed vs not yet committed
+- high reversibility vs low reversibility
+- short horizon vs long horizon
+- limited budget/time/team capacity vs flexible resources
+- low risk tolerance vs high risk tolerance
+- compliance-sensitive vs experimentation-friendly environment
+
+This keeps the skill general: the same pattern applies to product bets, market entry, technical adoption, open-source dependencies, and diligence.
+
 ### Scenario And Decision Tree
 
 Prefer conditional actions when facts remain uncertain:
@@ -115,6 +158,8 @@ Record this in `NN-synthesis.md` so the round shows which assumptions actually c
 |---|---|---|---|---|---|
 
 Good variables are decision-changing rather than decorative: price/cost, conversion, policy permission, data access, reliability, maintainer health, market timing, budget, user trust, or any custom variable that can flip the action. Counterfactuals should show what happens when the assumption is meaningfully better or worse, not merely restate optimism and risk.
+
+Prefer variables that can change the conclusion. A long list of risks is weaker than one clear "most conclusion-changing variable" plus the evidence needed to move it.
 
 ### Bayesian Update Table
 
@@ -155,6 +200,18 @@ The framework must structure the whole workflow, not just the final `report.md`.
 - `NN-evolver.md`: coverage quality, weakest gap, whether a concrete next evidence target remains, Kill scope, and whether the original question is still open by dimension.
 
 Keep these subsections concise in quick mode. The important rule is structural: the reader should see how each stage reasoned through the framework rather than seeing only a final audit note.
+
+## Artifact Dependency Order
+
+Round files can be scaffolded together by the helper, but their content should be written in order:
+
+1. `NN-research.md` first: evidence, registry updates, source roles, framework coverage, direct-evidence gaps.
+2. `NN-brainstorm.md` after research: candidate next evidence moves, reframes, multi-start perspectives, and each perspective's target function and likely error.
+3. `NN-redteam.md` after brainstorming: strongest objections, substitutes, falsifiers, hidden assumptions, and anti-narrative regularizers.
+4. `NN-synthesis.md` after red-team critique: integrated judgment, sensitivity, implied-expectation reverse-check, constraint branches, scenarios, and decision impact.
+5. `NN-evolver.md` after synthesis: Keep / Narrow / Pivot / Kill / Final, future facts vs desk-researchable gaps, next target, and evidence needed next.
+
+This is not a hard extra gate; it is front-loaded process guidance. The purpose is to stop downstream artifacts from inventing conclusions before upstream evidence and critique exist.
 
 ## Evidence-Driven Framework Refinement
 
