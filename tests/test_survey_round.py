@@ -597,6 +597,26 @@ Can this target customer pay for this workflow?
         self.assertIn("初始直觉很容易导致偏见或不完整信息", readme_zh)
         self.assertNotIn("调研报告是写给人类决策者看的判断报告，不是智能体的任务审计日志", readme_zh)
 
+    def test_readme_opening_emphasizes_principles_paper_and_generality(self) -> None:
+        readme_en = (ROOT / "README.md").read_text(encoding="utf-8")
+        readme_zh = (ROOT / "README.zh-CN.md").read_text(encoding="utf-8")
+        readme_ja = (ROOT / "README.ja.md").read_text(encoding="utf-8")
+
+        self.assertIn("general-purpose research skill", readme_en)
+        self.assertIn("concrete implementation of the paper", readme_en)
+        self.assertIn("two first principles", readme_en)
+        self.assertIn("not a domain-specific stock, product, or open-source template", readme_en)
+
+        self.assertIn("通用调研技能", readme_zh)
+        self.assertIn("这篇论文的具体实现", readme_zh)
+        self.assertIn("两条第一性原理", readme_zh)
+        self.assertIn("不是证券、产品或开源项目的特例模板", readme_zh)
+
+        self.assertIn("汎用調査 skill", readme_ja)
+        self.assertIn("この論文の具体的な実装", readme_ja)
+        self.assertIn("2 つの第一原理", readme_ja)
+        self.assertIn("株式、プロダクト、オープンソース専用のテンプレートではありません", readme_ja)
+
     def test_foundational_anti_sycophancy_paper_is_included(self) -> None:
         paper = ROOT / "如何拒绝AI谄媚人类.md"
 

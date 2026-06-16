@@ -2,7 +2,11 @@
 
 Language: English | [中文](README.zh-CN.md) | [日本語](README.ja.md)
 
-Super Survey is a reusable agent skill for multi-round product, market, technical, open-source, and diligence research. It turns a vague research target into a constrained decision-optimization workflow: first it rebuilds the objective function, constraints, and hidden assumptions; then it uses evidence, red-team critique, synthesis, and a sharper next-round question to produce auditable, readable Markdown reports. It is designed for Skills-compatible agents and can also be used directly through its bundled CLI.
+Super Survey is a general-purpose research skill for agents. It is not a domain-specific stock, product, or open-source template; the same loop can be used for product opportunities, markets, technical feasibility, open-source adoption, diligence, policy, strategy, or any question where a reader needs a grounded judgment rather than a link dump.
+
+The project is a concrete implementation of the paper [如何拒绝AI谄媚人类.md](如何拒绝AI谄媚人类.md). The paper argues that open-ended research should be treated as constrained decision optimization, not direct answer generation. Super Survey turns that idea into a staged workflow: rebuild the objective function, constraints, hidden assumptions, evidence standard, counterarguments, synthesis, and next-round question before producing a final report.
+
+In practical terms, it turns a vague target into a constrained decision-optimization workflow: it rebuilds the objective function before it searches for evidence, then keeps each conclusion provisional until the evidence, red-team critique, synthesis, and evolver decision are written down.
 
 It focuses on three jobs:
 
@@ -12,14 +16,16 @@ It focuses on three jobs:
 
 ## First Principles
 
+Super Survey starts from two first principles:
+
 1. The world is noisy, random, and not reliably predictable; an initial hunch can easily become bias or incomplete information. Every task must avoid the trap of deciding first and then collecting evidence to support the decision.
 2. The user's question is the starting point, not the objective function. Inspect the user's framing, hidden assumptions, and real optimization target before searching for evidence or converging on an answer.
 
-Super Survey favors front-loaded guidance over harder after-the-fact gates: define the objective, constraints, decision-critical variables, minimum direct evidence, implied expectations, and anti-narrative regularizers before the evidence pass begins.
+These principles make the workflow deliberately front-loaded. Before the evidence pass begins, Super Survey defines the objective, constraints, decision-critical variables, minimum direct evidence, implied expectations, and anti-narrative regularizers. The goal is to keep the agent from accepting the prompt's framing too quickly or collecting sources to justify a conclusion it already wants.
 
 ## Theory
 
-The project includes [如何拒绝AI谄媚人类.md](如何拒绝AI谄媚人类.md) as its foundational anti-sycophancy paper. The paper uses an investment example to explain a general rule: open-ended research should be treated as constrained decision optimization, not answer generation. Super Survey generalizes that idea across domains by rebuilding the objective, constraints, implied expectations, counterfactuals, scenarios, and update rules before converging.
+The paper uses an investment example, but the implementation is intentionally broader. Super Survey generalizes its methods across domains: objective reconstruction, constraint modeling, implied-expectation checks, minimum direct evidence, adversarial testing, sensitivity analysis, Bayesian updating, scenarios, decision trees, and prose-first final reports.
 
 ## What It Does
 
