@@ -53,7 +53,7 @@ class SurveyRoundCliTest(unittest.TestCase):
         self.addCleanup(self.temp_dir.cleanup)
         self.root = Path(self.temp_dir.name)
 
-    def init_round(self, language: str = "en", mode: str = "standard") -> Path:
+    def init_survey_dir(self, language: str = "en", mode: str = "standard") -> Path:
         result = run_cli(
             "init",
             "AI recruiting agent",
@@ -68,10 +68,128 @@ class SurveyRoundCliTest(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         survey_dir = Path(result.stdout.strip())
+        return survey_dir
 
+    def init_round(self, language: str = "en", mode: str = "standard") -> Path:
+        survey_dir = self.init_survey_dir(language=language, mode=mode)
         result = run_cli("round", str(survey_dir), "1")
         self.assertEqual(result.returncode, 0, result.stderr)
         return survey_dir
+
+    def write_minimal_stage(self, survey_dir: Path, filename: str) -> None:
+        sections_by_file = {
+            "01-evidence-plan.md": {
+                "Round Decision Target": "Decide whether another evidence pass can materially change the action.",
+                "Decision-Critical Variables": "Policy permissiveness, willingness to pay, and distribution reach can change the decision.",
+                "Minimum Direct Evidence": "Official policy source, direct pricing signal, and at least one substitute comparison.",
+                "Source Plan": "Use official policy pages, competitor pricing pages, and current search for direct signals.",
+                "Disconfirming Evidence": "Policy blocks the workflow, users refuse payment, or substitutes already solve the core job.",
+                "Missing Evidence Handling": "If direct evidence is missing, lower confidence and continue a targeted round.",
+                "Framework Evidence Map": (
+                    "### User Pain\nEvidence needed: direct complaints and repeated workflow signals.\n\n"
+                    "### Workflow Frequency\nEvidence needed: frequency of repeated applications.\n\n"
+                    "### Willingness To Pay\nEvidence needed: direct pricing or paid alternative signals.\n\n"
+                    "### Policy Constraints\nEvidence needed: official ToS or policy source.\n\n"
+                    "### Substitutes\nEvidence needed: credible manual or product alternatives.\n\n"
+                    "### Distribution\nEvidence needed: reachable high-intent channels.\n\n"
+                    "### Implementation Difficulty\nEvidence needed: reliability and data-access constraints."
+                ),
+            },
+            "01-research.md": {
+                "Research Question": "Can current evidence support the next action?",
+                "Source Registry Updates": "S1 records a primary source; sources.jsonl remains canonical.",
+                "Claim And Evidence Notes": "C1/E1 support one directional claim; JSONL remains canonical.",
+                "Framework Coverage": (
+                    "### User Pain\nFinding: repeated workflow signals exist. Evidence IDs: E1. Confidence: medium.\n\n"
+                    "### Workflow Frequency\nFinding: frequency is plausible. Evidence IDs: E1. Confidence: medium.\n\n"
+                    "### Willingness To Pay\nFinding: payment is plausible but unproven. Evidence IDs: E3. Confidence: low.\n\n"
+                    "### Policy Constraints\nFinding: policy can be a veto. Evidence IDs: E2. Confidence: medium.\n\n"
+                    "### Substitutes\nFinding: substitutes are credible. Evidence IDs: E1. Confidence: medium.\n\n"
+                    "### Distribution\nFinding: channels remain speculative. Evidence IDs: E3. Confidence: low.\n\n"
+                    "### Implementation Difficulty\nFinding: reliability remains a build risk. Evidence IDs: E2. Confidence: medium."
+                ),
+                "Findings": "Evidence is directional and leaves policy and payment gaps.",
+                "Data Quality Notes": (
+                    "Current Source Discovery: yes.\n"
+                    "Search Tool Used: tavily-search.\n"
+                    "Tavily Fallback Reason: none.\n"
+                    "Query And Filter Notes: official sources and competitor pricing."
+                ),
+            },
+            "01-brainstorm.md": {
+                "Brainstorming Status": "Completed after the evidence pass.",
+                "Current Framing": "The next move should reduce policy or payment uncertainty.",
+                "Clarifying Questions": "Which evidence gap changes the action most?",
+                "Candidate Next Moves": (
+                    "### User Pain\nNext move: verify severity.\n\n"
+                    "### Workflow Frequency\nNext move: estimate repeated use.\n\n"
+                    "### Willingness To Pay\nNext move: find direct pricing evidence.\n\n"
+                    "### Policy Constraints\nNext move: inspect official terms.\n\n"
+                    "### Substitutes\nNext move: compare manual alternatives.\n\n"
+                    "### Distribution\nNext move: identify high-intent channels.\n\n"
+                    "### Implementation Difficulty\nNext move: bound the narrow build path."
+                ),
+                "Preferred Exploration Path": "Prioritize policy and willingness-to-pay evidence.",
+                "Design Notes For Next Round": "Keep next search narrow and evidence-driven.",
+            },
+            "01-redteam.md": {
+                "Strongest Objections": (
+                    "### User Pain\nObjection: the pain may be convenience-level.\n\n"
+                    "### Workflow Frequency\nObjection: active use may be episodic.\n\n"
+                    "### Willingness To Pay\nObjection: users may not pay.\n\n"
+                    "### Policy Constraints\nObjection: policy can block the core path.\n\n"
+                    "### Substitutes\nObjection: spreadsheets may be good enough.\n\n"
+                    "### Distribution\nObjection: channels may be expensive.\n\n"
+                    "### Implementation Difficulty\nObjection: reliability can break trust."
+                ),
+                "Incumbent Response": "Platforms can restrict the workflow.",
+                "Alternative Explanations Or Substitutes": "Manual trackers may explain current behavior.",
+                "Data And Access Risks": "Access may be unstable.",
+                "Legal, ToS, Privacy, Or Compliance Risks": "Terms may restrict automation.",
+                "Monetization And Distribution Risks": "Payment and acquisition are unproven.",
+                "Kill Criteria Checked": "No final kill criterion yet, but policy remains a veto.",
+                "Falsification Tests": "Stop if policy blocks the core workflow.",
+            },
+            "01-synthesis.md": {
+                "Updated Conclusion": "Continue only if the policy and payment gaps are desk-researchable.",
+                "Confidence": "Medium.",
+                "Decision Rationale": "Demand is plausible, but veto dimensions remain unresolved.",
+                "Framework-Based Synthesis": (
+                    "### User Pain\nJudgment: plausible but not decisive.\n\n"
+                    "### Workflow Frequency\nJudgment: plausible during active periods.\n\n"
+                    "### Willingness To Pay\nJudgment: weak and decision-critical.\n\n"
+                    "### Policy Constraints\nJudgment: veto dimension.\n\n"
+                    "### Substitutes\nJudgment: credible alternatives lower certainty.\n\n"
+                    "### Distribution\nJudgment: still speculative.\n\n"
+                    "### Implementation Difficulty\nJudgment: narrow path needed.\n\n"
+                    "Most conclusion-changing variable: policy permissiveness."
+                ),
+                "Sensitivity And Counterfactuals": "Key variable: policy. If worse, stop; if better, test pricing.",
+                "What Changed": "Policy became the main bottleneck.",
+                "Remaining Unknowns": "Payment and policy remain unresolved.",
+                "Evolved Next Research Target": "Can official policy support a narrow assisted workflow?",
+                "Recommended Next Action": "Run the evolver and choose the next target.",
+            },
+        }
+        sections = sections_by_file[filename]
+        write_markdown(survey_dir / filename, filename.removesuffix(".md"), sections)
+
+    def create_stage_template_snapshots(self) -> dict[str, str]:
+        survey_dir = self.init_round()
+        snapshots = {"01-evidence-plan.md": (survey_dir / "01-evidence-plan.md").read_text(encoding="utf-8")}
+
+        for command, previous_file, current_file in (
+            ("research", "01-evidence-plan.md", "01-research.md"),
+            ("brainstorm", "01-research.md", "01-brainstorm.md"),
+            ("redteam", "01-brainstorm.md", "01-redteam.md"),
+            ("synthesis", "01-redteam.md", "01-synthesis.md"),
+            ("evolve", "01-synthesis.md", "01-evolver.md"),
+        ):
+            self.write_minimal_stage(survey_dir, previous_file)
+            result = run_cli(command, str(survey_dir), "1")
+            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+            snapshots[current_file] = (survey_dir / current_file).read_text(encoding="utf-8")
+        return snapshots
 
     def test_check_rejects_empty_brief_and_brainstorm_templates(self) -> None:
         survey_dir = self.init_round()
@@ -80,8 +198,42 @@ class SurveyRoundCliTest(unittest.TestCase):
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("00-brief.md: appears to be only an empty template", result.stdout)
-        self.assertIn("01-brainstorm.md: appears to be only an empty template", result.stdout)
+        self.assertIn("01-evidence-plan.md: appears to be only an empty template", result.stdout)
         self.assertNotIn("report.md", result.stdout)
+
+    def test_round_starts_only_the_evidence_plan_stage(self) -> None:
+        survey_dir = self.init_round()
+
+        self.assertTrue((survey_dir / "01-evidence-plan.md").exists())
+        for suffix in ("research", "brainstorm", "redteam", "synthesis", "evolver"):
+            self.assertFalse((survey_dir / f"01-{suffix}.md").exists(), suffix)
+
+    def test_plan_alias_starts_only_the_evidence_plan_stage(self) -> None:
+        survey_dir = self.init_survey_dir()
+        result = run_cli("plan", str(survey_dir), "1")
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+
+        self.assertTrue((survey_dir / "01-evidence-plan.md").exists())
+        for suffix in ("research", "brainstorm", "redteam", "synthesis", "evolver"):
+            self.assertFalse((survey_dir / f"01-{suffix}.md").exists(), suffix)
+
+    def test_stage_commands_require_substantive_previous_stage(self) -> None:
+        survey_dir = self.init_round()
+
+        blocked = run_cli("research", str(survey_dir), "1")
+        self.assertNotEqual(blocked.returncode, 0)
+        self.assertIn("previous stage incomplete: 01-evidence-plan.md", blocked.stderr + blocked.stdout)
+        self.assertFalse((survey_dir / "01-research.md").exists())
+
+        self.write_minimal_stage(survey_dir, "01-evidence-plan.md")
+        created = run_cli("research", str(survey_dir), "1")
+        self.assertEqual(created.returncode, 0, created.stderr + created.stdout)
+        self.assertTrue((survey_dir / "01-research.md").exists())
+
+        blocked = run_cli("brainstorm", str(survey_dir), "1")
+        self.assertNotEqual(blocked.returncode, 0)
+        self.assertIn("previous stage incomplete: 01-research.md", blocked.stderr + blocked.stdout)
+        self.assertFalse((survey_dir / "01-brainstorm.md").exists())
 
     def test_check_rejects_files_with_empty_required_sections(self) -> None:
         survey_dir = self.init_round()
@@ -154,14 +306,16 @@ Can this target customer pay for this workflow?
         self.assertFalse((survey_dir / "-1-research.md").exists())
 
     def test_templates_include_generic_research_framework_fields(self) -> None:
+        snapshots = self.create_stage_template_snapshots()
         survey_dir = self.init_round()
 
         brief = (survey_dir / "00-brief.md").read_text(encoding="utf-8")
-        research = (survey_dir / "01-research.md").read_text(encoding="utf-8")
-        brainstorm = (survey_dir / "01-brainstorm.md").read_text(encoding="utf-8")
-        redteam = (survey_dir / "01-redteam.md").read_text(encoding="utf-8")
-        synthesis = (survey_dir / "01-synthesis.md").read_text(encoding="utf-8")
-        evolver = (survey_dir / "01-evolver.md").read_text(encoding="utf-8")
+        evidence_plan = snapshots["01-evidence-plan.md"]
+        research = snapshots["01-research.md"]
+        brainstorm = snapshots["01-brainstorm.md"]
+        redteam = snapshots["01-redteam.md"]
+        synthesis = snapshots["01-synthesis.md"]
+        evolver = snapshots["01-evolver.md"]
         index = (survey_dir / "index.md").read_text(encoding="utf-8")
 
         self.assertIn("## Research Lens", brief)
@@ -206,7 +360,12 @@ Can this target customer pay for this workflow?
         self.assertIn("Mode:", brief)
         self.assertIn("Minimum Sources:", brief)
         self.assertIn("Target Report Length:", brief)
+        self.assertIn("## Round Decision Target", evidence_plan)
+        self.assertIn("## Decision-Critical Variables", evidence_plan)
+        self.assertIn("## Minimum Direct Evidence", evidence_plan)
+        self.assertIn("## Framework Evidence Map", evidence_plan)
         self.assertIn("### <framework dimension>", brief)
+        self.assertIn("### <framework dimension>", evidence_plan)
         self.assertIn("### <framework dimension>", research)
         self.assertIn("### <framework dimension>", brainstorm)
         self.assertIn("### <framework dimension>", redteam)
@@ -214,11 +373,13 @@ Can this target customer pay for this workflow?
         self.assertIn("### <framework dimension>", evolver)
 
     def test_templates_include_decision_robustness_tools(self) -> None:
+        snapshots = self.create_stage_template_snapshots()
         survey_dir = self.init_round()
 
         brief = (survey_dir / "00-brief.md").read_text(encoding="utf-8")
-        synthesis = (survey_dir / "01-synthesis.md").read_text(encoding="utf-8")
-        evolver = (survey_dir / "01-evolver.md").read_text(encoding="utf-8")
+        evidence_plan = snapshots["01-evidence-plan.md"]
+        synthesis = snapshots["01-synthesis.md"]
+        evolver = snapshots["01-evolver.md"]
 
         self.assertIn("Object quality vs action attractiveness", brief)
         self.assertIn("Hard constraints", brief)
@@ -226,6 +387,8 @@ Can this target customer pay for this workflow?
         self.assertIn("User-specific constraints", brief)
         self.assertIn("Missing constraints", brief)
         self.assertIn("Implied expectations", brief)
+        self.assertIn("minimum direct evidence", evidence_plan.lower())
+        self.assertIn("Disconfirming Evidence", evidence_plan)
         self.assertIn("Action attractiveness", synthesis)
         self.assertIn("Bayesian update", synthesis)
         self.assertIn("Decision tree", synthesis)
@@ -254,9 +417,7 @@ Can this target customer pay for this workflow?
         self.assertIn("Decision-changing evidence", brief)
 
     def test_synthesis_template_includes_sensitivity_and_counterfactuals(self) -> None:
-        survey_dir = self.init_round()
-
-        synthesis = (survey_dir / "01-synthesis.md").read_text(encoding="utf-8")
+        synthesis = self.create_stage_template_snapshots()["01-synthesis.md"]
 
         self.assertIn("## Sensitivity And Counterfactuals", synthesis)
         self.assertIn("Key variable", synthesis)
@@ -267,9 +428,7 @@ Can this target customer pay for this workflow?
         self.assertIn("Decision impact", synthesis)
 
     def test_evolver_template_requires_kill_scope_and_original_question_status(self) -> None:
-        survey_dir = self.init_round()
-
-        evolver = (survey_dir / "01-evolver.md").read_text(encoding="utf-8")
+        evolver = self.create_stage_template_snapshots()["01-evolver.md"]
 
         self.assertIn("Kill scope", evolver)
         self.assertIn("Original question still open", evolver)
@@ -286,16 +445,20 @@ Can this target customer pay for this workflow?
         self.assertIn("User-frame challenge quality", index)
 
     def test_templates_frontload_decision_critical_evidence_guidance(self) -> None:
+        snapshots = self.create_stage_template_snapshots()
         survey_dir = self.init_round()
 
         brief = (survey_dir / "00-brief.md").read_text(encoding="utf-8")
-        research = (survey_dir / "01-research.md").read_text(encoding="utf-8")
-        brainstorm = (survey_dir / "01-brainstorm.md").read_text(encoding="utf-8")
-        synthesis = (survey_dir / "01-synthesis.md").read_text(encoding="utf-8")
-        evolver = (survey_dir / "01-evolver.md").read_text(encoding="utf-8")
+        evidence_plan = snapshots["01-evidence-plan.md"]
+        research = snapshots["01-research.md"]
+        brainstorm = snapshots["01-brainstorm.md"]
+        synthesis = snapshots["01-synthesis.md"]
+        evolver = snapshots["01-evolver.md"]
 
         self.assertIn("Decision-critical variables", brief)
         self.assertIn("Minimum direct evidence", brief)
+        self.assertIn("Decision-Critical Variables", evidence_plan)
+        self.assertIn("Minimum Direct Evidence", evidence_plan)
         self.assertIn("Source role", research)
         self.assertIn("Dynamic source reproducibility", research)
         self.assertIn("decision-critical uncertainty", brainstorm)
@@ -303,20 +466,23 @@ Can this target customer pay for this workflow?
         self.assertIn("future facts vs desk-researchable gaps", evolver)
 
     def test_templates_strengthen_weak_anti_sycophancy_methods(self) -> None:
+        snapshots = self.create_stage_template_snapshots()
         survey_dir = self.init_round()
 
         brief = (survey_dir / "00-brief.md").read_text(encoding="utf-8")
-        research = (survey_dir / "01-research.md").read_text(encoding="utf-8")
-        brainstorm = (survey_dir / "01-brainstorm.md").read_text(encoding="utf-8")
-        redteam = (survey_dir / "01-redteam.md").read_text(encoding="utf-8")
-        synthesis = (survey_dir / "01-synthesis.md").read_text(encoding="utf-8")
-        evolver = (survey_dir / "01-evolver.md").read_text(encoding="utf-8")
+        evidence_plan = snapshots["01-evidence-plan.md"]
+        research = snapshots["01-research.md"]
+        brainstorm = snapshots["01-brainstorm.md"]
+        redteam = snapshots["01-redteam.md"]
+        synthesis = snapshots["01-synthesis.md"]
+        evolver = snapshots["01-evolver.md"]
 
         self.assertIn("Implied expectation reverse-check", brief)
         self.assertIn("Current action, price, or choice implies", brief)
         self.assertIn("Constraint-specific recommendations", brief)
         self.assertIn("Anti-narrative regularizers", brief)
         self.assertIn("narrative, user preference, or recent signal", brief)
+        self.assertIn("Disconfirming Evidence", evidence_plan)
         self.assertIn("Minimum direct evidence", research)
         self.assertIn("Perspective target function", brainstorm)
         self.assertIn("most likely error", brainstorm)
@@ -327,16 +493,17 @@ Can this target customer pay for this workflow?
         self.assertIn("Anti-narrative regularizers", evolver)
 
     def test_round_templates_make_content_dependency_order_explicit(self) -> None:
-        survey_dir = self.init_round()
+        snapshots = self.create_stage_template_snapshots()
+        evidence_plan = snapshots["01-evidence-plan.md"]
+        research = snapshots["01-research.md"]
+        brainstorm = snapshots["01-brainstorm.md"]
+        redteam = snapshots["01-redteam.md"]
+        synthesis = snapshots["01-synthesis.md"]
+        evolver = snapshots["01-evolver.md"]
 
-        research = (survey_dir / "01-research.md").read_text(encoding="utf-8")
-        brainstorm = (survey_dir / "01-brainstorm.md").read_text(encoding="utf-8")
-        redteam = (survey_dir / "01-redteam.md").read_text(encoding="utf-8")
-        synthesis = (survey_dir / "01-synthesis.md").read_text(encoding="utf-8")
-        evolver = (survey_dir / "01-evolver.md").read_text(encoding="utf-8")
-
-        self.assertIn("Content dependency order", research)
-        self.assertIn("Complete this first", research)
+        self.assertIn("Content dependency order", evidence_plan)
+        self.assertIn("Complete this before source collection", evidence_plan)
+        self.assertIn("Complete after 01-evidence-plan.md", research)
         self.assertIn("Complete after 01-research.md", brainstorm)
         self.assertIn("Complete after 01-research.md and 01-brainstorm.md", redteam)
         self.assertIn("Complete after 01-research.md, 01-brainstorm.md, and 01-redteam.md", synthesis)
@@ -386,6 +553,26 @@ Can this target customer pay for this workflow?
         self.assertIn("Implied expectation reverse-check", docs["references/research-quality.md"])
         self.assertIn("Anti-narrative regularizers", docs["references/research-quality.md"])
 
+    def test_readmes_describe_staged_cli_and_ideal_flow_mapping(self) -> None:
+        docs = {
+            "README.md": (ROOT / "README.md").read_text(encoding="utf-8"),
+            "README.zh-CN.md": (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
+            "README.ja.md": (ROOT / "README.ja.md").read_text(encoding="utf-8"),
+            "SKILL.md": (ROOT / "SKILL.md").read_text(encoding="utf-8"),
+        }
+
+        for text in docs.values():
+            self.assertIn("Evidence Plan / Minimum Direct Evidence", text)
+            self.assertIn("Brief / Frame Contract", text)
+            self.assertIn("Post-Research Brainstorming", text)
+            self.assertIn("4.1", text)
+            self.assertIn("4.12", text)
+        self.assertIn("python3 scripts/survey_round.py research", docs["README.md"])
+        self.assertIn("python3 scripts/survey_round.py brainstorm", docs["README.md"])
+        self.assertIn("python3 scripts/survey_round.py evolve", docs["README.md"])
+        self.assertIn("阶段化 CLI", docs["README.zh-CN.md"])
+        self.assertIn("段階化 CLI", docs["README.ja.md"])
+
     def test_lightweight_evolver_reference_includes_strengthened_methods(self) -> None:
         evolver_ref = (ROOT / "references" / "lightweight-evolver.md").read_text(encoding="utf-8")
 
@@ -429,8 +616,7 @@ Can this target customer pay for this workflow?
         self.assertIn("如何拒绝AI谄媚人类.md", quality)
 
     def test_round_template_uses_registry_as_evidence_source_of_truth(self) -> None:
-        survey_dir = self.init_round()
-        research = (survey_dir / "01-research.md").read_text(encoding="utf-8")
+        research = self.create_stage_template_snapshots()["01-research.md"]
 
         self.assertIn("## Source Registry Updates", research)
         self.assertIn("## Claim And Evidence Notes", research)
@@ -441,8 +627,7 @@ Can this target customer pay for this workflow?
         self.assertNotIn("| Claim | Evidence | Source | Source Type | Freshness | Confidence | Contradictions |", research)
 
     def test_brainstorm_template_does_not_own_continue_stop_decision(self) -> None:
-        survey_dir = self.init_round()
-        brainstorm = (survey_dir / "01-brainstorm.md").read_text(encoding="utf-8")
+        brainstorm = self.create_stage_template_snapshots()["01-brainstorm.md"]
 
         self.assertIn("## Candidate Next Moves", brainstorm)
         self.assertIn("## Preferred Exploration Path", brainstorm)
@@ -1182,6 +1367,12 @@ Sources were checked during this round and remain directional.
                 "Why this framework fits the decision: demand and launch constraints both matter.\n"
                 "Dimensions intentionally out of scope: enterprise procurement and recruiter-side workflows."
             ),
+            "01-evidence-plan.md": (
+                "Framework Evidence Map",
+                "Framework dimensions covered: user pain, workflow frequency, policy constraints, substitutes, and early pricing signals.\n"
+                "Weak or missing dimensions: willingness to pay and distribution economics.\n"
+                "Minimum direct evidence still needs source-level planning."
+            ),
             "01-research.md": (
                 "Framework Coverage",
                 "Framework dimensions covered: user pain, workflow frequency, policy constraints, substitutes, and early pricing signals.\n"
@@ -1223,6 +1414,7 @@ Sources were checked during this round and remain directional.
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("00-brief.md: Research Framework must include subheadings", result.stdout)
+        self.assertIn("01-evidence-plan.md: Framework Evidence Map must include subheadings", result.stdout)
         self.assertIn("01-research.md: Framework Coverage must include subheadings", result.stdout)
         self.assertIn("01-brainstorm.md: Candidate Next Moves must include subheadings", result.stdout)
         self.assertIn("01-redteam.md: Strongest Objections must include subheadings", result.stdout)
@@ -1256,6 +1448,7 @@ Sources were checked during this round and remain directional.
         index_path.write_text(index, encoding="utf-8")
 
         replacements = {
+            "01-evidence-plan.md": "Framework Evidence Map",
             "01-research.md": "Framework Coverage",
             "01-brainstorm.md": "Candidate Next Moves",
             "01-redteam.md": "Strongest Objections",
@@ -1595,6 +1788,44 @@ Sources were checked during this round and remain directional.
                     ),
                 },
             )
+        write_markdown(
+            survey_dir / "01-evidence-plan.md",
+            "Round 1 Evidence Plan",
+            {
+                "Round Decision Target": "Decide whether another desk-research round can materially change the build decision.",
+                "Decision-Critical Variables": (
+                    "Policy permissiveness, willingness to pay, distribution reach, substitute strength, and implementation reliability are the variables most likely to change the action."
+                ),
+                "Minimum Direct Evidence": (
+                    "Official policy evidence is required for platform constraints. Direct pricing or comparable paid conversion evidence is required for willingness to pay. Substitute comparison evidence is required before claiming differentiation."
+                ),
+                "Source Plan": (
+                    "Use official platform terms, competitor pricing pages, current source search, and registry-backed claim/evidence entries. Companion routing can be used if VOC or competitor data is needed."
+                ),
+                "Disconfirming Evidence": (
+                    "Policy blocks the workflow, users refuse payment, substitutes already solve the job, or implementation requires unreliable automation."
+                ),
+                "Missing Evidence Handling": (
+                    "If direct policy or payment evidence is missing, lower confidence and continue a targeted desk-research round. If the gap requires interviews or legal review, record that it is not desk-researchable."
+                ),
+                "Framework Evidence Map": (
+                    "### User Pain\n"
+                    "Minimum direct evidence: direct workflow complaints or repeated workaround behavior. Source type: user language or direct observation. Missing evidence means confidence stays medium.\n\n"
+                    "### Workflow Frequency\n"
+                    "Minimum direct evidence: repeated use frequency during active searches. Source type: direct user signal or credible survey. Missing evidence means retention remains uncertain.\n\n"
+                    "### Willingness To Pay\n"
+                    "Minimum direct evidence: paid alternatives, commitments, or pricing conversion. Source type: pricing pages and user commitments. Missing evidence means no full build recommendation.\n\n"
+                    "### Policy Constraints\n"
+                    "Minimum direct evidence: official ToS or enforcement guidance. Source type: primary platform source. Missing evidence keeps policy as a veto dimension.\n\n"
+                    "### Substitutes\n"
+                    "Minimum direct evidence: credible manual or product alternatives. Source type: competitor pages and user workarounds. Missing evidence weakens differentiation.\n\n"
+                    "### Distribution\n"
+                    "Minimum direct evidence: reachable channels or high-intent entry points. Source type: search/community/channel evidence. Missing evidence weakens go-to-market confidence.\n\n"
+                    "### Implementation Difficulty\n"
+                    "Minimum direct evidence: reliability, data access, and operational constraints. Source type: technical docs and implementation probes. Missing evidence keeps build risk elevated."
+                ),
+            },
+        )
         write_markdown(
             survey_dir / "01-research.md",
             "Round 1 Research",

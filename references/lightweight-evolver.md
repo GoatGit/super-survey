@@ -7,6 +7,7 @@ Use this when a Super Survey round needs to turn mixed evidence into a sharper n
 Read these files for the current survey:
 
 - `00-brief.md`
+- latest `NN-evidence-plan.md`
 - latest `NN-research.md`
 - latest `NN-brainstorm.md`
 - latest `NN-redteam.md`
@@ -15,7 +16,7 @@ Read these files for the current survey:
 
 If prior `NN-evolver.md` files exist, read the latest one to avoid repeating the same question.
 
-Follow the artifact dependency order. `NN-evolver.md` is the last round artifact: complete it only after the current round's research, brainstorming, red-team, and synthesis files contain written content. The evolver should judge upstream evidence and synthesis already on disk, not invent what those artifacts would have said.
+Follow the artifact dependency order. `NN-evolver.md` is the last round artifact: complete it only after the current round's evidence plan, research, brainstorming, red-team, and synthesis files contain written content. The evolver should judge upstream evidence and synthesis already on disk, not invent what those artifacts would have said.
 
 When the latest files include a research framework or framework coverage section, treat weak or missing framework dimensions as first-class inputs. A next round should usually target the weakest decision-relevant dimension rather than collect more generic sources.
 

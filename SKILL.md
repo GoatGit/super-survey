@@ -19,20 +19,21 @@ Every survey round must:
 1. State the current research target and decision criteria.
 2. Run an anti-sycophancy framing pass: treat the user's wording as the starting point, not the objective function.
 3. Choose a generic research lens, explicit research framework, and evidence standard without forcing the work into a narrow fixed category.
-4. Gather evidence from current sources when facts may have changed.
-5. Re-enter a brainstorming checkpoint to reframe the problem and compare candidate next moves.
-6. Separate findings from interpretation.
-7. Include a red-team challenge: why the idea may fail, why evidence may be weak, what alternative explanations or substitutes exist, and what constraints invalidate the thesis.
-8. Check explicit kill criteria before recommending another round.
-9. Synthesize a clearer conclusion with confidence level, decision rationale, and remaining unknowns.
-10. Run the lightweight evolver to sharpen, redirect, stop, or finalize the next-round target.
-11. Decide whether to continue using the latest evolver decision; use final report quality only after the stop gate moves to `report.md`.
-12. Maintain the lightweight evidence registry: `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`.
-13. Validate citations and claim support with the integrated `survey_round.py check` / `check-final` commands; use `validate-evidence` only for focused registry debugging.
-14. Update an index and route to wiki/graph indexing when long-term persistence is needed.
-15. Use `index.md` as the per-round workbench and decision ledger.
-16. Write `report.md` only after the stop gate passes and before giving a final answer.
-17. Write the round artifacts to disk before giving a final answer.
+4. Write the current round evidence plan and minimum direct evidence before current-source search.
+5. Gather evidence from current sources when facts may have changed.
+6. Re-enter post-research brainstorming to reframe the problem and compare candidate next moves after evidence exists.
+7. Separate findings from interpretation.
+8. Include a red-team challenge: why the idea may fail, why evidence may be weak, what alternative explanations or substitutes exist, and what constraints invalidate the thesis.
+9. Check explicit kill criteria before recommending another round.
+10. Synthesize a clearer conclusion with confidence level, decision rationale, and remaining unknowns.
+11. Run the lightweight evolver to sharpen, redirect, stop, or finalize the next-round target.
+12. Decide whether to continue using the latest evolver decision; use final report quality only after the stop gate moves to `report.md`.
+13. Maintain the lightweight evidence registry: `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`.
+14. Validate citations and claim support with the integrated `survey_round.py check` / `check-final` commands; use `validate-evidence` only for focused registry debugging.
+15. Update an index and route to wiki/graph indexing when long-term persistence is needed.
+16. Use `index.md` as the per-round workbench and decision ledger.
+17. Write `report.md` only after the stop gate passes and before giving a final answer.
+18. Write the round artifacts to disk before giving a final answer.
 
 Move beyond collecting links. The value of this skill is sharper judgment after each loop.
 
@@ -94,6 +95,21 @@ Record search execution in `NN-research.md`:
 
 This is a tool-selection rule, not a research-type branch. It applies across product, market, technical, policy, open-source, and custom lenses when current sources matter. Stable local/code/document-only surveys can mark current-source discovery as not needed.
 
+### Ideal Flow And Paper Mapping
+
+Use this execution architecture for standard and deep surveys. It implements the methods in the anti-sycophancy paper without making the skill domain-specific:
+
+| Node | Work | Paper methods |
+|---|---|---|
+| Brief / Frame Contract | Preserve the original question, reconstruct the objective function, split facts/assumptions/inferences/value judgments, define constraints, candidate actions, and the research framework. | 4.1, 4.2, 4.3, 4.11 |
+| Evidence Plan / Minimum Direct Evidence | Define decision-critical variables, minimum direct evidence, priority source types, disconfirming evidence, missing-evidence handling, and framework-level evidence needs before source collection. | 4.2, 4.5, 4.6, 4.7, 4.12 |
+| Research | Collect current and primary evidence according to the plan, update source/claim/evidence registries, record contradictions, confidence, freshness, and framework coverage. | 4.2, 4.5, 4.7, 4.9 |
+| Post-Research Brainstorming | Re-open candidate explanations after evidence exists, compare multi-start perspectives, identify likely errors, next evidence moves, and evidence-triggered framework refinements. | 4.4, 4.5, 4.6, 4.12 |
+| Redteam | Attack the strongest current argument, substitutes, hidden assumptions, kill criteria, and anti-narrative regularizers. | 4.5, 4.8, 4.12 |
+| Synthesis | Integrate evidence and objections into sensitivity analysis, implied-expectation reverse-checks, Bayesian updates, scenarios, decision trees, and constraint-specific recommendation branches. | 4.6, 4.7, 4.9, 4.10, 4.11, 4.12 |
+| Evolver | Decide Keep / Narrow / Pivot / Kill / Final, separate future facts from desk-researchable gaps, and generate the next-round target or finalization rationale. | 4.4, 4.6, 4.8, 4.9, 4.10 |
+| Final Report | Write a standalone human decision memo with body chapters from the framework, decision logic, recommendation, change triggers, next actions, limits, and appendices. | 4.10, 4.11, 5.2, 5.3 |
+
 ### 0. Superpowers Brainstorming Loop
 
 Use `$superpowers brainstorming` throughout the survey. It has two roles:
@@ -141,11 +157,25 @@ python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent" --mode st
 python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent" --language zh --mode quick
 python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent" --language ja --mode deep
 python3 <skill-dir>/scripts/survey_round.py round surveys/2026-06-12-ai-recruiting-agent 1
+python3 <skill-dir>/scripts/survey_round.py research surveys/2026-06-12-ai-recruiting-agent 1
+python3 <skill-dir>/scripts/survey_round.py brainstorm surveys/2026-06-12-ai-recruiting-agent 1
+python3 <skill-dir>/scripts/survey_round.py redteam surveys/2026-06-12-ai-recruiting-agent 1
+python3 <skill-dir>/scripts/survey_round.py synthesis surveys/2026-06-12-ai-recruiting-agent 1
+python3 <skill-dir>/scripts/survey_round.py evolve surveys/2026-06-12-ai-recruiting-agent 1
 python3 <skill-dir>/scripts/survey_round.py check surveys/2026-06-12-ai-recruiting-agent
 python3 <skill-dir>/scripts/survey_round.py check-final surveys/2026-06-12-ai-recruiting-agent
 python3 <skill-dir>/scripts/survey_round.py validate-evidence surveys/2026-06-12-ai-recruiting-agent
 python3 <skill-dir>/scripts/survey_round.py upgrade-report surveys/2026-06-12-ai-recruiting-agent
 ```
+
+Command sequence:
+
+- `round` / `plan`: starts a staged round by creating `NN-evidence-plan.md`.
+- `research`: creates `NN-research.md` after `NN-evidence-plan.md` contains substantive content.
+- `brainstorm`: creates `NN-brainstorm.md` after `NN-research.md` contains substantive content.
+- `redteam`: creates `NN-redteam.md` after `NN-brainstorm.md` contains substantive content.
+- `synthesis`: creates `NN-synthesis.md` after `NN-redteam.md` contains substantive content.
+- `evolve`: creates `NN-evolver.md` after `NN-synthesis.md` contains substantive content.
 
 Resolve `<skill-dir>` to the directory containing this `SKILL.md` so the workflow works across Codex, agent, and local installs.
 
@@ -203,11 +233,12 @@ Minimum JSONL schemas:
 
 Use stable IDs such as `S1`, `E1`, and `C1`. Every evidence item must reference an existing `source_id`. Every supported, partial, or contested claim must reference existing `evidence_id` values. The helper also rejects duplicate IDs and obviously weak claim-support pairs, such as a claim with numbers, entities, or key terms absent from the linked evidence. This is a lightweight guard; human citation judgment remains required.
 
-### 2. Research Round
+### 2. Staged Research Round
 
 For each standard or deep round, create or update:
 
 ```text
+NN-evidence-plan.md
 NN-research.md
 NN-brainstorm.md
 NN-redteam.md
@@ -216,17 +247,28 @@ NN-evolver.md
 index.md
 ```
 
-These files may be scaffolded together, but their content has a strict artifact dependency order:
+Use the staged CLI so downstream artifacts depend on upstream content already written to disk:
 
-1. `NN-research.md`: write evidence, registry changes, framework coverage, direct evidence gaps, and source quality first.
-2. `NN-brainstorm.md`: complete after `NN-research.md`; compare next evidence moves and reframes based on written research findings.
-3. `NN-redteam.md`: complete after research and brainstorming; attack the strongest current argument, substitutes, hidden assumptions, and anti-narrative regularizers.
-4. `NN-synthesis.md`: complete after red-team critique; synthesize evidence, sensitivities, implied expectations, constraint-specific recommendation branches, scenarios, and decision impact.
-5. `NN-evolver.md`: complete after synthesis; decide Keep / Narrow / Pivot / Kill / Final and name the next-round target or finalization rationale.
+1. `NN-evidence-plan.md`: complete before source collection; define decision-critical variables, minimum direct evidence, priority source types, disconfirming evidence, and missing-evidence handling by framework dimension.
+2. `NN-research.md`: create after `NN-evidence-plan.md` has substantive content; write evidence, registry changes, framework coverage, direct evidence gaps, and source quality.
+3. `NN-brainstorm.md`: create after `NN-research.md` has substantive content; compare next evidence moves and reframes based on written research findings.
+4. `NN-redteam.md`: create after `NN-brainstorm.md` has substantive content; attack the strongest current argument, substitutes, hidden assumptions, and anti-narrative regularizers.
+5. `NN-synthesis.md`: create after `NN-redteam.md` has substantive content; synthesize evidence, sensitivities, implied expectations, constraint-specific recommendation branches, scenarios, and decision impact.
+6. `NN-evolver.md`: create after `NN-synthesis.md` has substantive content; decide Keep / Narrow / Pivot / Kill / Final and name the next-round target or finalization rationale.
 
-The artifact dependency order matters because downstream files should cite upstream content already written to disk. They should not predict the final answer, pre-fill the stop decision, or invent a red-team result before the evidence pass exists.
+The artifact dependency order matters because downstream files should cite upstream content already written to disk. They should not predict the final answer, pre-fill the stop decision, invent a red-team result before the evidence pass exists, or collect sources before the evidence plan defines what evidence would count.
 
-For quick mode, a single `NN-round.md` can replace the five split round artifacts when it contains the same essential thinking: research question, evidence and sources, brainstorming checkpoint, red-team challenge, synthesis, raw decision, and next step.
+For quick mode, a single `NN-round.md` can replace the split round artifacts when it contains the same essential thinking: research question, evidence plan, evidence and sources, brainstorming checkpoint, red-team challenge, synthesis, raw decision, and next step.
+
+`NN-evidence-plan.md` should contain:
+
+- Round decision target for this round, tied to the original question and latest `index.md` state
+- Decision-critical variables that could change the recommendation
+- Minimum direct evidence: what must be observed, what is only background, and what cannot substitute for direct proof
+- Source plan: primary/official sources, direct measurements, registry updates, current-source search path, and companion routing if needed
+- Disconfirming evidence and substitutes that would weaken or falsify the current path
+- Missing evidence handling: whether the gap needs another desk-research pass, non-desk validation, future facts, interviews, experiments, or legal review
+- Framework evidence map: one `### <framework dimension>` subsection per brief-defined or evidence-refined dimension, naming the minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing
 
 `NN-research.md` should contain:
 
@@ -320,7 +362,7 @@ Pick or write 1-3 lenses that best match the question:
 
 After choosing lenses, select or write a research framework with explicit dimensions. The framework answers: what dimensions will this research cover, what question does each dimension answer, and which dimensions are weak or intentionally out of scope?
 
-The framework must travel through the whole workflow. `00-brief.md` defines the dimensions; `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` each expand those same dimensions with `###` subheadings in their framework-relevant section. The final `report.md` then turns the dimensions into readable body chapters. This prevents the common failure mode where the agent lists materials first and only adds a framework audit note afterward.
+The framework must travel through the whole workflow. `00-brief.md` defines the dimensions; `NN-evidence-plan.md`, `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` each expand those same dimensions with `###` subheadings in their framework-relevant section. The final `report.md` then turns the dimensions into readable body chapters. This prevents the common failure mode where the agent lists materials first and only adds a framework audit note afterward.
 
 Evidence can refine the framework, but only explicitly. If a round shows that the initial dimensions are too broad, missing a veto dimension, or no longer match the evidence, update `index.md` under `Framework Refinement Log` with:
 
@@ -511,25 +553,26 @@ Before reporting a round as complete:
 5. Confirm `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl` meet the selected mode's minimum coverage, use unique IDs, link every reference to an existing record, and pair supported/partial claims with relevant evidence.
 6. Confirm `00-brief.md` has a research lens, research framework, Decision Optimization Contract, and decision evidence standard specific enough to guide source selection and reader expectations.
 7. Confirm `00-brief.md` declares framework dimensions and expands each one under a `###` subheading with the core question, evidence needed, and boundary.
-8. For standard/deep split artifacts, confirm `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` expand the brief-defined dimensions, or the evidence-refined dimensions recorded in `index.md`, under `###` subheadings in their framework-relevant sections. For quick combined artifacts, confirm the essential research, red-team, synthesis, decision, and next-step sections are substantive.
-9. Confirm `NN-research.md` records source type, freshness, confidence, contradictions, framework coverage, and current-source search path when current-source discovery was needed.
-10. Confirm `NN-redteam.md` checks substitutes, alternative explanations, and explicit kill criteria.
-11. Confirm `NN-synthesis.md` states decision rationale, framework-based synthesis, and Sensitivity And Counterfactuals, not only a conclusion.
-12. Confirm the latest decision line is one of `Keep / Narrow / Pivot / Kill / Final`, and `NN-evolver.md` records Kill scope and whether the original question is still open.
-13. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
-14. Confirm `index.md` reflects the latest thesis, current evidence-bound conclusion, round ledger, continuation status, next research target, why it is not final yet, open questions, source inventory, framework refinement log, final report quality gate, wiki/graph status, and decision log.
-15. If the evolver says `Keep`, `Narrow`, or `Pivot`, update `index.md`, create the next round, and keep the survey in round-artifact mode.
-16. If the evolver says `Final` or `Kill`, write `report.md` as the final standalone report.
-17. Confirm `report.md` is complete, standalone, updated with the latest synthesis, and reads as a coherent report: executive summary, one top-level body chapter per framework dimension, main narrative, decision logic, final recommendation, change triggers, next actions, limits, then appendices for evidence, method/source quality, red-team notes, scenarios, and source notes.
-18. Confirm `index.md` has a `Final Report Quality Gate` section with total score, anti-sycophancy / objective-function integrity, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
-19. Confirm final report citations are standalone: replace `C*` / `E*` registry IDs with source titles, URLs, Markdown links, or footnotes in `report.md`.
-20. Confirm the report body obeys prose-first rules: it is not bullet-dominated and does not put evidence tables before the first appendix.
-21. Run `survey_round.py check-final <survey-dir>` before presenting the survey as final.
-22. If score is below the selected mode's threshold, create another round focused on the weakest dimensions and remove or revise premature final-report claims.
-23. Stop only when both gates pass: the mode/report score gate and the raw evolver decision gate.
-24. If `check-final` reports a legacy report schema error, run `upgrade-report` and fill the appended sections before presenting the report as final.
-25. Treat companion routing notes as auditable: the artifact must say which tool was used, what failed if fallback happened, and where the result was recorded.
-26. If wiki persistence was needed, confirm `index.md` records `Wiki Persistence Needed`, `Wiki Tool Attempted`, `Wiki Ingest Result`, `Wiki Fallback Reason`, and `Wiki Artifact Path`.
+8. For standard/deep split artifacts, confirm `NN-evidence-plan.md`, `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` expand the brief-defined dimensions, or the evidence-refined dimensions recorded in `index.md`, under `###` subheadings in their framework-relevant sections. For quick combined artifacts, confirm the essential evidence plan, research, red-team, synthesis, decision, and next-step sections are substantive.
+9. Confirm `NN-evidence-plan.md` defines decision-critical variables, minimum direct evidence, source plan, disconfirming evidence, and missing-evidence handling before source collection.
+10. Confirm `NN-research.md` records source type, freshness, confidence, contradictions, framework coverage, and current-source search path when current-source discovery was needed.
+11. Confirm `NN-redteam.md` checks substitutes, alternative explanations, and explicit kill criteria.
+12. Confirm `NN-synthesis.md` states decision rationale, framework-based synthesis, and Sensitivity And Counterfactuals, not only a conclusion.
+13. Confirm the latest decision line is one of `Keep / Narrow / Pivot / Kill / Final`, and `NN-evolver.md` records Kill scope and whether the original question is still open.
+14. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
+15. Confirm `index.md` reflects the latest thesis, current evidence-bound conclusion, round ledger, continuation status, next research target, why it is not final yet, open questions, source inventory, framework refinement log, final report quality gate, wiki/graph status, and decision log.
+16. If the evolver says `Keep`, `Narrow`, or `Pivot`, update `index.md`, create the next round, and keep the survey in round-artifact mode.
+17. If the evolver says `Final` or `Kill`, write `report.md` as the final standalone report.
+18. Confirm `report.md` is complete, standalone, updated with the latest synthesis, and reads as a coherent report: executive summary, one top-level body chapter per framework dimension, main narrative, decision logic, final recommendation, change triggers, next actions, limits, then appendices for evidence, method/source quality, red-team notes, scenarios, and source notes.
+19. Confirm `index.md` has a `Final Report Quality Gate` section with total score, anti-sycophancy / objective-function integrity, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
+20. Confirm final report citations are standalone: replace `C*` / `E*` registry IDs with source titles, URLs, Markdown links, or footnotes in `report.md`.
+21. Confirm the report body obeys prose-first rules: it is not bullet-dominated and does not put evidence tables before the first appendix.
+22. Run `survey_round.py check-final <survey-dir>` before presenting the survey as final.
+23. If score is below the selected mode's threshold, create another round focused on the weakest dimensions and remove or revise premature final-report claims.
+24. Stop only when both gates pass: the mode/report score gate and the raw evolver decision gate.
+25. If `check-final` reports a legacy report schema error, run `upgrade-report` and fill the appended sections before presenting the report as final.
+26. Treat companion routing notes as auditable: the artifact must say which tool was used, what failed if fallback happened, and where the result was recorded.
+27. If wiki persistence was needed, confirm `index.md` records `Wiki Persistence Needed`, `Wiki Tool Attempted`, `Wiki Ingest Result`, `Wiki Fallback Reason`, and `Wiki Artifact Path`.
 
 If the check fails, say the round is still in progress and report the next fix.
 

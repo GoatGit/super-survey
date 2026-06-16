@@ -37,6 +37,7 @@ Each survey creates persistent artifacts:
 ```text
 surveys/YYYY-MM-DD-topic-slug/
 ├── 00-brief.md
+├── 01-evidence-plan.md
 ├── 01-research.md
 ├── 01-brainstorm.md
 ├── 01-redteam.md
@@ -82,10 +83,15 @@ python3 scripts/survey_round.py init "AI採用エージェント" --language ja
 python3 scripts/survey_round.py init "formal market report" --mode deep
 ```
 
-Create and check a round:
+Create and check a round. Fill each generated stage with substantive content before running the next stage command:
 
 ```bash
 python3 scripts/survey_round.py round surveys/2026-06-13-ai-recruiting-agent 1
+python3 scripts/survey_round.py research surveys/2026-06-13-ai-recruiting-agent 1
+python3 scripts/survey_round.py brainstorm surveys/2026-06-13-ai-recruiting-agent 1
+python3 scripts/survey_round.py redteam surveys/2026-06-13-ai-recruiting-agent 1
+python3 scripts/survey_round.py synthesis surveys/2026-06-13-ai-recruiting-agent 1
+python3 scripts/survey_round.py evolve surveys/2026-06-13-ai-recruiting-agent 1
 python3 scripts/survey_round.py check surveys/2026-06-13-ai-recruiting-agent
 python3 scripts/survey_round.py check-final surveys/2026-06-13-ai-recruiting-agent
 python3 scripts/survey_round.py upgrade-report surveys/2026-06-13-ai-recruiting-agent
@@ -99,6 +105,12 @@ python3 scripts/survey_round.py validate-evidence surveys/2026-06-13-ai-recruiti
 
 Command meanings:
 
+- `round` / `plan`: starts a staged round by creating `NN-evidence-plan.md`; it no longer creates all round artifacts at once.
+- `research`: creates `NN-research.md` only after `NN-evidence-plan.md` contains substantive content.
+- `brainstorm`: creates `NN-brainstorm.md` only after `NN-research.md` contains substantive content.
+- `redteam`: creates `NN-redteam.md` only after `NN-brainstorm.md` contains substantive content.
+- `synthesis`: creates `NN-synthesis.md` only after `NN-redteam.md` contains substantive content.
+- `evolve`: creates `NN-evolver.md` only after `NN-synthesis.md` contains substantive content.
 - `check`: validates round artifacts, `index.md`, the evidence registry, companion-routing notes, and the latest raw evolver decision. It does not require `report.md`.
 - `check-final`: runs the same checks plus final `report.md`, prose-first report rules, the mode-specific quality score recorded in `index.md`, and the requirement that the latest raw evolver decision is `Final` or `Kill`.
 - `upgrade-report`: appends the full report schema to an older report. Older six-section reports are readable but do not pass the final gate; after upgrading, fill the new sections.
@@ -116,7 +128,7 @@ Choose the depth explicitly when speed or rigor matters:
 | `standard` | Default reusable research report | 3 sources, 3 claims, 3 evidence items | score >=90 |
 | `deep` | Formal or high-stakes report, many citations, strict audit needs | 8 sources, 6 claims, 8 evidence items | score >=95 |
 
-In `quick` mode, one combined `NN-round.md` can replace the five split round artifacts when it contains the essential research question, evidence and sources, brainstorming checkpoint, red-team challenge, synthesis, raw decision, and next step.
+In `quick` mode, one combined `NN-round.md` can replace the standard/deep split artifacts when it contains the essential research question, evidence plan, evidence and sources, brainstorming checkpoint, red-team challenge, synthesis, raw decision, and next step.
 
 The lightweight registry keeps report prose readable while preserving auditability:
 
@@ -152,9 +164,24 @@ Before selecting the framework, do an anti-sycophancy framing pass. Split the us
 
 A good object is not automatically a good action. Good company does not automatically mean good stock; good product does not automatically mean good business; good technology does not automatically mean good project; good open-source library does not automatically mean good dependency. Super Survey should evaluate action attractiveness under current constraints, prices, timing, maintenance cost, risk, and alternatives.
 
-This is the main writing rule: the framework is not an audit checklist at the end. `00-brief.md` defines the dimensions; `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` each expand those same dimensions with Markdown subheadings. The final `report.md` then turns the dimensions into readable body chapters before appendices.
+This is the main writing rule: the framework is not an audit checklist at the end. `00-brief.md` defines the dimensions; `NN-evidence-plan.md`, `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` each expand those same dimensions with Markdown subheadings. The final `report.md` then turns the dimensions into readable body chapters before appendices.
 
-The helper can scaffold all round files at once, but their content has a strict dependency order: write `NN-research.md` first, then `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and finally `NN-evolver.md`. Downstream artifacts should cite written upstream findings instead of predicting the final conclusion.
+The staged CLI enforces the dependency order. Start with `NN-evidence-plan.md`, then create `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and finally `NN-evolver.md`. Downstream artifacts should cite written upstream findings instead of predicting the final conclusion.
+
+## Ideal Flow And Paper Mapping
+
+This is the intended execution architecture from the anti-sycophancy paper:
+
+| Node | Work | Paper methods |
+|---|---|---|
+| Brief / Frame Contract | Preserve the original question, reconstruct the objective function, split facts/assumptions/inferences/value judgments, define constraints, candidate actions, and the research framework. | 4.1, 4.2, 4.3, 4.11 |
+| Evidence Plan / Minimum Direct Evidence | Define decision-critical variables, minimum direct evidence, priority source types, disconfirming evidence, missing-evidence handling, and framework-level evidence needs before source collection. | 4.2, 4.5, 4.6, 4.7, 4.12 |
+| Research | Collect current and primary evidence according to the plan, update source/claim/evidence registries, record contradictions, confidence, freshness, and framework coverage. | 4.2, 4.5, 4.7, 4.9 |
+| Post-Research Brainstorming | Re-open candidate explanations after evidence exists, compare multi-start perspectives, identify likely errors, next evidence moves, and evidence-triggered framework refinements. | 4.4, 4.5, 4.6, 4.12 |
+| Redteam | Attack the strongest current argument, substitutes, hidden assumptions, kill criteria, and anti-narrative regularizers. | 4.5, 4.8, 4.12 |
+| Synthesis | Integrate evidence and objections into sensitivity analysis, implied-expectation reverse-checks, Bayesian updates, scenarios, decision trees, and constraint-specific recommendation branches. | 4.6, 4.7, 4.9, 4.10, 4.11, 4.12 |
+| Evolver | Decide Keep / Narrow / Pivot / Kill / Final, separate future facts from desk-researchable gaps, and generate the next-round target or finalization rationale. | 4.4, 4.6, 4.8, 4.9, 4.10 |
+| Final Report | Write a standalone human decision memo with body chapters from the framework, decision logic, recommendation, change triggers, next actions, limits, and appendices. | 4.10, 4.11, 5.2, 5.3 |
 
 If evidence shows the framework should change, record it in `index.md` under `Framework Refinement Log`: current dimensions, evidence trigger for the change, and confirmation that the original question/core is preserved. Later rounds then use the refined dimensions. Silent framework drift is invalid.
 
@@ -203,27 +230,27 @@ Companion skills are optional helpers for search, long reports, VOC/customer res
 
 ```mermaid
 flowchart TD
-    A[User research question] --> B[00-brief.md<br/>decision, optimization contract, lens, framework, evidence standard]
-    B --> C[Round research<br/>sources, claim-level evidence, framework coverage]
-    C --> D{Need companion skill?}
-    D -->|Current sources needed| D1[Prefer Tavily<br/>or fitting search tool]
-    D -->|Long report capability| D2[Prefer Deep Research]
+    A[User research question] --> B[00-brief.md<br/>Brief / Frame Contract]
+    B --> P[NN-evidence-plan.md<br/>Evidence Plan / Minimum Direct Evidence]
+    P --> C[NN-research.md<br/>source search, claim-level registry, framework coverage]
+    C --> D{Need companion during research?}
+    D -->|Current sources| D1[Prefer Tavily<br/>or fitting search tool]
+    D -->|Long evidence packaging| D2[Prefer Deep Research]
     D -->|VOC / user language| D3[Customer or Reddit research]
     D -->|Competitors| D4[Competitive research]
-    D -->|Persistence needed| D5[Astro-Han/karpathy-llm-wiki<br/>or other wiki/indexer]
-    D -->|No| E[Brainstorm checkpoint]
     D1 --> C
     D2 --> C
     D3 --> C
     D4 --> C
-    D5 --> I[index.md]
-    C --> E[Brainstorm checkpoint]
-    E --> F[Red-team critique<br/>risks, substitutes, kill criteria]
-    F --> G[Synthesis<br/>confidence, rationale, sensitivity, counterfactuals]
-    G --> H[Evolver<br/>Keep / Narrow / Pivot / Kill / Final<br/>Kill scope and original-question status]
+    C --> E[NN-brainstorm.md<br/>Post-Research Brainstorming]
+    E --> X{Need targeted evidence?}
+    X -->|Yes| C
+    X -->|No| F[NN-redteam.md<br/>risks, substitutes, kill criteria]
+    F --> G[NN-synthesis.md<br/>sensitivity, Bayesian update, decision tree]
+    G --> H[NN-evolver.md<br/>Keep / Narrow / Pivot / Kill / Final]
     H --> Q{Evolver decision}
     Q -->|Keep / Narrow / Pivot| I[index.md<br/>workbench: next target and why not final]
-    I --> C
+    I --> P
     Q -->|Final / Kill| J[Write report.md<br/>framework dimensions as body chapters]
     J --> R[check-final<br/>score and prose-first gate]
     R -->|Score below threshold| I

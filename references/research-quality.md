@@ -193,6 +193,7 @@ Treat a framework as a research method rather than a prewritten conclusion. If a
 
 The framework must structure the whole workflow, not just the final `report.md`. In `00-brief.md`, each dimension should become a `###` subsection that states the core question, evidence needed, and current boundary. In each round file, the framework-relevant section should use the same dimension subheadings:
 
+- `NN-evidence-plan.md`: minimum direct evidence, preferred source type, disconfirming evidence, and missing-evidence handling by dimension.
 - `NN-research.md`: findings, evidence IDs, contradictions, confidence, and next evidence need by dimension.
 - `NN-brainstorm.md`: next evidence moves or reframes by dimension.
 - `NN-redteam.md`: strongest objection, alternative explanation, falsifier, and decision implication by dimension.
@@ -203,13 +204,14 @@ Keep these subsections concise in quick mode. The important rule is structural: 
 
 ## Artifact Dependency Order
 
-Round files can be scaffolded together by the helper, but their content should be written in order:
+Use the staged CLI so each downstream file depends on upstream content already written to disk:
 
-1. `NN-research.md` first: evidence, registry updates, source roles, framework coverage, direct-evidence gaps.
-2. `NN-brainstorm.md` after research: candidate next evidence moves, reframes, multi-start perspectives, and each perspective's target function and likely error.
-3. `NN-redteam.md` after brainstorming: strongest objections, substitutes, falsifiers, hidden assumptions, and anti-narrative regularizers.
-4. `NN-synthesis.md` after red-team critique: integrated judgment, sensitivity, implied-expectation reverse-check, constraint branches, scenarios, and decision impact.
-5. `NN-evolver.md` after synthesis: Keep / Narrow / Pivot / Kill / Final, future facts vs desk-researchable gaps, next target, and evidence needed next.
+1. `NN-evidence-plan.md` first: decision-critical variables, minimum direct evidence, preferred source types, disconfirming evidence, and missing-evidence handling by framework dimension.
+2. `NN-research.md` after evidence plan: evidence, registry updates, source roles, framework coverage, direct-evidence gaps.
+3. `NN-brainstorm.md` after research: candidate next evidence moves, reframes, multi-start perspectives, and each perspective's target function and likely error.
+4. `NN-redteam.md` after brainstorming: strongest objections, substitutes, falsifiers, hidden assumptions, and anti-narrative regularizers.
+5. `NN-synthesis.md` after red-team critique: integrated judgment, sensitivity, implied-expectation reverse-check, constraint branches, scenarios, and decision impact.
+6. `NN-evolver.md` after synthesis: Keep / Narrow / Pivot / Kill / Final, future facts vs desk-researchable gaps, next target, and evidence needed next.
 
 This is not a hard extra gate; it is front-loaded process guidance. The purpose is to stop downstream artifacts from inventing conclusions before upstream evidence and critique exist.
 

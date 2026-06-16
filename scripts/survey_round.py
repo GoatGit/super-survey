@@ -93,6 +93,15 @@ SECTION_SCHEMAS = {
         "Appendix: Options Or Scenarios",
         "Appendix: Source Notes",
     ),
+    "evidence_plan_headings": (
+        "Round Decision Target",
+        "Decision-Critical Variables",
+        "Minimum Direct Evidence",
+        "Source Plan",
+        "Disconfirming Evidence",
+        "Missing Evidence Handling",
+        "Framework Evidence Map",
+    ),
     "legacy_report_headings": (
         "Executive Summary",
         "Key Findings",
@@ -163,6 +172,7 @@ LABELS = {
         "brief_title": "Survey Brief",
         "index_title": "Survey Index",
         "round": "Round",
+        "evidence_plan": "Evidence Plan",
         "research": "Research",
         "brainstorm": "Brainstorming Checkpoint",
         "redteam": "Red-Team Challenge",
@@ -239,6 +249,15 @@ LABELS = {
             "Appendix: Red-Team Notes",
             "Appendix: Options Or Scenarios",
             "Appendix: Source Notes",
+        ],
+        "evidence_plan_headings": [
+            "Round Decision Target",
+            "Decision-Critical Variables",
+            "Minimum Direct Evidence",
+            "Source Plan",
+            "Disconfirming Evidence",
+            "Missing Evidence Handling",
+            "Framework Evidence Map",
         ],
         "legacy_report_headings": [
             "Executive Summary",
@@ -399,8 +418,29 @@ LABELS = {
         "artifact_dependency_markers": [
             "Content dependency order:",
             "Complete this first",
+            "Complete this before source collection",
             "Complete after",
-            "Scaffold files may be created together",
+            "Create this only after",
+        ],
+        "evidence_plan_template_notes": [
+            "Variable:",
+            "Why it can change the decision:",
+            "Current assumption:",
+            "Evidence needed:",
+            "Direct evidence that must be observed:",
+            "Evidence that is only background:",
+            "Evidence that cannot substitute for direct proof:",
+            "Primary or official sources:",
+            "Direct measurements or registry updates:",
+            "Current-source search path:",
+            "Companion routing if needed:",
+            "What would weaken the candidate action:",
+            "What would falsify the current path:",
+            "What substitute explanation must be checked:",
+            "If evidence is missing:",
+            "If evidence requires interviews, experiments, legal review, or future facts:",
+            "If another desk-research pass can reduce the gap:",
+            "For each dimension from 00-brief.md, add `### <framework dimension>` and write the minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.",
         ],
         "evolver_quality_gate_notes": [
             "Evidence coverage this round:",
@@ -496,6 +536,7 @@ LABELS = {
         "brief_title": "调研简报",
         "index_title": "调研索引",
         "round": "第",
+        "evidence_plan": "轮证据计划",
         "research": "轮调研",
         "brainstorm": "轮 Brainstorming 检查点",
         "redteam": "轮反方挑战",
@@ -572,6 +613,15 @@ LABELS = {
             "附录：反方挑战记录",
             "附录：选项或情景",
             "附录：来源备注",
+        ],
+        "evidence_plan_headings": [
+            "本轮决策目标",
+            "决策关键变量",
+            "最低直接证据",
+            "来源计划",
+            "反证证据",
+            "缺失证据处理",
+            "框架证据地图",
         ],
         "legacy_report_headings": [
             "执行摘要",
@@ -732,8 +782,29 @@ LABELS = {
         "artifact_dependency_markers": [
             "内容依赖顺序：",
             "先完成",
+            "Complete this before source collection",
             "在上游文件完成后",
-            "脚手架文件可以一次创建",
+            "阶段化 CLI",
+        ],
+        "evidence_plan_template_notes": [
+            "Variable:",
+            "Why it can change the decision:",
+            "Current assumption:",
+            "Evidence needed:",
+            "Direct evidence that must be observed:",
+            "Evidence that is only background:",
+            "Evidence that cannot substitute for direct proof:",
+            "Primary or official sources:",
+            "Direct measurements or registry updates:",
+            "Current-source search path:",
+            "Companion routing if needed:",
+            "What would weaken the candidate action:",
+            "What would falsify the current path:",
+            "What substitute explanation must be checked:",
+            "If evidence is missing:",
+            "If evidence requires interviews, experiments, legal review, or future facts:",
+            "If another desk-research pass can reduce the gap:",
+            "For each dimension from 00-brief.md, add `### <framework dimension>` and write the minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.",
         ],
         "evolver_quality_gate_notes": [
             "本轮证据覆盖：",
@@ -813,6 +884,7 @@ LABELS = {
         "brief_title": "調査ブリーフ",
         "index_title": "調査インデックス",
         "round": "第",
+        "evidence_plan": "回証拠計画",
         "research": "回調査",
         "brainstorm": "回 Brainstorming チェックポイント",
         "redteam": "回レッドチーム",
@@ -889,6 +961,15 @@ LABELS = {
             "付録: レッドチームメモ",
             "付録: 選択肢またはシナリオ",
             "付録: 情報源メモ",
+        ],
+        "evidence_plan_headings": [
+            "今回の判断目標",
+            "判断に重要な変数",
+            "最低限の直接証拠",
+            "情報源計画",
+            "反証となる証拠",
+            "欠落証拠の扱い",
+            "フレームワーク証拠マップ",
         ],
         "legacy_report_headings": [
             "エグゼクティブサマリー",
@@ -1049,8 +1130,29 @@ LABELS = {
         "artifact_dependency_markers": [
             "内容の依存順序:",
             "最初に完了",
+            "Complete this before source collection",
             "完了後に作成",
-            "足場ファイルはまとめて作成可能",
+            "段階化 CLI",
+        ],
+        "evidence_plan_template_notes": [
+            "Variable:",
+            "Why it can change the decision:",
+            "Current assumption:",
+            "Evidence needed:",
+            "Direct evidence that must be observed:",
+            "Evidence that is only background:",
+            "Evidence that cannot substitute for direct proof:",
+            "Primary or official sources:",
+            "Direct measurements or registry updates:",
+            "Current-source search path:",
+            "Companion routing if needed:",
+            "What would weaken the candidate action:",
+            "What would falsify the current path:",
+            "What substitute explanation must be checked:",
+            "If evidence is missing:",
+            "If evidence requires interviews, experiments, legal review, or future facts:",
+            "If another desk-research pass can reduce the gap:",
+            "For each dimension from 00-brief.md, add `### <framework dimension>` and write the minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.",
         ],
         "evolver_quality_gate_notes": [
             "今回の証拠網羅:",
@@ -1300,6 +1402,7 @@ def structural_values(language: str) -> frozenset[str]:
     values.update(str(note) for note in label["framework_refinement_notes"])
     values.update(str(note) for note in label["report_quality_gate_notes"])
     values.update(str(note) for note in label["evolver_quality_gate_notes"])
+    values.update(str(note) for note in label.get("evidence_plan_template_notes", []))
     for key in (
         "source_registry_note",
         "claim_registry_note",
@@ -2007,12 +2110,367 @@ def round_title(label: dict[str, object], round_number: int, suffix: str) -> str
     return f"{label['round']}{round_number}{suffix}"
 
 
+STAGE_ORDER = ("evidence-plan", "research", "brainstorm", "redteam", "synthesis", "evolve")
+
+
+def stage_filename(prefix: str, stage: str) -> str:
+    suffix = "evolver" if stage == "evolve" else stage
+    return f"{prefix}-{suffix}.md"
+
+
+def stage_schema_key(stage: str) -> str:
+    return {
+        "evidence-plan": "evidence_plan_headings",
+        "research": "research_headings",
+        "brainstorm": "brainstorm_headings",
+        "redteam": "redteam_headings",
+        "synthesis": "synthesis_headings",
+        "evolve": "evolver_headings",
+    }[stage]
+
+
+def previous_stage(stage: str) -> str | None:
+    index = STAGE_ORDER.index(stage)
+    if index == 0:
+        return None
+    return STAGE_ORDER[index - 1]
+
+
+def ensure_previous_stage_complete(survey_dir: Path, prefix: str, stage: str, language: str) -> None:
+    previous = previous_stage(stage)
+    if previous is None:
+        return
+    previous_path = survey_dir / stage_filename(prefix, previous)
+    if not previous_path.exists() or not file_has_substance(previous_path, language):
+        print(
+            f"ERROR: previous stage incomplete: {previous_path.name} must contain substantive content before {stage}",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+
+
+def create_evidence_plan_template(survey_dir: Path, label: dict[str, object], language: str, round_number: int, prefix: str) -> None:
+    headings = label["evidence_plan_headings"]
+    write_once(
+        survey_dir / f"{prefix}-evidence-plan.md",
+        f"""# {round_title(label, round_number, str(label['evidence_plan']))}
+
+{artifact_dependency_note(language, "evidence-plan", prefix)}
+
+## {headings[0]}
+
+-
+
+## {headings[1]}
+
+- Variable:
+- Why it can change the decision:
+- Current assumption:
+- Evidence needed:
+
+## {headings[2]}
+
+- Direct evidence that must be observed:
+- Evidence that is only background:
+- Evidence that cannot substitute for direct proof:
+
+## {headings[3]}
+
+- Primary or official sources:
+- Direct measurements or registry updates:
+- Current-source search path:
+- Companion routing if needed:
+
+## {headings[4]}
+
+- What would weaken the candidate action:
+- What would falsify the current path:
+- What substitute explanation must be checked:
+
+## {headings[5]}
+
+- If evidence is missing:
+- If evidence requires interviews, experiments, legal review, or future facts:
+- If another desk-research pass can reduce the gap:
+
+## {headings[6]}
+
+- For each dimension from 00-brief.md, add `### <framework dimension>` and write the minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.
+""",
+    )
+
+
+def create_research_template(survey_dir: Path, label: dict[str, object], language: str, round_number: int, prefix: str) -> None:
+    headings = label["research_headings"]
+    search_tool_notes = "\n".join(f"- {note}" for note in label["search_tool_notes"])
+    source_registry_note = str(label["source_registry_note"])
+    claim_registry_note = str(label["claim_registry_note"])
+    framework_coverage_note = str(label["framework_coverage_note"])
+    framework_round_coverage_note = str(label["framework_round_coverage_note"])
+    write_once(
+        survey_dir / f"{prefix}-research.md",
+        f"""# {round_title(label, round_number, str(label['research']))}
+
+{artifact_dependency_note(language, "research", prefix)}
+
+## {headings[0]}
+
+- 
+
+## {headings[1]}
+
+{source_registry_note}
+
+## {headings[2]}
+
+{claim_registry_note}
+
+## {headings[3]}
+
+{framework_round_coverage_note}
+{framework_coverage_note}
+
+## {headings[4]}
+
+-
+
+## {headings[5]}
+
+{search_tool_notes}
+""",
+    )
+
+
+def create_brainstorm_template(survey_dir: Path, label: dict[str, object], language: str, round_number: int, prefix: str) -> None:
+    headings = label["brainstorm_headings"]
+    framework_brainstorm_note = str(label["framework_brainstorm_note"])
+    write_once(
+        survey_dir / f"{prefix}-brainstorm.md",
+        f"""# {round_title(label, round_number, str(label['brainstorm']))}
+
+{artifact_dependency_note(language, "brainstorm", prefix)}
+
+## {headings[0]}
+
+- Status:
+- Notes:
+
+## {headings[1]}
+
+- 
+
+## {headings[2]}
+
+- 
+
+## {headings[3]}
+
+{framework_brainstorm_note}
+- Option A:
+- Option B:
+- Option C:
+
+## {headings[4]}
+
+- 
+
+## {headings[5]}
+
+- 
+""",
+    )
+
+
+def create_redteam_template(survey_dir: Path, label: dict[str, object], language: str, round_number: int, prefix: str) -> None:
+    headings = label["redteam_headings"]
+    framework_redteam_note = str(label["framework_redteam_note"])
+    write_once(
+        survey_dir / f"{prefix}-redteam.md",
+        f"""# {round_title(label, round_number, str(label['redteam']))}
+
+{artifact_dependency_note(language, "redteam", prefix)}
+
+## {headings[0]}
+
+{framework_redteam_note}
+- 
+
+## {headings[1]}
+
+- 
+
+## {headings[2]}
+
+- 
+
+## {headings[3]}
+
+- 
+
+## {headings[4]}
+
+- 
+
+## {headings[5]}
+
+- 
+
+## {headings[6]}
+
+-
+
+## {headings[7]}
+
+-
+""",
+    )
+
+
+def create_synthesis_template(survey_dir: Path, label: dict[str, object], language: str, round_number: int, prefix: str) -> None:
+    headings = label["synthesis_headings"]
+    framework_synthesis_note = str(label["framework_synthesis_note"])
+    framework_synthesis_expansion_note = str(label["framework_synthesis_expansion_note"])
+    sensitivity_counterfactual_note = str(label["sensitivity_counterfactual_note"])
+    write_once(
+        survey_dir / f"{prefix}-synthesis.md",
+        f"""# {round_title(label, round_number, str(label['synthesis']))}
+
+{artifact_dependency_note(language, "synthesis", prefix)}
+
+## {headings[0]}
+
+- 
+
+## {headings[1]}
+
+{label['confidence']}
+
+## {headings[2]}
+
+- 
+
+## {headings[3]}
+
+{framework_synthesis_expansion_note}
+{framework_synthesis_note}
+
+## {headings[4]}
+
+{sensitivity_counterfactual_note}
+
+## {headings[5]}
+
+-
+
+## {headings[6]}
+
+-
+
+## {headings[7]}
+
+-
+
+## {headings[8]}
+
+-
+""",
+    )
+
+
+def create_evolver_template(survey_dir: Path, label: dict[str, object], language: str, round_number: int, prefix: str) -> None:
+    headings = label["evolver_headings"]
+    framework_evolver_gate_note = str(label["framework_evolver_gate_note"])
+    evolver_decision_note = str(label["evolver_decision_note"])
+    evolver_quality_gate_notes = "\n".join(f"- {note}" for note in label["evolver_quality_gate_notes"])
+    write_once(
+        survey_dir / f"{prefix}-evolver.md",
+        f"""# {round_title(label, round_number, str(label['evolver']))}
+
+{artifact_dependency_note(language, "evolver", prefix)}
+
+## {headings[0]}
+
+- 
+
+## {headings[1]}
+
+{table(str(label['probe_cols']))}
+"""
+        + "\n".join(f"| {probe} |  | {label['strength']} |" for probe in label["probes"])
+        + f"""
+
+## {headings[2]}
+
+{table(str(label['persona_cols']))}
+"""
+        + "\n".join(f"| {persona} | {label['verdict']} |  |" for persona in label["personas"])
+        + f"""
+
+## {headings[3]}
+
+{evolver_decision_note}
+
+## {headings[4]}
+
+{framework_evolver_gate_note}
+{evolver_quality_gate_notes}
+
+## {headings[5]}
+
+-
+
+## {headings[6]}
+
+-
+""",
+    )
+
+
+def create_stage_template(survey_dir: Path, label: dict[str, object], language: str, round_number: int, stage: str) -> None:
+    prefix = f"{round_number:02d}"
+    ensure_previous_stage_complete(survey_dir, prefix, stage, language)
+    creators = {
+        "evidence-plan": create_evidence_plan_template,
+        "research": create_research_template,
+        "brainstorm": create_brainstorm_template,
+        "redteam": create_redteam_template,
+        "synthesis": create_synthesis_template,
+        "evolve": create_evolver_template,
+    }
+    creators[stage](survey_dir, label, language, round_number, prefix)
+
+
+def create_stage_command(stage: str):
+    def _create(args: argparse.Namespace) -> None:
+        survey_dir = Path(args.survey_dir).expanduser().resolve()
+        survey_dir.mkdir(parents=True, exist_ok=True)
+        language = read_language(survey_dir, args.language)
+        mode = read_mode(survey_dir, None)
+        label = labels(language)
+        round_number = int(args.round)
+        if mode == "quick":
+            if stage == "evidence-plan":
+                create_quick_round_template(survey_dir, label, round_number, f"{round_number:02d}")
+                print(survey_dir)
+                return
+            print(f"ERROR: quick mode uses the combined {round_number:02d}-round.md artifact", file=sys.stderr)
+            raise SystemExit(1)
+        create_stage_template(survey_dir, label, language, round_number, stage)
+        print(survey_dir)
+
+    return _create
+
+
 def artifact_dependency_note(language: str, stage: str, prefix: str) -> str:
     if language == "zh":
         notes = {
+            "evidence-plan": (
+                "- 内容依赖顺序：这是本轮第一份阶段文件。\n"
+                "- Complete this before source collection；先定义什么证据算数，再开始搜索、登记来源和写 research。"
+            ),
             "research": (
-                "- 内容依赖顺序：脚手架文件可以一次创建，但内容必须按 research -> brainstorm -> redteam -> synthesis -> evolver 顺序完成。\n"
-                "- 先完成本文件；下游文件只引用已经写入的研究发现、证据登记和框架覆盖。"
+                f"- 内容依赖顺序：在上游文件完成后再填写。\n"
+                f"- 在上游文件完成后填写：Complete after {prefix}-evidence-plan.md。"
             ),
             "brainstorm": (
                 f"- 内容依赖顺序：在上游文件完成后再填写。\n"
@@ -2033,9 +2491,13 @@ def artifact_dependency_note(language: str, stage: str, prefix: str) -> str:
         }
     elif language == "ja":
         notes = {
+            "evidence-plan": (
+                "- 内容の依存順序: このラウンドで最初に完了する段階ファイル。\n"
+                "- Complete this before source collection; どの証拠が判断を変えるかを定義してから検索、レジストリ更新、research 作成に進む。"
+            ),
             "research": (
-                "- 内容の依存順序: 足場ファイルはまとめて作成可能だが、内容は research -> brainstorm -> redteam -> synthesis -> evolver の順で完成させる。\n"
-                "- 最初に完了するファイル。下流ファイルは、すでに書かれた調査発見、証拠レジストリ、フレームワーク網羅だけを参照する。"
+                f"- 内容の依存順序: 完了後に作成する。\n"
+                f"- 完了後に作成: Complete after {prefix}-evidence-plan.md。"
             ),
             "brainstorm": (
                 f"- 内容の依存順序: 完了後に作成する。\n"
@@ -2056,24 +2518,28 @@ def artifact_dependency_note(language: str, stage: str, prefix: str) -> str:
         }
     else:
         notes = {
+            "evidence-plan": (
+                "- Content dependency order: this is the first stage artifact for the round.\n"
+                "- Complete this before source collection; define what evidence counts before searching, updating registries, or writing research."
+            ),
             "research": (
-                "- Content dependency order: Scaffold files may be created together, but fill content in research -> brainstorm -> redteam -> synthesis -> evolver order.\n"
-                "- Complete this first; downstream files should cite only written research findings, registry updates, and framework coverage."
+                f"- Content dependency order: create this only after the upstream stage is complete.\n"
+                f"- Complete after {prefix}-evidence-plan.md."
             ),
             "brainstorm": (
-                f"- Content dependency order: Scaffold files may be created together, but fill content only after upstream files exist.\n"
+                f"- Content dependency order: create this only after the upstream stage is complete.\n"
                 f"- Complete after {prefix}-research.md."
             ),
             "redteam": (
-                f"- Content dependency order: Scaffold files may be created together, but fill content only after upstream files exist.\n"
+                f"- Content dependency order: create this only after the upstream stage is complete.\n"
                 f"- Complete after {prefix}-research.md and {prefix}-brainstorm.md."
             ),
             "synthesis": (
-                f"- Content dependency order: Scaffold files may be created together, but fill content only after upstream files exist.\n"
+                f"- Content dependency order: create this only after the upstream stage is complete.\n"
                 f"- Complete after {prefix}-research.md, {prefix}-brainstorm.md, and {prefix}-redteam.md."
             ),
             "evolver": (
-                f"- Content dependency order: Scaffold files may be created together, but fill content only after upstream files exist.\n"
+                f"- Content dependency order: create this only after the upstream stage is complete.\n"
                 f"- Complete after {prefix}-synthesis.md."
             ),
         }
@@ -2137,217 +2603,7 @@ def create_round(args: argparse.Namespace) -> None:
         print(survey_dir)
         return
 
-    headings = label["research_headings"]
-    search_tool_notes = "\n".join(f"- {note}" for note in label["search_tool_notes"])
-    source_registry_note = str(label["source_registry_note"])
-    claim_registry_note = str(label["claim_registry_note"])
-    framework_coverage_note = str(label["framework_coverage_note"])
-    framework_round_coverage_note = str(label["framework_round_coverage_note"])
-    write_once(
-        survey_dir / f"{prefix}-research.md",
-        f"""# {round_title(label, int(args.round), str(label['research']))}
-
-{artifact_dependency_note(language, "research", prefix)}
-
-## {headings[0]}
-
-- 
-
-## {headings[1]}
-
-{source_registry_note}
-
-## {headings[2]}
-
-{claim_registry_note}
-
-## {headings[3]}
-
-{framework_round_coverage_note}
-{framework_coverage_note}
-
-## {headings[4]}
-
--
-
-## {headings[5]}
-
-{search_tool_notes}
-""",
-    )
-    headings = label["brainstorm_headings"]
-    framework_brainstorm_note = str(label["framework_brainstorm_note"])
-    write_once(
-        survey_dir / f"{prefix}-brainstorm.md",
-        f"""# {round_title(label, int(args.round), str(label['brainstorm']))}
-
-{artifact_dependency_note(language, "brainstorm", prefix)}
-
-## {headings[0]}
-
-- Status:
-- Notes:
-
-## {headings[1]}
-
-- 
-
-## {headings[2]}
-
-- 
-
-## {headings[3]}
-
-{framework_brainstorm_note}
-- Option A:
-- Option B:
-- Option C:
-
-## {headings[4]}
-
-- 
-
-## {headings[5]}
-
-- 
-""",
-    )
-    headings = label["redteam_headings"]
-    framework_redteam_note = str(label["framework_redteam_note"])
-    write_once(
-        survey_dir / f"{prefix}-redteam.md",
-        f"""# {round_title(label, int(args.round), str(label['redteam']))}
-
-{artifact_dependency_note(language, "redteam", prefix)}
-
-## {headings[0]}
-
-{framework_redteam_note}
-- 
-
-## {headings[1]}
-
-- 
-
-## {headings[2]}
-
-- 
-
-## {headings[3]}
-
-- 
-
-## {headings[4]}
-
-- 
-
-## {headings[5]}
-
-- 
-
-## {headings[6]}
-
--
-
-## {headings[7]}
-
--
-""",
-    )
-    headings = label["synthesis_headings"]
-    framework_synthesis_note = str(label["framework_synthesis_note"])
-    framework_synthesis_expansion_note = str(label["framework_synthesis_expansion_note"])
-    sensitivity_counterfactual_note = str(label["sensitivity_counterfactual_note"])
-    write_once(
-        survey_dir / f"{prefix}-synthesis.md",
-        f"""# {round_title(label, int(args.round), str(label['synthesis']))}
-
-{artifact_dependency_note(language, "synthesis", prefix)}
-
-## {headings[0]}
-
-- 
-
-## {headings[1]}
-
-{label['confidence']}
-
-## {headings[2]}
-
-- 
-
-## {headings[3]}
-
-{framework_synthesis_expansion_note}
-{framework_synthesis_note}
-
-## {headings[4]}
-
-{sensitivity_counterfactual_note}
-
-## {headings[5]}
-
--
-
-## {headings[6]}
-
--
-
-## {headings[7]}
-
--
-
-## {headings[8]}
-
--
-""",
-    )
-    headings = label["evolver_headings"]
-    framework_evolver_gate_note = str(label["framework_evolver_gate_note"])
-    evolver_decision_note = str(label["evolver_decision_note"])
-    evolver_quality_gate_notes = "\n".join(f"- {note}" for note in label["evolver_quality_gate_notes"])
-    write_once(
-        survey_dir / f"{prefix}-evolver.md",
-        f"""# {round_title(label, int(args.round), str(label['evolver']))}
-
-{artifact_dependency_note(language, "evolver", prefix)}
-
-## {headings[0]}
-
-- 
-
-## {headings[1]}
-
-{table(str(label['probe_cols']))}
-"""
-        + "\n".join(f"| {probe} |  | {label['strength']} |" for probe in label["probes"])
-        + f"""
-
-## {headings[2]}
-
-{table(str(label['persona_cols']))}
-"""
-        + "\n".join(f"| {persona} | {label['verdict']} |  |" for persona in label["personas"])
-        + f"""
-
-## {headings[3]}
-
-{evolver_decision_note}
-
-## {headings[4]}
-
-{framework_evolver_gate_note}
-{evolver_quality_gate_notes}
-
-## {headings[5]}
-
--
-
-## {headings[6]}
-
--
-""",
-    )
+    create_stage_template(survey_dir, label, language, int(args.round), "evidence-plan")
     print(survey_dir)
 
 
@@ -2826,6 +3082,14 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
         if mode == "quick" and quick_path.exists():
             check_required_file(errors, quick_path, list(label["quick_round_headings"]), language)
             continue
+        evidence_plan_path = survey_dir / f"{prefix}-evidence-plan.md"
+        check_required_file(errors, evidence_plan_path, list(label["evidence_plan_headings"]), language)
+        check_round_framework_dimensions(
+            errors,
+            evidence_plan_path,
+            str(label["evidence_plan_headings"][-1]),
+            effective_framework_dimensions,
+        )
         research_path = survey_dir / f"{prefix}-research.md"
         check_required_file(errors, research_path, list(label["research_headings"]), language)
         check_research_tool_notes(errors, warnings, research_path, label, schema_version)
@@ -2953,11 +3217,25 @@ def main() -> None:
     p_init.add_argument("--mode", choices=MODES, default="standard")
     p_init.set_defaults(func=init_survey)
 
-    p_round = sub.add_parser("round", help="create round templates")
+    p_round = sub.add_parser("round", help="start a staged round by creating the evidence plan")
     p_round.add_argument("survey_dir")
     p_round.add_argument("round", type=positive_int)
     p_round.add_argument("--language", choices=LANGUAGES)
     p_round.set_defaults(func=create_round)
+
+    for command, stage, help_text in (
+        ("plan", "evidence-plan", "create the round evidence plan stage"),
+        ("research", "research", "create the research stage after the evidence plan is complete"),
+        ("brainstorm", "brainstorm", "create the post-research brainstorming stage"),
+        ("redteam", "redteam", "create the red-team stage"),
+        ("synthesis", "synthesis", "create the synthesis stage"),
+        ("evolve", "evolve", "create the evolver stage"),
+    ):
+        p_stage = sub.add_parser(command, help=help_text)
+        p_stage.add_argument("survey_dir")
+        p_stage.add_argument("round", type=positive_int)
+        p_stage.add_argument("--language", choices=LANGUAGES)
+        p_stage.set_defaults(func=create_stage_command(stage))
 
     p_check = sub.add_parser("check", help="validate a survey directory")
     p_check.add_argument("survey_dir")
