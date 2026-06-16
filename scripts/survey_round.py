@@ -58,6 +58,7 @@ SECTION_SCHEMAS = {
         "Research Framework",
         "Decision Evidence Standard",
         "Decision Frame Integrity",
+        "Decision Optimization Contract",
         "Target Customer",
         "Success Criteria",
         "Disqualifying Conditions",
@@ -131,6 +132,7 @@ SECTION_SCHEMAS = {
         "Confidence",
         "Decision Rationale",
         "Framework-Based Synthesis",
+        "Sensitivity And Counterfactuals",
         "What Changed",
         "Remaining Unknowns",
         "Evolved Next Research Target",
@@ -179,6 +181,7 @@ LABELS = {
             "Research Framework",
             "Decision Evidence Standard",
             "Decision Frame Integrity",
+            "Decision Optimization Contract",
             "Target Customer",
             "Success Criteria",
             "Disqualifying Conditions",
@@ -210,6 +213,9 @@ LABELS = {
             "Total Score:",
             "Passed:",
             "Score Breakdown:",
+            "Anti-sycophancy / objective-function integrity:",
+            "Objective reconstruction quality:",
+            "User-frame challenge quality:",
             "Lowest-Scoring Areas:",
             "Next Round Focus:",
         ],
@@ -281,6 +287,7 @@ LABELS = {
             "Confidence",
             "Decision Rationale",
             "Framework-Based Synthesis",
+            "Sensitivity And Counterfactuals",
             "What Changed",
             "Remaining Unknowns",
             "Evolved Next Research Target",
@@ -353,12 +360,27 @@ LABELS = {
         "framework_synthesis_expansion_note": (
             "- For each dimension from 00-brief.md, add `### <framework dimension>` and synthesize current judgment, confidence, contradictions, and effect on the decision."
         ),
+        "sensitivity_counterfactual_note": (
+            "- Key variable:\n"
+            "- Current assumption:\n"
+            "- If better:\n"
+            "- If worse:\n"
+            "- Evidence needed:\n"
+            "- Decision impact:"
+        ),
         "framework_evolver_gate_note": (
             "- For each dimension from 00-brief.md, add `### <framework dimension>` and record coverage quality, weakest gap, and whether a concrete next evidence target remains.\n"
             "- Implied expectation check:\n"
             "- Decision tree triggers:\n"
             "- Bayesian update needed:"
         ),
+        "evolver_quality_gate_notes": [
+            "Evidence coverage this round:",
+            "Framework coverage this round:",
+            "Weakest evidence or framework dimensions:",
+            "Continue / stop implication:",
+            "Next-round focus:",
+        ],
         "decision_frame_note": (
             "- Original user frame:\n"
             "- Known facts:\n"
@@ -379,6 +401,27 @@ LABELS = {
             "- Decision frame supported:\n"
             "- Stronger claim not assumed:\n"
             "- Allowed narrowing:"
+        ),
+        "decision_optimization_contract_note": (
+            "- Original question:\n"
+            "- Reconstructed objective function:\n"
+            "- Candidate actions:\n"
+            "- Do nothing / wait / continue research option:\n"
+            "- Hard constraints:\n"
+            "- Soft constraints:\n"
+            "- Missing constraints:\n"
+            "- Success criteria:\n"
+            "- Failure criteria:\n"
+            "- Opportunity cost:\n"
+            "- Reversibility:\n"
+            "- Implied expectations:\n"
+            "- Decision-changing evidence:"
+        ),
+        "evolver_decision_note": (
+            "Keep / Narrow / Pivot / Kill / Final\n"
+            "- Kill scope (if Kill): thesis / path / candidate action / original question\n"
+            "- Original question still open: yes / no\n"
+            "- If original question remains open, write the pivot or next answer path:"
         ),
         "continuation_policy_note": "- Start with the next research round.\n- Keep the round count open until evidence, red-team critique, synthesis, and the raw evolver decision are written.\n- Record actual round history, next targets, and any stop conclusion in index.md after each completed round.",
         "report_template_notes": [
@@ -436,6 +479,7 @@ LABELS = {
             "研究框架",
             "决策证据标准",
             "决策框架完整性",
+            "决策优化合约",
             "目标客户",
             "成功标准",
             "放弃条件",
@@ -467,6 +511,9 @@ LABELS = {
             "总分：",
             "是否通过：",
             "分项得分：",
+            "反谄媚 / 目标函数完整性：",
+            "目标函数重构质量：",
+            "用户框架挑战质量：",
             "最低分维度：",
             "下一轮重点：",
         ],
@@ -538,6 +585,7 @@ LABELS = {
             "置信度",
             "决策依据",
             "基于研究框架的综合",
+            "敏感变量与反事实扰动",
             "本轮变化",
             "剩余未知",
             "进化后的下一轮目标",
@@ -610,12 +658,27 @@ LABELS = {
         "framework_synthesis_expansion_note": (
             "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并综合当前判断、置信度、矛盾证据和对决策的影响。"
         ),
+        "sensitivity_counterfactual_note": (
+            "- 关键变量：\n"
+            "- 当前假设：\n"
+            "- 如果更好：\n"
+            "- 如果更差：\n"
+            "- 所需证据：\n"
+            "- 决策影响："
+        ),
         "framework_evolver_gate_note": (
             "- 对 00-brief.md 中的每个维度添加 `### <框架维度>`，并记录覆盖质量、最弱缺口，以及是否仍有具体下一步证据目标。\n"
             "- 隐含预期检查：\n"
             "- 决策树触发条件：\n"
             "- 是否需要贝叶斯更新："
         ),
+        "evolver_quality_gate_notes": [
+            "本轮证据覆盖：",
+            "本轮框架覆盖：",
+            "最弱证据或框架维度：",
+            "继续 / 停止含义：",
+            "下一轮重点：",
+        ],
         "decision_frame_note": (
             "- 用户原始框架：\n"
             "- 已知事实：\n"
@@ -636,6 +699,27 @@ LABELS = {
             "- 支持的决策框架：\n"
             "- 未预设更强命题：\n"
             "- 允许收窄的依据："
+        ),
+        "decision_optimization_contract_note": (
+            "- 原始问题：\n"
+            "- 重构后的目标函数：\n"
+            "- 候选行动：\n"
+            "- 不行动 / 等待 / 继续调研选项：\n"
+            "- 硬约束：\n"
+            "- 软约束：\n"
+            "- 缺失约束：\n"
+            "- 成功标准：\n"
+            "- 失败标准：\n"
+            "- 机会成本：\n"
+            "- 可逆性：\n"
+            "- 隐含预期：\n"
+            "- 能改变决策的证据："
+        ),
+        "evolver_decision_note": (
+            "保留 / 收窄 / 转向 / 放弃 / 最终成稿\n"
+            "- Kill scope（若放弃）：论点 / 路径 / 候选行动 / 原始问题\n"
+            "- Original question still open: yes / no\n"
+            "- 如果原始问题仍未关闭，写出转向或下一条回答路径："
         ),
         "continuation_policy_note": "- 从下一轮调研开始。\n- 让轮次数量保持开放，等证据、反方挑战、综合结论和原始进化器决策写入后再判断继续或停止。\n- 每轮完成后，把实际轮次历史、下一轮目标和停止结论记录到 index.md。",
         "report_template_notes": [
@@ -677,6 +761,7 @@ LABELS = {
             "調査フレームワーク",
             "判断に必要な証拠基準",
             "判断枠の整合性",
+            "意思決定最適化契約",
             "対象顧客",
             "成功基準",
             "中止条件",
@@ -708,6 +793,9 @@ LABELS = {
             "総合スコア:",
             "合格:",
             "スコア内訳:",
+            "反シコファンシー / 目的関数の整合性:",
+            "目的関数再構築の品質:",
+            "ユーザーフレーム検証の品質:",
             "最低スコア領域:",
             "次回ラウンドの焦点:",
         ],
@@ -779,6 +867,7 @@ LABELS = {
             "信頼度",
             "判断根拠",
             "フレームワークに基づく統合",
+            "感度変数と反事実",
             "今回変わったこと",
             "残る不明点",
             "進化した次回調査目標",
@@ -851,12 +940,27 @@ LABELS = {
         "framework_synthesis_expansion_note": (
             "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、現在の判断、信頼度、矛盾、判断への影響を統合する。"
         ),
+        "sensitivity_counterfactual_note": (
+            "- 主要変数:\n"
+            "- 現在の仮定:\n"
+            "- 良い方向に外れた場合:\n"
+            "- 悪い方向に外れた場合:\n"
+            "- 必要な証拠:\n"
+            "- 判断への影響:"
+        ),
         "framework_evolver_gate_note": (
             "- 00-brief.md の各次元に `### <フレームワーク次元>` を追加し、網羅品質、最も弱い欠落、具体的な次回証拠目標の有無を記録する。\n"
             "- 暗黙の期待値チェック:\n"
             "- 意思決定ツリーのトリガー:\n"
             "- ベイズ更新の必要性:"
         ),
+        "evolver_quality_gate_notes": [
+            "今回の証拠網羅:",
+            "今回のフレームワーク網羅:",
+            "最も弱い証拠またはフレームワーク次元:",
+            "継続 / 停止の意味:",
+            "次回ラウンドの焦点:",
+        ],
         "decision_frame_note": (
             "- ユーザーの元のフレーム:\n"
             "- 既知の事実:\n"
@@ -877,6 +981,27 @@ LABELS = {
             "- 支援する判断枠:\n"
             "- より強い主張を仮定しない:\n"
             "- 絞り込みを許す根拠:"
+        ),
+        "decision_optimization_contract_note": (
+            "- 元の問い:\n"
+            "- 再構築した目的関数:\n"
+            "- 候補行動:\n"
+            "- 何もしない / 待つ / 調査継続の選択肢:\n"
+            "- ハード制約:\n"
+            "- ソフト制約:\n"
+            "- 欠落している制約:\n"
+            "- 成功基準:\n"
+            "- 失敗基準:\n"
+            "- 機会費用:\n"
+            "- 可逆性:\n"
+            "- 暗黙の期待値:\n"
+            "- 判断を変える証拠:"
+        ),
+        "evolver_decision_note": (
+            "維持 / 絞り込み / ピボット / 中止 / 最終化\n"
+            "- Kill scope（中止の場合）: 仮説 / 経路 / 候補行動 / 元の問い\n"
+            "- Original question still open: yes / no\n"
+            "- 元の問いがまだ開いている場合、ピボットまたは次の回答経路を書く:"
         ),
         "continuation_policy_note": "- 次の調査ラウンドから始める。\n- ラウンド数は、証拠、レッドチーム、統合結論、生のエボルバー判断を書き終えるまで開いたままにする。\n- 完了した各ラウンドの後、実際のラウンド履歴、次回目標、停止結論を index.md に記録する。",
         "report_template_notes": [
@@ -1069,6 +1194,7 @@ def structural_values(language: str) -> frozenset[str]:
     values.update(str(note) for note in label["search_tool_notes"])
     values.update(str(note) for note in label["framework_refinement_notes"])
     values.update(str(note) for note in label["report_quality_gate_notes"])
+    values.update(str(note) for note in label["evolver_quality_gate_notes"])
     for key in (
         "source_registry_note",
         "claim_registry_note",
@@ -1080,7 +1206,10 @@ def structural_values(language: str) -> frozenset[str]:
         "framework_coverage_note",
         "framework_synthesis_expansion_note",
         "framework_synthesis_note",
+        "sensitivity_counterfactual_note",
         "framework_evolver_gate_note",
+        "decision_optimization_contract_note",
+        "evolver_decision_note",
     ):
         values.update(str(note) for note in str(label[key]).splitlines())
     values.update(str(note) for note in str(label["decision_frame_note"]).splitlines())
@@ -1181,6 +1310,20 @@ def parse_report_score(text: str, heading: str) -> int | None:
             if 0 <= score <= 100:
                 return score
     return None
+
+
+def quality_gate_has_anti_sycophancy_subscore(text: str, heading: str) -> bool:
+    body = section_body(text, heading)
+    if body is None:
+        return False
+    return any(
+        marker in body
+        for marker in (
+            "Anti-sycophancy / objective-function integrity",
+            "反谄媚 / 目标函数完整性",
+            "反シコファンシー / 目的関数の整合性",
+        )
+    )
 
 
 def normalize_dimension_text(text: str) -> str:
@@ -1597,6 +1740,10 @@ def validate_report_quality(
     if score is None:
         errors.append(f"index.md: {score_heading} must include a parseable 'Total Score: N / 100'")
         return
+    if not quality_gate_has_anti_sycophancy_subscore(index_text, score_heading):
+        errors.append(
+            "index.md: Final Report Quality Gate must include anti-sycophancy / objective-function integrity"
+        )
     if score < pass_score:
         errors.append(f"index.md: {mode} mode requires report score >= {pass_score}")
 
@@ -1616,6 +1763,7 @@ def init_survey(args: argparse.Namespace) -> None:
 
     headings = label["brief_headings"]
     decision_frame_note = str(label["decision_frame_note"])
+    decision_optimization_contract_note = str(label["decision_optimization_contract_note"])
     research_framework_note = str(label["research_framework_note"])
     framework_dimension_map_note = str(label["framework_dimension_map_note"])
     continuation_policy_note = str(label["continuation_policy_note"])
@@ -1660,7 +1808,7 @@ def init_survey(args: argparse.Namespace) -> None:
 
 ## {headings[7]}
 
--
+{decision_optimization_contract_note}
 
 ## {headings[8]}
 
@@ -1675,6 +1823,10 @@ def init_survey(args: argparse.Namespace) -> None:
 -
 
 ## {headings[11]}
+
+-
+
+## {headings[12]}
 
 {continuation_policy_note}
 """,
@@ -1917,6 +2069,7 @@ def create_round(args: argparse.Namespace) -> None:
     headings = label["synthesis_headings"]
     framework_synthesis_note = str(label["framework_synthesis_note"])
     framework_synthesis_expansion_note = str(label["framework_synthesis_expansion_note"])
+    sensitivity_counterfactual_note = str(label["sensitivity_counterfactual_note"])
     write_once(
         survey_dir / f"{prefix}-synthesis.md",
         f"""# {round_title(label, int(args.round), str(label['synthesis']))}
@@ -1940,7 +2093,7 @@ def create_round(args: argparse.Namespace) -> None:
 
 ## {headings[4]}
 
--
+{sensitivity_counterfactual_note}
 
 ## {headings[5]}
 
@@ -1953,10 +2106,16 @@ def create_round(args: argparse.Namespace) -> None:
 ## {headings[7]}
 
 -
+
+## {headings[8]}
+
+-
 """,
     )
     headings = label["evolver_headings"]
     framework_evolver_gate_note = str(label["framework_evolver_gate_note"])
+    evolver_decision_note = str(label["evolver_decision_note"])
+    evolver_quality_gate_notes = "\n".join(f"- {note}" for note in label["evolver_quality_gate_notes"])
     write_once(
         survey_dir / f"{prefix}-evolver.md",
         f"""# {round_title(label, int(args.round), str(label['evolver']))}
@@ -1981,16 +2140,12 @@ def create_round(args: argparse.Namespace) -> None:
 
 ## {headings[3]}
 
-{label['decision']}
+{evolver_decision_note}
 
 ## {headings[4]}
 
 {framework_evolver_gate_note}
-- Evidence coverage this round:
-- Framework coverage this round:
-- Weakest evidence or framework dimensions:
-- Continue / stop implication:
-- Next-round focus:
+{evolver_quality_gate_notes}
 
 ## {headings[5]}
 

@@ -35,6 +35,7 @@ Treat the user's question as the initial point, not the objective function. Befo
 
 - Split the prompt into known facts, unverified assumptions, subjective judgments, missing information, and stakeholders.
 - Restate the real decision objective and list competing objectives.
+- Write a Decision Optimization Contract: original question, reconstructed objective function, candidate actions, wait/continue option, constraints, success/failure criteria, opportunity cost, reversibility, implied expectations, and decision-changing evidence.
 - Name what the survey should not optimize for, such as pleasing the user, proving an initial hunch, or rejecting an exaggerated version of the question.
 - Generate multiple plausible explanations before selecting a thesis.
 - Test sensitivity: which assumptions would change the conclusion if false?
@@ -45,6 +46,21 @@ Good research challenges the user's frame without being adversarial for its own 
 ## Decision Robustness Tools
 
 Use these tools when a conclusion may drive spending, investment, adoption, architecture, legal, public, or strategic choices.
+
+### Decision Optimization Contract
+
+The contract turns an open-ended prompt into an explicit optimization problem before evidence collection starts. Record it in `00-brief.md`:
+
+- Original question: preserve the user's real question.
+- Reconstructed objective function: what the survey is trying to optimize.
+- Candidate actions: act, wait, narrow, pivot, stop, continue research, or custom domain actions.
+- Constraints: hard, soft, user-specific, and missing constraints.
+- Success/failure criteria: what would make the decision good or bad.
+- Opportunity cost and reversibility: what acting now displaces and how hard it is to undo.
+- Implied expectations: what must already be true for the candidate action to be attractive.
+- Decision-changing evidence: what evidence would materially move the recommendation.
+
+This is a generic research control, not a securities-specific model. It applies equally to products, markets, technical choices, open-source adoption, diligence, and custom strategy questions.
 
 ### Object Quality vs Action Attractiveness
 
@@ -91,6 +107,15 @@ Prefer conditional actions when facts remain uncertain:
 
 This keeps the output useful without collapsing uncertainty into one overconfident conclusion.
 
+### Sensitivity And Counterfactuals
+
+Record this in `NN-synthesis.md` so the round shows which assumptions actually control the decision:
+
+| Key variable | Current assumption | If better | If worse | Evidence needed | Decision impact |
+|---|---|---|---|---|---|
+
+Good variables are decision-changing rather than decorative: price/cost, conversion, policy permission, data access, reliability, maintainer health, market timing, budget, user trust, or any custom variable that can flip the action. Counterfactuals should show what happens when the assumption is meaningfully better or worse, not merely restate optimism and risk.
+
 ### Bayesian Update Table
 
 For high-stakes decisions, track the hypothesis dynamically:
@@ -126,8 +151,8 @@ The framework must structure the whole workflow, not just the final `report.md`.
 - `NN-research.md`: findings, evidence IDs, contradictions, confidence, and next evidence need by dimension.
 - `NN-brainstorm.md`: next evidence moves or reframes by dimension.
 - `NN-redteam.md`: strongest objection, alternative explanation, falsifier, and decision implication by dimension.
-- `NN-synthesis.md`: current judgment, confidence, contradictions, and decision effect by dimension.
-- `NN-evolver.md`: coverage quality, weakest gap, and whether a concrete next evidence target remains by dimension.
+- `NN-synthesis.md`: current judgment, confidence, contradictions, decision effect, Sensitivity And Counterfactuals by dimension or cross-dimension variable.
+- `NN-evolver.md`: coverage quality, weakest gap, whether a concrete next evidence target remains, Kill scope, and whether the original question is still open by dimension.
 
 Keep these subsections concise in quick mode. The important rule is structural: the reader should see how each stage reasoned through the framework rather than seeing only a final audit note.
 
@@ -232,6 +257,23 @@ Avoid vague kill criteria:
 - "Competition exists."
 
 If a kill criterion is met, recommend kill or pivot unless the user supplies new constraints.
+
+When recommending `Kill`, state the Kill scope. A `Kill` may kill the current thesis, a path, a candidate action, or the original question itself. If only the thesis, path, or candidate action is killed, the original question is still open and the evolver should name the pivot or next answer path. This keeps the agent from ending the survey by killing a stronger or narrower claim than the user actually asked.
+
+## Final Quality Score
+
+Record the final score in `index.md`, not in `report.md`. Use this 100-point shape:
+
+| Dimension | Points |
+|---|---:|
+| Anti-sycophancy / objective-function integrity | 20 |
+| Source, method, and framework quality | 15 |
+| Evidence completeness | 20 |
+| Analysis and red-team quality | 20 |
+| Actionability | 15 |
+| Structure and readability | 10 |
+
+The anti-sycophancy / objective-function integrity subscore is required. A report with many sources can still fail if it accepts the user's initial framing, rewrites the question into an easier claim, or never makes the objective function and constraints explicit.
 
 ## Decision Rubric
 

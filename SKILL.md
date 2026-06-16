@@ -166,6 +166,7 @@ Write `00-brief.md` with:
 - Research framework with explicit dimensions and one `###` subsection per dimension
 - Decision evidence standard
 - Decision frame integrity
+- Decision Optimization Contract: original question, reconstructed objective function, candidate actions, wait/continue option, constraints, success/failure criteria, opportunity cost, reversibility, implied expectations, and decision-changing evidence
 - Target user/customer
 - Success criteria
 - Disqualifying conditions
@@ -175,6 +176,8 @@ Write `00-brief.md` with:
 In `Decision Frame Integrity`, split the user's wording into known facts, unverified assumptions, subjective judgments, missing information, and stakeholders. Then state the reframed objective, competing objectives, and what the survey should not optimize for. This is the anti-sycophancy / anti-local-optimum check: the survey should optimize the real decision, not the user's first phrasing, emotional stance, or an easier-to-kill stronger claim.
 
 Also separate object quality from action attractiveness. A good object is not automatically a good action: good company does not automatically mean good stock; good product does not automatically mean good business; good technology does not automatically mean good project; good open-source library does not automatically mean good dependency. Record hard constraints, soft constraints, user-specific constraints, missing constraints, and implied expectations before deciding what evidence can change the action.
+
+The `Decision Optimization Contract` makes the objective executable. It states the decision variables, constraints, candidate actions, opportunity cost, reversibility, and evidence that would change the action. This contract is domain-generic: use it for product, market, technical, open-source, diligence, strategy, or custom research without turning Super Survey into a securities-specific workflow.
 
 Keep the number of rounds open, and reserve stop conclusions for completed round artifacts. `00-brief.md` must preserve the user's original question and record the decision frame without rewriting it into a stronger or easier-to-kill claim. Any narrowing must say what evidence, assumption, or red-team objection justifies the narrower frame. `00-brief.md` states the continuation policy: start with the next evidence round, update `index.md` after the round, then decide whether to continue only after evidence, red-team critique, synthesis, and the raw evolver decision are written. Actual round history belongs in `index.md`.
 
@@ -246,6 +249,7 @@ For quick mode, a single `NN-round.md` can replace the five split round artifact
 - Confidence: low / medium / high
 - Decision rationale: why the recommendation follows from the evidence
 - Framework-based synthesis: one `### <framework dimension>` subsection per brief-defined dimension, then strongest dimensions, weakest dimensions, cross-dimension judgment, framework gaps affecting confidence, action attractiveness vs object quality, Bayesian update, and decision tree
+- Sensitivity And Counterfactuals: key variables, current assumptions, favorable/adverse counterfactuals, evidence needed, and decision impact
 - What changed from prior round
 - Best next question
 - Recommended next action
@@ -351,7 +355,7 @@ For high-stakes work, make the final recommendation conditional: if the key favo
 - Probe questions and answers
 - Persona judgments
 - Keep / Narrow / Pivot / Kill / Final decision
-- Round evidence quality gate: one `### <framework dimension>` subsection per brief-defined dimension, then evidence coverage, weakest dimensions, implied expectation check, decision tree triggers, Bayesian update needed, continue/stop implication, and next-round focus
+- Round evidence quality gate: one `### <framework dimension>` subsection per brief-defined dimension, then evidence coverage, weakest dimensions, implied expectation check, decision tree triggers, Bayesian update needed, Kill scope, original question still open, continue/stop implication, and next-round focus
 - Next-round target
 - Evidence needed next
 
@@ -368,6 +372,7 @@ The evolver must:
 3. Decide whether to keep, pivot, narrow, or kill the thesis using a single raw decision label, not an explanatory paragraph.
 4. Generate the next-round target as a testable question.
 5. Name the evidence that would change the decision.
+6. When the decision is `Kill`, write the Kill scope: thesis, path, candidate action, or original question. Also state whether the original question is still open and what pivot or next answer path remains.
 
 Rewrite the target into a more specific question. Examples:
 
@@ -432,12 +437,14 @@ Score the final `report.md` on a 100-point rubric before finalizing, and record 
 
 | Dimension | Points | What Good Looks Like |
 |---|---:|---|
-| Problem and scope definition | 15 | Clear decision, audience, assumptions, non-goals, and success/failure criteria |
-| Source, method, and framework quality | 20 | Current sources where needed, primary sources preferred, search tools/fallbacks recorded, anti-sycophancy framing performed, research framework stated, body chapters cover the framework dimensions, and coverage gaps are disclosed |
+| Anti-sycophancy / objective-function integrity | 20 | User framing is challenged, the original question is preserved, the objective function is reconstructed, stronger easy-to-kill claims are avoided, constraints and implied expectations are explicit |
+| Source, method, and framework quality | 15 | Current sources where needed, primary sources preferred, search tools/fallbacks recorded, research framework stated, body chapters cover the framework dimensions, and coverage gaps are disclosed |
 | Evidence completeness | 20 | Claim-level evidence, contradictions, confidence, source freshness, and enough coverage for the decision |
 | Analysis and red-team quality | 20 | Synthesis across evidence, alternatives, objections, kill criteria, and falsification tests |
 | Actionability | 15 | Concrete recommendation, next actions, owners/timeframes when useful, monitoring and stop/continue triggers |
 | Structure and readability | 10 | Standalone narrative first, appendices second, clear headings, readable tables, no template residue |
+
+`index.md` must include the anti-sycophancy / objective-function integrity subscore in the final quality gate. The helper treats a missing subscore as a final-gate failure because a high total score should not hide a report that simply accepts the user's initial framing.
 
 Mode-specific thresholds are stricter for deeper work. `quick` can pass at 80 when the user only needs directional triage. `standard` should pass at 90. `deep` should pass at 95 and use larger source/claim/evidence coverage. Use `quick` explicitly when speed matters more than completeness; keep `standard` and `deep` thresholds intact for reusable reports.
 
@@ -482,19 +489,19 @@ Before reporting a round as complete:
 3. Fix missing files, missing headings, empty required sections, or empty-template artifacts.
 4. Confirm every required section contains substantive content, not only placeholders such as `Status:`, `Notes:`, `Option A:`, or table headers.
 5. Confirm `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl` meet the selected mode's minimum coverage, use unique IDs, link every reference to an existing record, and pair supported/partial claims with relevant evidence.
-6. Confirm `00-brief.md` has a research lens, research framework, and decision evidence standard specific enough to guide source selection and reader expectations.
+6. Confirm `00-brief.md` has a research lens, research framework, Decision Optimization Contract, and decision evidence standard specific enough to guide source selection and reader expectations.
 7. Confirm `00-brief.md` declares framework dimensions and expands each one under a `###` subheading with the core question, evidence needed, and boundary.
 8. For standard/deep split artifacts, confirm `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` expand the brief-defined dimensions, or the evidence-refined dimensions recorded in `index.md`, under `###` subheadings in their framework-relevant sections. For quick combined artifacts, confirm the essential research, red-team, synthesis, decision, and next-step sections are substantive.
 9. Confirm `NN-research.md` records source type, freshness, confidence, contradictions, framework coverage, and current-source search path when current-source discovery was needed.
 10. Confirm `NN-redteam.md` checks substitutes, alternative explanations, and explicit kill criteria.
-11. Confirm `NN-synthesis.md` states decision rationale and framework-based synthesis, not only a conclusion.
-12. Confirm the latest decision line is one of `Keep / Narrow / Pivot / Kill / Final`.
+11. Confirm `NN-synthesis.md` states decision rationale, framework-based synthesis, and Sensitivity And Counterfactuals, not only a conclusion.
+12. Confirm the latest decision line is one of `Keep / Narrow / Pivot / Kill / Final`, and `NN-evolver.md` records Kill scope and whether the original question is still open.
 13. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
 14. Confirm `index.md` reflects the latest thesis, current evidence-bound conclusion, round ledger, continuation status, next research target, why it is not final yet, open questions, source inventory, framework refinement log, final report quality gate, wiki/graph status, and decision log.
 15. If the evolver says `Keep`, `Narrow`, or `Pivot`, update `index.md`, create the next round, and keep the survey in round-artifact mode.
 16. If the evolver says `Final` or `Kill`, write `report.md` as the final standalone report.
 17. Confirm `report.md` is complete, standalone, updated with the latest synthesis, and reads as a coherent report: executive summary, one top-level body chapter per framework dimension, main narrative, decision logic, final recommendation, change triggers, next actions, limits, then appendices for evidence, method/source quality, red-team notes, scenarios, and source notes.
-18. Confirm `index.md` has a `Final Report Quality Gate` section with total score, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
+18. Confirm `index.md` has a `Final Report Quality Gate` section with total score, anti-sycophancy / objective-function integrity, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
 19. Confirm final report citations are standalone: replace `C*` / `E*` registry IDs with source titles, URLs, Markdown links, or footnotes in `report.md`.
 20. Confirm the report body obeys prose-first rules: it is not bullet-dominated and does not put evidence tables before the first appendix.
 21. Run `survey_round.py check-final <survey-dir>` before presenting the survey as final.

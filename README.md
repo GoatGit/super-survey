@@ -180,12 +180,14 @@ Final delivery uses a 100-point quality gate recorded in `index.md`:
 
 | Dimension | Points |
 |---|---:|
-| Problem and scope definition | 15 |
-| Source, method, and framework quality | 20 |
+| Anti-sycophancy / objective-function integrity | 20 |
+| Source, method, and framework quality | 15 |
 | Evidence completeness | 20 |
 | Analysis and red-team quality | 20 |
 | Actionability | 15 |
 | Structure and readability | 10 |
+
+The final quality gate in `index.md` must show the anti-sycophancy / objective-function integrity subscore. A report can have many sources and still fail if it simply accepts the user's initial framing, rewrites the question into an easier claim, or hides weak objective reconstruction behind a high total score.
 
 Mode thresholds are hard gates: `quick >=80`, `standard >=90`, and `deep >=95`. A final report below the selected threshold must continue another round focused on the weakest dimensions. The helper uses only the raw evolver decision plus the score threshold for stopping; it does not parse report prose such as "future disclosure" or "external validation" as a stopping rule.
 
@@ -197,7 +199,7 @@ Companion skills are optional helpers for search, long reports, VOC/customer res
 
 ```mermaid
 flowchart TD
-    A[User research question] --> B[00-brief.md<br/>decision, lens, framework, evidence standard]
+    A[User research question] --> B[00-brief.md<br/>decision, optimization contract, lens, framework, evidence standard]
     B --> C[Round research<br/>sources, claim-level evidence, framework coverage]
     C --> D{Need companion skill?}
     D -->|Current sources needed| D1[Prefer Tavily<br/>or fitting search tool]
@@ -213,8 +215,8 @@ flowchart TD
     D5 --> I[index.md]
     C --> E[Brainstorm checkpoint]
     E --> F[Red-team critique<br/>risks, substitutes, kill criteria]
-    F --> G[Synthesis<br/>confidence and rationale]
-    G --> H[Evolver<br/>Keep / Narrow / Pivot / Kill / Final]
+    F --> G[Synthesis<br/>confidence, rationale, sensitivity, counterfactuals]
+    G --> H[Evolver<br/>Keep / Narrow / Pivot / Kill / Final<br/>Kill scope and original-question status]
     H --> Q{Evolver decision}
     Q -->|Keep / Narrow / Pivot| I[index.md<br/>workbench: next target and why not final]
     I --> C

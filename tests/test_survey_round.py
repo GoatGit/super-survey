@@ -233,6 +233,58 @@ Can this target customer pay for this workflow?
         self.assertIn("Decision tree triggers", evolver)
         self.assertIn("Bayesian update needed", evolver)
 
+    def test_templates_include_decision_optimization_contract(self) -> None:
+        survey_dir = self.init_round()
+
+        brief = (survey_dir / "00-brief.md").read_text(encoding="utf-8")
+
+        self.assertIn("## Decision Optimization Contract", brief)
+        self.assertIn("Original question", brief)
+        self.assertIn("Reconstructed objective function", brief)
+        self.assertIn("Candidate actions", brief)
+        self.assertIn("Do nothing / wait / continue research option", brief)
+        self.assertIn("Hard constraints", brief)
+        self.assertIn("Soft constraints", brief)
+        self.assertIn("Missing constraints", brief)
+        self.assertIn("Success criteria", brief)
+        self.assertIn("Failure criteria", brief)
+        self.assertIn("Opportunity cost", brief)
+        self.assertIn("Reversibility", brief)
+        self.assertIn("Implied expectations", brief)
+        self.assertIn("Decision-changing evidence", brief)
+
+    def test_synthesis_template_includes_sensitivity_and_counterfactuals(self) -> None:
+        survey_dir = self.init_round()
+
+        synthesis = (survey_dir / "01-synthesis.md").read_text(encoding="utf-8")
+
+        self.assertIn("## Sensitivity And Counterfactuals", synthesis)
+        self.assertIn("Key variable", synthesis)
+        self.assertIn("Current assumption", synthesis)
+        self.assertIn("If better", synthesis)
+        self.assertIn("If worse", synthesis)
+        self.assertIn("Evidence needed", synthesis)
+        self.assertIn("Decision impact", synthesis)
+
+    def test_evolver_template_requires_kill_scope_and_original_question_status(self) -> None:
+        survey_dir = self.init_round()
+
+        evolver = (survey_dir / "01-evolver.md").read_text(encoding="utf-8")
+
+        self.assertIn("Kill scope", evolver)
+        self.assertIn("Original question still open", evolver)
+        self.assertIn("thesis / path / candidate action / original question", evolver)
+        self.assertIn("If original question remains open", evolver)
+
+    def test_index_quality_gate_includes_anti_sycophancy_objective_integrity(self) -> None:
+        survey_dir = self.init_round()
+
+        index = (survey_dir / "index.md").read_text(encoding="utf-8")
+
+        self.assertIn("Anti-sycophancy / objective-function integrity", index)
+        self.assertIn("Objective reconstruction quality", index)
+        self.assertIn("User-frame challenge quality", index)
+
     def test_docs_describe_anti_sycophancy_and_local_optimum_checks(self) -> None:
         docs = {
             "README.md": (ROOT / "README.md").read_text(encoding="utf-8"),
@@ -252,6 +304,12 @@ Can this target customer pay for this workflow?
         self.assertIn("good object is not automatically a good action", docs["SKILL.md"])
         self.assertIn("Decision Robustness Tools", docs["references/research-quality.md"])
         self.assertIn("implied expectations", docs["references/research-quality.md"])
+        self.assertIn("Decision Optimization Contract", docs["SKILL.md"])
+        self.assertIn("Sensitivity And Counterfactuals", docs["SKILL.md"])
+        self.assertIn("Kill scope", docs["SKILL.md"])
+        self.assertIn("Anti-sycophancy / objective-function integrity", docs["README.md"])
+        self.assertIn("反谄媚 / 目标函数完整性", docs["README.zh-CN.md"])
+        self.assertIn("反シコファンシー / 目的関数の整合性", docs["README.ja.md"])
 
     def test_readmes_frame_super_survey_as_decision_optimization(self) -> None:
         readme_en = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -702,6 +760,29 @@ Thin.
         result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_final_quality_gate_requires_anti_sycophancy_subscore(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            report_score=90,
+            continuation_decision="Pass / Continue Decision: stop because the next action is clear.",
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        index_path = survey_dir / "index.md"
+        index = index_path.read_text(encoding="utf-8").replace(
+            "Anti-sycophancy / objective-function integrity: 18 / 20.\n"
+            "Objective reconstruction quality: clear enough to preserve the original decision.\n"
+            "User-frame challenge quality: the report challenged the prompt without rewriting it into a stronger claim.\n",
+            "",
+        )
+        index_path.write_text(index, encoding="utf-8")
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Final Report Quality Gate must include anti-sycophancy / objective-function integrity", result.stdout)
 
     def test_evolver_final_allows_final_report_when_score_passes(self) -> None:
         survey_dir = self.init_round()
@@ -1295,6 +1376,21 @@ Sources were checked during this round and remain directional.
                     "Not pre-decided: keep the original question intact instead of turning it into an easier-to-kill demand for certainty.\n"
                     "Allowed narrowing: narrow only when evidence or red-team critique justifies the narrower target."
                 ),
+                "Decision Optimization Contract": (
+                    "Original question: should we build this?\n"
+                    "Reconstructed objective function: maximize learning value and user benefit while limiting policy, cost, and build risk.\n"
+                    "Candidate actions: continue desk research, run interviews, build a narrow prototype, wait, or stop.\n"
+                    "Do nothing / wait / continue research option: waiting is acceptable if policy evidence remains weak.\n"
+                    "Hard constraints: platform terms, privacy, budget, and reliability.\n"
+                    "Soft constraints: speed, user trust, and implementation simplicity.\n"
+                    "Missing constraints: exact budget, timeline, and risk tolerance.\n"
+                    "Success criteria: a compliant paid workflow with reachable users.\n"
+                    "Failure criteria: no policy-safe workflow or no credible payment path.\n"
+                    "Opportunity cost: time spent here delays other product discovery.\n"
+                    "Reversibility: desk research and interviews are reversible; full implementation is less reversible.\n"
+                    "Implied expectations: users will trust assistance, pay enough, and tolerate a narrow workflow.\n"
+                    "Decision-changing evidence: official policy blocks, paid pilot commitments, or strong substitute evidence."
+                ),
                 "Target Customer": "US software engineers actively applying for jobs.",
                 "Success Criteria": "Evidence supports a paid workflow.",
                 "Disqualifying Conditions": "Platform rules block reliable delivery.",
@@ -1324,7 +1420,10 @@ Sources were checked during this round and remain directional.
                 ),
                 "Final Report Quality Gate": (
                     f"Total Score: {report_score} / 100.\n"
-                    "Score Breakdown: scope 14, sources 19, evidence 18, analysis 18, actionability 14, structure 9.\n"
+                    "Score Breakdown: objective integrity 18, sources 14, evidence 18, analysis 18, actionability 14, structure 8.\n"
+                    "Anti-sycophancy / objective-function integrity: 18 / 20.\n"
+                    "Objective reconstruction quality: clear enough to preserve the original decision.\n"
+                    "User-frame challenge quality: the report challenged the prompt without rewriting it into a stronger claim.\n"
                     f"{quality_decision}\n"
                     "Lowest-Scoring Areas: evidence completeness and analysis depth remain monitored, but both are above the pass threshold.\n"
                     "Next Round Focus: none for desk research; move to user interviews if further validation is needed."
@@ -1531,6 +1630,10 @@ Sources were checked during this round and remain directional.
                     "Judgment: a narrow assisted workflow can reduce technical risk, but full automation remains risky.\n\n"
                     "Cross-dimension judgment: demand is plausible, but policy and payment constraints should drive the next round."
                 ),
+                "Sensitivity And Counterfactuals": (
+                    "Key variable: policy permissiveness. Current assumption: assisted workflows may be allowed. If better: a broader product path opens. If worse: automation should be stopped. Evidence needed: official terms and enforcement examples. Decision impact: this is a veto variable.\n"
+                    "Key variable: willingness to pay. Current assumption: paid intent is plausible but unproven. If better: a narrow paid prototype becomes attractive. If worse: continue only as a free utility or stop. Evidence needed: direct buyer commitments. Decision impact: changes build priority."
+                ),
                 "What Changed": "Policy risk became the main blocker.",
                 "Remaining Unknowns": "Actual willingness to pay is unknown.",
                 "Evolved Next Research Target": "Can a browser-assisted workflow comply with job-board terms?",
@@ -1568,6 +1671,12 @@ Sources were checked during this round and remain directional.
                     "Coverage quality: weak. Weakest gap: acquisition channel proof. Next target: identify high-intent entry points.\n\n"
                     "### Implementation Difficulty\n"
                     "Coverage quality: medium. Weakest gap: reliability under policy constraints. Next target: narrow the build path.\n\n"
+                    "Implied expectation check: users must trust the assistant and pay for repeated help.\n"
+                    "Decision tree triggers: permissive policy moves to pricing; restrictive policy moves to pivot or stop.\n"
+                    "Bayesian update needed: official terms and paid trial evidence.\n"
+                    "Kill scope (if Kill): thesis / path / candidate action / original question.\n"
+                    "Original question still open: yes unless the original decision itself is answered.\n"
+                    "If original question remains open, write the pivot or next answer path: compare policy-safe alternatives.\n"
                     "Continue / stop implication: continue unless the raw decision is Final/Kill and final report quality later passes."
                 ),
                 "Next Research Target": "Can active US software job seekers use a browser-assisted copilot under platform constraints?",
