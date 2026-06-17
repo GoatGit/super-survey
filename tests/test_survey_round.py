@@ -509,6 +509,64 @@ Can this target customer pay for this workflow?
         self.assertIn("Complete after 01-research.md, 01-brainstorm.md, and 01-redteam.md", synthesis)
         self.assertIn("Complete after 01-synthesis.md", evolver)
 
+    def test_skill_defines_process_nodes_not_only_file_order(self) -> None:
+        skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("run the workflow as ordered process nodes", skill)
+        self.assertIn("Markdown files are the outputs of those nodes", skill)
+        self.assertIn("| Process node | Work to do now | Stage output |", skill)
+        self.assertIn("| Evidence Plan |", skill)
+        self.assertIn("| Research |", skill)
+        self.assertIn("| Post-Research Brainstorming |", skill)
+        self.assertIn("| Redteam |", skill)
+        self.assertIn("| Synthesis |", skill)
+        self.assertIn("| Evolver |", skill)
+        self.assertIn("At each node, read the upstream artifact from disk before writing the downstream", skill)
+        self.assertIn("after-action", skill)
+        self.assertIn("audit trail for a conclusion formed earlier", skill)
+
+    def test_skill_uses_runtime_methods_not_paper_section_numbers(self) -> None:
+        skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("Ideal Execution Flow", skill)
+        self.assertIn("| Node | Work | Runtime method |", skill)
+        self.assertIn("Objective reconstruction", skill)
+        self.assertIn("Sensitivity analysis", skill)
+        self.assertIn("Bayesian updating", skill)
+        self.assertIn("decision tree output", skill)
+        self.assertNotIn("Paper methods", skill)
+        self.assertNotIn("| 4.1", skill)
+        self.assertNotIn("4.1, 4.2", skill)
+
+    def test_stage_artifact_contracts_live_in_reference(self) -> None:
+        skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+        contracts = (ROOT / "references" / "artifact-contracts.md").read_text(encoding="utf-8")
+
+        self.assertIn("references/artifact-contracts.md", skill)
+        for phrase in (
+            "Round decision target for this round",
+            "Decision-critical variables that could change the recommendation",
+            "Minimum direct evidence: what must be observed directly",
+            "Source plan: primary or official sources",
+            "Disconfirming evidence and substitutes",
+            "Missing evidence handling",
+            "Framework evidence map",
+            "Source registry updates by `source_id`",
+            "Claim and evidence notes by `claim_id` / `evidence_id`",
+            "Multi-start perspective notes",
+            "Preferred exploration path, not a final continue/stop decision",
+            "Anti-narrative regularizers",
+            "Sensitivity And Counterfactuals",
+            "Implied-expectation reverse-check",
+            "Constraint-specific recommendation branches",
+            "Evidence/source appendix",
+            "Method and source quality",
+            "Red-team notes",
+            "Options or scenarios",
+            "Source notes",
+        ):
+            self.assertIn(phrase, contracts)
+
     def test_docs_describe_anti_sycophancy_and_local_optimum_checks(self) -> None:
         docs = {
             "README.md": (ROOT / "README.md").read_text(encoding="utf-8"),
@@ -554,24 +612,27 @@ Can this target customer pay for this workflow?
         self.assertIn("Anti-narrative regularizers", docs["references/research-quality.md"])
 
     def test_readmes_describe_staged_cli_and_ideal_flow_mapping(self) -> None:
-        docs = {
+        readmes = {
             "README.md": (ROOT / "README.md").read_text(encoding="utf-8"),
             "README.zh-CN.md": (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
             "README.ja.md": (ROOT / "README.ja.md").read_text(encoding="utf-8"),
-            "SKILL.md": (ROOT / "SKILL.md").read_text(encoding="utf-8"),
         }
+        skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
 
-        for text in docs.values():
+        for text in readmes.values():
             self.assertIn("Evidence Plan / Minimum Direct Evidence", text)
             self.assertIn("Brief / Frame Contract", text)
             self.assertIn("Post-Research Brainstorming", text)
             self.assertIn("4.1", text)
             self.assertIn("4.12", text)
-        self.assertIn("python3 scripts/survey_round.py research", docs["README.md"])
-        self.assertIn("python3 scripts/survey_round.py brainstorm", docs["README.md"])
-        self.assertIn("python3 scripts/survey_round.py evolve", docs["README.md"])
-        self.assertIn("阶段化 CLI", docs["README.zh-CN.md"])
-        self.assertIn("段階化 CLI", docs["README.ja.md"])
+        self.assertIn("Evidence Plan / Minimum Direct Evidence", skill)
+        self.assertIn("Brief / Frame Contract", skill)
+        self.assertIn("Post-Research Brainstorming", skill)
+        self.assertIn("python3 scripts/survey_round.py research", readmes["README.md"])
+        self.assertIn("python3 scripts/survey_round.py brainstorm", readmes["README.md"])
+        self.assertIn("python3 scripts/survey_round.py evolve", readmes["README.md"])
+        self.assertIn("阶段化 CLI", readmes["README.zh-CN.md"])
+        self.assertIn("段階化 CLI", readmes["README.ja.md"])
 
     def test_lightweight_evolver_reference_includes_strengthened_methods(self) -> None:
         evolver_ref = (ROOT / "references" / "lightweight-evolver.md").read_text(encoding="utf-8")

@@ -11,35 +11,26 @@ Super Survey turns a vague research target into progressively sharper conclusion
 
 The foundational anti-sycophancy theory paper for this skill is `如何拒绝AI谄媚人类.md`. It explains why open-ended research should be treated as constrained decision optimization rather than direct answer generation. Use it as the conceptual basis for objective reconstruction, constraint modeling, implied-expectation checks, scenarios, Bayesian updating, and decision-tree output.
 
-## Required Behavior
+## Operating Rules
 
-Every survey round must:
+Every survey round follows one staged judgment loop:
 
-0. Use Superpowers brainstorming as a recurring checkpoint, not only a kickoff gate.
-1. State the current research target and decision criteria.
-2. Run an anti-sycophancy framing pass: treat the user's wording as the starting point, not the objective function.
-3. Choose a generic research lens, explicit research framework, and evidence standard without forcing the work into a narrow fixed category.
-4. Write the current round evidence plan and minimum direct evidence before current-source search.
-5. Gather evidence from current sources when facts may have changed.
-6. Re-enter post-research brainstorming to reframe the problem and compare candidate next moves after evidence exists.
-7. Separate findings from interpretation.
-8. Include a red-team challenge: why the idea may fail, why evidence may be weak, what alternative explanations or substitutes exist, and what constraints invalidate the thesis.
-9. Check explicit kill criteria before recommending another round.
-10. Synthesize a clearer conclusion with confidence level, decision rationale, and remaining unknowns.
-11. Run the lightweight evolver to sharpen, redirect, stop, or finalize the next-round target.
-12. Decide whether to continue using the latest evolver decision; use final report quality only after the stop gate moves to `report.md`.
-13. Maintain the lightweight evidence registry: `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`.
-14. Validate citations and claim support with the integrated `survey_round.py check` / `check-final` commands; use `validate-evidence` only for focused registry debugging.
-15. Update an index and route to wiki/graph indexing when long-term persistence is needed.
-16. Use `index.md` as the per-round workbench and decision ledger.
-17. Write `report.md` only after the stop gate passes and before giving a final answer.
-18. Write the round artifacts to disk before giving a final answer.
+1. Frame the user's wording as a starting point, not the objective function.
+2. Choose a generic research lens, explicit framework dimensions, and evidence standard.
+3. Write the evidence plan and minimum direct evidence before current-source search.
+4. Gather evidence, update `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`, and separate findings from interpretation.
+5. Re-enter brainstorming after research to compare reframes and next evidence moves.
+6. Red-team the strongest current argument, substitutes, weak evidence, constraints, and kill criteria.
+7. Synthesize a conditional judgment with confidence, decision rationale, and remaining unknowns.
+8. Run the lightweight evolver and use its raw `Keep / Narrow / Pivot / Kill / Final` decision for continuation.
+9. Keep `index.md` as the round workbench and decision ledger; write `report.md` only after the raw evolver decision is `Final` or `Kill`.
+10. Run `survey_round.py check` for rounds and `check-final` before final delivery.
 
 Move beyond collecting links. The value of this skill is sharper judgment after each loop.
 
 Empty templates are not artifacts. A round is incomplete until each file contains substantive findings, critique, synthesis, and evolved next-target content.
 
-`index.md` is the per-round workbench, navigation page, and decision log. Reserve `report.md` for the final complete deliverable: a full standalone report in the selected artifact language, written only after the stop gate passes and before the user-facing answer. During continuing rounds, update `index.md` for progress, decisions, and next targets.
+`index.md` is the per-round workbench, navigation page, and decision log. Reserve `report.md` for the final complete deliverable: a full standalone report in the selected artifact language, written after the raw evolver decision is `Final` or `Kill`, then validated with the final quality gate before the user-facing answer. During continuing rounds, update `index.md` for progress, decisions, and next targets.
 
 Use front-loaded guidance to improve research quality before the agent starts collecting evidence. Do not compensate for weak research by raising after-the-fact thresholds. The brief and round templates should surface decision-critical variables, minimum direct evidence, implied-expectation reverse-checks, constraint-specific recommendation branches, and anti-narrative regularizers early enough to guide source selection and synthesis.
 
@@ -54,7 +45,7 @@ Recommended companion routing:
 | Need | Prefer | Record where |
 |---|---|---|
 | Brainstorming checkpoints, reframing, next-move comparison | `superpowers:brainstorming` or equivalent brainstorming workflow | `00-brief.md`, `NN-brainstorm.md` |
-| Current web search, recent facts, source discovery | Prefer `tavily-search`; use built-in web search or another current-source search tool when it better fits the source surface | `NN-research.md` Source Registry Updates and Data Quality Notes |
+| Current web search, recent facts, source discovery | Use the Current Source Search rule below | `NN-research.md` Source Registry Updates and Data Quality Notes |
 | Formal long report, many citations, HTML/PDF, strict citation validation, extensive source triangulation | `deep-research` or equivalent deep research/reporting skill | `NN-research.md`, `report.md`, registry JSONL files, `index.md` |
 | Customer voice / VOC / Reddit or review mining | customer-research, reddit-research, or equivalent VOC workflow | `NN-research.md` Claim And Evidence Notes and `NN-redteam.md` alternatives |
 | Competitor matrix, positioning map, SWOT | competitive-research or equivalent competitor-analysis workflow | `NN-research.md`, optional competitor notes, `NN-synthesis.md` |
@@ -69,11 +60,11 @@ Recommended optional setup:
 
 - Install or enable Superpowers brainstorming when available; if absent, record `Assumed` and perform a lightweight written checkpoint inside the survey artifacts.
 - Install or enable a Karpathy-style LLM Wiki when long-term knowledge accumulation matters. Prefer `karpathy-llm-wiki` / `Astro-Han/karpathy-llm-wiki`; use local `llm-wiki` as the next fallback, and `pin-llm-wiki` only when project wiki config exists. If absent, maintain Markdown-only `index.md` and record the exact failure.
-- Install or enable `tavily-search` when the survey depends on recent market, policy, pricing, API, repository, or company facts.
+- Install or enable `tavily-search` when the Current Source Search rule applies.
 
 ### Current Source Search
 
-When facts may have changed, prefer `tavily-search` as the first current-source discovery path.
+When current-source discovery matters and Tavily fits the source surface, prefer `tavily-search` as the first discovery path.
 
 Use built-in web search or another search tool when one of these conditions applies:
 
@@ -95,22 +86,26 @@ Record search execution in `NN-research.md`:
 
 This is a tool-selection rule, not a research-type branch. It applies across product, market, technical, policy, open-source, and custom lenses when current sources matter. Stable local/code/document-only surveys can mark current-source discovery as not needed.
 
-### Ideal Flow And Paper Mapping
+### Ideal Execution Flow
 
-Use this execution architecture for standard and deep surveys. It implements the methods in the anti-sycophancy paper without making the skill domain-specific:
+Use this execution architecture for standard and deep surveys. It implements the
+anti-sycophancy paper through objective reconstruction, evidence planning,
+multi-start brainstorming, counterfactual and red-team testing, sensitivity
+analysis, implied-expectation checks, Bayesian updating, scenario/decision-tree
+synthesis, and final human-readable reporting.
 
-| Node | Work | Paper methods |
+| Node | Work | Runtime method |
 |---|---|---|
-| Brief / Frame Contract | Preserve the original question, reconstruct the objective function, split facts/assumptions/inferences/value judgments, define constraints, candidate actions, and the research framework. | 4.1, 4.2, 4.3, 4.11 |
-| Evidence Plan / Minimum Direct Evidence | Define decision-critical variables, minimum direct evidence, priority source types, disconfirming evidence, missing-evidence handling, and framework-level evidence needs before source collection. | 4.2, 4.5, 4.6, 4.7, 4.12 |
-| Research | Collect current and primary evidence according to the plan, update source/claim/evidence registries, record contradictions, confidence, freshness, and framework coverage. | 4.2, 4.5, 4.7, 4.9 |
-| Post-Research Brainstorming | Re-open candidate explanations after evidence exists, compare multi-start perspectives, identify likely errors, next evidence moves, and evidence-triggered framework refinements. | 4.4, 4.5, 4.6, 4.12 |
-| Redteam | Attack the strongest current argument, substitutes, hidden assumptions, kill criteria, and anti-narrative regularizers. | 4.5, 4.8, 4.12 |
-| Synthesis | Integrate evidence and objections into sensitivity analysis, implied-expectation reverse-checks, Bayesian updates, scenarios, decision trees, and constraint-specific recommendation branches. | 4.6, 4.7, 4.9, 4.10, 4.11, 4.12 |
-| Evolver | Decide Keep / Narrow / Pivot / Kill / Final, separate future facts from desk-researchable gaps, and generate the next-round target or finalization rationale. | 4.4, 4.6, 4.8, 4.9, 4.10 |
-| Final Report | Write a standalone human decision memo with body chapters from the framework, decision logic, recommendation, change triggers, next actions, limits, and appendices. | 4.10, 4.11, 5.2, 5.3 |
+| Brief / Frame Contract | Preserve the original question, reconstruct the objective function, split facts/assumptions/inferences/value judgments, define constraints, candidate actions, and the research framework. | Objective reconstruction; assumption split; object/action split; constraint modeling |
+| Evidence Plan / Minimum Direct Evidence | Define decision-critical variables, minimum direct evidence, priority source types, disconfirming evidence, missing-evidence handling, and framework-level evidence needs before source collection. | Evidence standard; counterfactual probes; sensitivity variables; anti-narrative regularizers |
+| Research | Collect current and primary evidence according to the plan, update source/claim/evidence registries, record contradictions, confidence, freshness, and framework coverage. | Claim-level evidence; source freshness; contradiction tracking; Bayesian update inputs |
+| Post-Research Brainstorming | Re-open candidate explanations after evidence exists, compare multi-start perspectives, identify likely errors, next evidence moves, and evidence-triggered framework refinements. | Multi-start perspectives; counterfactual reframing; sensitivity focus; framework refinement |
+| Redteam | Attack the strongest current argument, substitutes, hidden assumptions, kill criteria, and anti-narrative regularizers. | Counterfactual testing; adversarial validation; regularization against popular narratives |
+| Synthesis | Integrate evidence and objections into sensitivity analysis, implied-expectation reverse-checks, Bayesian updates, scenarios, decision trees, and constraint-specific recommendation branches. | Sensitivity analysis; implied-expectation reverse-check; Bayesian updating; scenarios; decision tree output |
+| Evolver | Decide Keep / Narrow / Pivot / Kill / Final, separate future facts from desk-researchable gaps, and generate the next-round target or finalization rationale. | Multi-start search control; adversarial validation; evidence-driven continuation |
+| Final Report | Write a standalone human decision memo with body chapters from the framework, decision logic, recommendation, change triggers, next actions, limits, and appendices. | Decision memo; constraint-specific recommendation; quality gate |
 
-### 0. Superpowers Brainstorming Loop
+### Superpowers Brainstorming Loop
 
 Use `$superpowers brainstorming` throughout the survey. It has two roles:
 
@@ -142,7 +137,7 @@ Allowed Round 0 statuses:
 
 Fill Round 0 and per-round brainstorming fields with status, assumptions, or the completed checkpoint.
 
-### 1. Initialize
+### Initialize Survey
 
 Create a survey directory under the current project unless the user specifies another root:
 
@@ -150,32 +145,14 @@ Create a survey directory under the current project unless the user specifies an
 surveys/YYYY-MM-DD-topic-slug/
 ```
 
-Use the helper when useful:
+Use the helper to initialize the survey and start the first staged round:
 
 ```bash
 python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent" --mode standard
 python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent" --language zh --mode quick
 python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent" --language ja --mode deep
 python3 <skill-dir>/scripts/survey_round.py round surveys/2026-06-12-ai-recruiting-agent 1
-python3 <skill-dir>/scripts/survey_round.py research surveys/2026-06-12-ai-recruiting-agent 1
-python3 <skill-dir>/scripts/survey_round.py brainstorm surveys/2026-06-12-ai-recruiting-agent 1
-python3 <skill-dir>/scripts/survey_round.py redteam surveys/2026-06-12-ai-recruiting-agent 1
-python3 <skill-dir>/scripts/survey_round.py synthesis surveys/2026-06-12-ai-recruiting-agent 1
-python3 <skill-dir>/scripts/survey_round.py evolve surveys/2026-06-12-ai-recruiting-agent 1
-python3 <skill-dir>/scripts/survey_round.py check surveys/2026-06-12-ai-recruiting-agent
-python3 <skill-dir>/scripts/survey_round.py check-final surveys/2026-06-12-ai-recruiting-agent
-python3 <skill-dir>/scripts/survey_round.py validate-evidence surveys/2026-06-12-ai-recruiting-agent
-python3 <skill-dir>/scripts/survey_round.py upgrade-report surveys/2026-06-12-ai-recruiting-agent
 ```
-
-Command sequence:
-
-- `round` / `plan`: starts a staged round by creating `NN-evidence-plan.md`.
-- `research`: creates `NN-research.md` after `NN-evidence-plan.md` contains substantive content.
-- `brainstorm`: creates `NN-brainstorm.md` after `NN-research.md` contains substantive content.
-- `redteam`: creates `NN-redteam.md` after `NN-brainstorm.md` contains substantive content.
-- `synthesis`: creates `NN-synthesis.md` after `NN-redteam.md` contains substantive content.
-- `evolve`: creates `NN-evolver.md` after `NN-synthesis.md` contains substantive content.
 
 Resolve `<skill-dir>` to the directory containing this `SKILL.md` so the workflow works across Codex, agent, and local installs.
 
@@ -233,9 +210,12 @@ Minimum JSONL schemas:
 
 Use stable IDs such as `S1`, `E1`, and `C1`. Every evidence item must reference an existing `source_id`. Every supported, partial, or contested claim must reference existing `evidence_id` values. The helper also rejects duplicate IDs and obviously weak claim-support pairs, such as a claim with numbers, entities, or key terms absent from the linked evidence. This is a lightweight guard; human citation judgment remains required.
 
-### 2. Staged Research Round
+### Staged Research Round
 
-For each standard or deep round, create or update:
+For each standard or deep round, run the workflow as ordered process nodes. The
+Markdown files are the outputs of those nodes, not a checklist to fill after the
+answer is already known. Read `references/artifact-contracts.md` when authoring,
+reviewing, or debugging the detailed contents of each stage artifact:
 
 ```text
 NN-evidence-plan.md
@@ -247,83 +227,50 @@ NN-evolver.md
 index.md
 ```
 
-Use the staged CLI so downstream artifacts depend on upstream content already written to disk:
+Do the work in this order:
 
-1. `NN-evidence-plan.md`: complete before source collection; define decision-critical variables, minimum direct evidence, priority source types, disconfirming evidence, and missing-evidence handling by framework dimension.
-2. `NN-research.md`: create after `NN-evidence-plan.md` has substantive content; write evidence, registry changes, framework coverage, direct evidence gaps, and source quality.
-3. `NN-brainstorm.md`: create after `NN-research.md` has substantive content; compare next evidence moves and reframes based on written research findings.
-4. `NN-redteam.md`: create after `NN-brainstorm.md` has substantive content; attack the strongest current argument, substitutes, hidden assumptions, and anti-narrative regularizers.
-5. `NN-synthesis.md`: create after `NN-redteam.md` has substantive content; synthesize evidence, sensitivities, implied expectations, constraint-specific recommendation branches, scenarios, and decision impact.
-6. `NN-evolver.md`: create after `NN-synthesis.md` has substantive content; decide Keep / Narrow / Pivot / Kill / Final and name the next-round target or finalization rationale.
+| Process node | Work to do now | Stage output |
+|---|---|---|
+| Evidence Plan | Define the round target, decision-critical variables, minimum direct evidence, priority source types, disconfirming evidence, and missing-evidence handling by framework dimension before any current-source collection. | `NN-evidence-plan.md` |
+| Research | Search, read, measure, and register evidence according to the written evidence plan. Separate findings from interpretation; update `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`; record framework coverage, contradictions, direct-evidence gaps, source freshness, and the search path used. | `NN-research.md` plus registry JSONL updates |
+| Post-Research Brainstorming | Re-open the question after evidence exists. Compare candidate explanations, multi-start perspectives, reframes, and next evidence moves based on the written research findings. | `NN-brainstorm.md` |
+| Redteam | Attack the strongest current argument that emerged from research and brainstorming. Test substitutes, hidden assumptions, anti-narrative regularizers, kill criteria, and what would make the thesis false. | `NN-redteam.md` |
+| Synthesis | Integrate the evidence and objections into a conditional judgment. Run sensitivity analysis, implied-expectation reverse-checks, Bayesian updates, scenarios, decision trees, and constraint-specific recommendation branches. | `NN-synthesis.md` |
+| Evolver | Decide Keep / Narrow / Pivot / Kill / Final from the completed synthesis. Separate desk-researchable gaps from future facts or non-desk validation, then name the next-round target or finalization rationale. | `NN-evolver.md` and `index.md` updates |
 
-The artifact dependency order matters because downstream files should cite upstream content already written to disk. They should not predict the final answer, pre-fill the stop decision, invent a red-team result before the evidence pass exists, or collect sources before the evidence plan defines what evidence would count.
+Use the staged CLI to create the output file for the current node, then fill that
+file with substantive content before moving to the next node:
+
+1. `round` / `plan`: create and complete `NN-evidence-plan.md`.
+2. `research`: create and complete `NN-research.md` after `NN-evidence-plan.md` is written.
+3. `brainstorm`: create and complete `NN-brainstorm.md` after `NN-research.md` is written.
+4. `redteam`: create and complete `NN-redteam.md` after `NN-brainstorm.md` is written.
+5. `synthesis`: create and complete `NN-synthesis.md` after `NN-redteam.md` is written.
+6. `evolve`: create and complete `NN-evolver.md` after `NN-synthesis.md` is written.
+
+At each node, read the upstream artifact from disk before writing the downstream
+artifact. The downstream artifact should cite or build on upstream content
+already written to disk. The agent should not use these files as an after-action
+audit trail for a conclusion formed earlier; the files are the thinking path
+itself. If source search or a final conclusion happened before the evidence plan
+was written, restart from the proper node, record the corrected sequence, and
+continue from there.
+
+This artifact dependency order is a prompt-level workflow discipline first and a
+CLI convenience second: each process node does its own work, writes its own
+output, and then hands that written output to the next process node.
 
 For quick mode, a single `NN-round.md` can replace the split round artifacts when it contains the same essential thinking: research question, evidence plan, evidence and sources, brainstorming checkpoint, red-team challenge, synthesis, raw decision, and next step.
 
-`NN-evidence-plan.md` should contain:
-
-- Round decision target for this round, tied to the original question and latest `index.md` state
-- Decision-critical variables that could change the recommendation
-- Minimum direct evidence: what must be observed, what is only background, and what cannot substitute for direct proof
-- Source plan: primary/official sources, direct measurements, registry updates, current-source search path, and companion routing if needed
-- Disconfirming evidence and substitutes that would weaken or falsify the current path
-- Missing evidence handling: whether the gap needs another desk-research pass, non-desk validation, future facts, interviews, experiments, or legal review
-- Framework evidence map: one `### <framework dimension>` subsection per brief-defined or evidence-refined dimension, naming the minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing
-
-`NN-research.md` should contain:
-
-- Research question for this round
-- Source registry updates by `source_id`; `sources.jsonl` remains the canonical source list
-- Claim and evidence notes by `claim_id` / `evidence_id`; `claims.jsonl` and `evidence.jsonl` remain the canonical evidence registry
-- Framework coverage: one `### <framework dimension>` subsection per brief-defined dimension, covering findings, source role, minimum direct evidence, evidence IDs, contradictions, confidence, decision-critical variables tested, and next evidence target
-- Notes on data quality, freshness, and whether Tavily or a fallback search path was used
-
-`NN-brainstorm.md` should contain:
-
-- Brainstorming status
-- Current framing after the research pass
-- Clarifying questions or explicit assumptions
-- Candidate next moves organized under one `### <framework dimension>` subsection per brief-defined dimension
-- Multi-start perspective notes: each useful role should state its target function, needed evidence, and most likely error
-- The decision-critical uncertainty that the next evidence move would reduce
-- Preferred exploration path, not a final continue/stop decision
-- Design notes for the next round
-
-`NN-redteam.md` should contain:
-
-- Strongest objections organized under one `### <framework dimension>` subsection per brief-defined dimension
-- Better-funded incumbent response
-- Alternative explanations or substitutes
-- Data, legal, distribution, trust, and monetization risks
-- Anti-narrative regularizers: what popular narrative, user preference, recent signal, or easy story could be overfitting the answer
-- Kill criteria checked
-- Reasons users may not care
-- What would make the thesis false
-
-`NN-synthesis.md` should contain:
-
-- Updated conclusion
-- Confidence: low / medium / high
-- Decision rationale: why the recommendation follows from the evidence
-- Framework-based synthesis: one `### <framework dimension>` subsection per brief-defined dimension, then strongest dimensions, weakest dimensions, cross-dimension judgment, framework gaps affecting confidence, action attractiveness vs object quality, Bayesian update, and decision tree
-- Sensitivity And Counterfactuals: key variables, the most conclusion-changing variable, current assumptions, favorable/adverse counterfactuals, evidence needed, desk-researchable gaps, and decision impact
-- Implied-expectation reverse-check: what current action, price, choice, adoption, or commitment already assumes, and what direct evidence would have to support those expectations
-- Constraint-specific recommendation branches: what changes for different budgets, horizons, risk tolerance, existing exposure, team capacity, reversibility, or other user/context states
-- What changed from prior round
-- Best next question
-- Recommended next action
-
 Create or update `report.md` only after the latest evolver decision is `Final` or `Kill`. While the latest decision is `Keep`, `Narrow`, or `Pivot`, use `index.md` for the current thesis, round summaries, continuation status, next research target, and why the survey is still in progress.
 
-When the stop gate is ready, `report.md` should be a complete, standalone report that a user can read smoothly without opening every round artifact. It is not an audit checklist. Put the human-readable argument first and move dense evidence, source, method, red-team, scenario, and scoring material into appendices.
+After the raw evolver decision is `Final` or `Kill`, draft `report.md` as a complete, standalone report that a user can read smoothly without opening every round artifact. It is not an audit checklist. Put the human-readable argument first and move dense evidence, source, method, red-team, scenario, and scoring material into appendices. Use `references/artifact-contracts.md` for the detailed final report body and appendix contract.
 
 Prose-first rule: before the first evidence appendix, `report.md` should read as narrative prose with short lists where helpful. Place Markdown evidence tables, source inventories, claim registers, and audit checklists in appendices or the JSONL registry.
 
-Draft the report section by section from the argument rather than the audit trail. For each body section, write the section's decision purpose, the key claim, the source links that support or weaken it, the strongest counterpoint, and the implication for the reader. If a section still resists prose, the survey probably needs another evidence pass or a narrower section question.
+Draft the report section by section from the argument rather than the audit trail. Final report citations must be standalone: cite source titles, Markdown links, footnotes, or an appendix reference list with URLs and enough source context to read without opening the JSONL files. Use `C1`, `E1`, and other registry IDs only inside working artifacts and JSONL registries.
 
-Final report citations must be standalone. In `report.md`, cite source titles, Markdown links, footnotes, or an appendix reference list with URLs and enough source context to read the report without opening other files. Use `C1`, `E1`, and other registry IDs only inside working artifacts and JSONL registries.
-
-The readable body should contain:
+The readable body should contain, before appendices:
 
 - Executive summary with the answer, confidence, key reason, strongest caveat, and next action.
 - Framework dimension chapters: each effective framework dimension from `index.md` / `00-brief.md` must become a top-level body heading such as `## Market Environment` or `## User Pain`, with narrative analysis under it. Put the dimension analysis in the body rather than under a generic `Framework Dimension Analysis` heading, method note, scorecard, evidence appendix, or source audit.
@@ -334,33 +281,15 @@ The readable body should contain:
 - Next actions with concrete steps, monitoring metrics, stop/continue triggers, and owner/timeframe where useful.
 - Limits of the report: missing data, uncertainty, freshness, and external validation needs.
 
-Appendices should contain:
-
-- Evidence/source appendix with decisive claims, source titles, URLs, dates checked, and confidence notes; summarize the decisive evidence and keep full registry detail in JSONL.
-- Method and source quality, including search tools used, source types, confidence rules, and fallback notes.
-- Red-team notes with strongest objections, substitutes, kill criteria, and falsification tests.
-- Options or scenarios with pros, cons, trigger conditions, and expected implications.
-- Source notes with source inventory, dates checked, URLs, and companion/wiki/indexing notes.
-
 For non-trivial surveys, `report.md` must be longer and more complete than `NN-synthesis.md`, but length alone is not quality. It should read like a coherent memo with supporting appendices, not a pile of evidence tables. A report that only contains a few bullets is incomplete; a report that opens with long source tables before explaining the judgment is also incomplete. A report that names a research framework but does not analyze those dimensions as body subchapters is incomplete.
 
 New surveys use report schema v3. Legacy reports with older report schemas remain readable, and the final delivery gate expects the v3 schema. Run `survey_round.py upgrade-report <survey-dir>` and then expand the appended sections before final delivery. `upgrade-report` appends missing v3 report sections and updates metadata; you still write the report content.
 
-### 2.5 Research Lens And Framework
+### Research Lens And Framework
 
 Use a research lens as a lightweight emphasis guide, not a hard decision-type branch. Use a research framework as the reader-visible method for how the report will systematically examine the question. A survey can combine lenses and frameworks when needed.
 
-Pick or write 1-3 lenses that best match the question:
-
-- **Buyer / user lens**: who has the problem, budget, authority, urgency, and switching cost?
-- **Workflow lens**: what repeated job, trigger, inputs, outputs, and failure modes matter?
-- **Market / competitor lens**: what substitutes, incumbents, pricing, distribution, and moats matter?
-- **Technical lens**: what feasibility, performance, integration, data, reliability, and maintenance risks matter?
-- **Policy / trust lens**: what legal, ToS, privacy, compliance, safety, or reputational constraints matter?
-- **Open-source lens**: what license, maintainers, release cadence, issues, adoption, API stability, and ecosystem risks matter?
-- **Custom lens**: define the lens when the survey does not fit the examples above.
-
-After choosing lenses, select or write a research framework with explicit dimensions. The framework answers: what dimensions will this research cover, what question does each dimension answer, and which dimensions are weak or intentionally out of scope?
+Pick or write 1-3 lenses that best match the question, such as buyer/user, workflow, market/competitor, technical, policy/trust, open-source, or a custom lens. Then select or write a research framework with explicit dimensions. The framework answers: what dimensions will this research cover, what question does each dimension answer, and which dimensions are weak or intentionally out of scope?
 
 The framework must travel through the whole workflow. `00-brief.md` defines the dimensions; `NN-evidence-plan.md`, `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` each expand those same dimensions with `###` subheadings in their framework-relevant section. The final `report.md` then turns the dimensions into readable body chapters. This prevents the common failure mode where the agent lists materials first and only adds a framework audit note afterward.
 
@@ -372,45 +301,19 @@ Evidence can refine the framework, but only explicitly. If a round shows that th
 
 After that, use the current dimensions from `index.md` in later round artifacts. Make framework revisions explicit in `index.md`; a revision is valid only when it is evidence-triggered and preserves the user's original decision frame.
 
-Useful framework starters:
+Fit the framework to the user's actual question rather than forcing every survey into a predefined category. The lens determines which evidence deserves extra attention; the framework makes the research method visible to readers. The common Super Survey loop still applies, and a framework is a method, not a prewritten conclusion or a narrow decision-type branch. Read `references/research-quality.md` for framework starters and domain examples.
 
-- **Product opportunity framework**: user pain, frequency, willingness to pay, substitutes, distribution, retention, trust/compliance, implementation difficulty.
-- **Market / competitor framework**: demand, supply, competition, pricing, channels, switching cost, regulation, growth drivers.
-- **Technical feasibility framework**: requirements, architecture path, data/API access, performance, reliability, security, operations, maintenance cost.
-- **Open-source adoption framework**: license, maintainer health, release cadence, issue response, API stability, ecosystem, alternatives, adoption risk.
-- **Investment / diligence framework**: macro, industry, company, financial quality, valuation, catalysts, capital flows, risks.
-- **Custom framework**: name the dimensions when the topic needs another method.
-
-For securities-style research, a domain framework can be composed without making Super Survey a securities-only tool:
-
-- Market view: macro, liquidity, earnings, valuation, risk appetite, fund flows.
-- Industry view: demand, supply, competition, policy, technology, cycle, valuation.
-- Company view: business model, financial quality, growth, competitive advantage, valuation, catalysts, risks.
-
-Fit the framework to the user's actual question rather than forcing every survey into a predefined category. The lens determines which evidence deserves extra attention; the framework makes the research method visible to readers. The common Super Survey loop still applies, and a framework is a method, not a prewritten conclusion or a narrow decision-type branch.
-
-### 2.6 Anti-Sycophancy / Anti-Local-Optimum Checks
+### Anti-Sycophancy / Anti-Local-Optimum Checks
 
 Treat the user's prompt as an initial point in the search space. Before gathering evidence or stating a thesis, ask whether the prompt embeds a target function, hidden constraint, desired answer, or exaggerated claim. Record this in `00-brief.md` rather than silently accepting it.
 
 Use these checks across domains:
 
-- Facts vs assumptions: separate known facts, unverified assumptions, subjective judgments, missing information, and stakeholders.
-- Objective reconstruction: restate the decision objective and list competing objectives such as accuracy, speed, risk, cost, upside, compliance, relationships, or reversibility.
-- Constraint modeling: record hard constraints, soft constraints, user-specific constraints, and missing constraints before offering action advice.
-- Object/action split: evaluate whether the object is good separately from whether the proposed action is attractive under current constraints, timing, price/cost, risk, and alternatives.
-- Implied expectations: ask what adoption, price, growth, maintenance, reliability, or ecosystem assumptions are already priced into the current opportunity.
-- Multi-start perspectives: evaluate the question from at least several decision-relevant roles, not only the user's role.
-- Sensitivity analysis: name the assumptions that would change the conclusion if they were false.
-- Bayesian update: state what evidence would raise, lower, or falsify confidence in the current thesis.
-- Decision tree: when facts are uncertain, express recommendations as conditional branches rather than one overconfident path.
-- Implied-expectation reverse-check: infer what the current action, price, adoption, architecture, dependency, or strategic choice already assumes, then ask what evidence would need to be true for those assumptions to hold.
-- Anti-narrative regularization: name the popular story, user preference, recency effect, or elegant explanation that could overfit the answer, then keep it as a penalty term in red-team and synthesis.
-- Constraint-specific recommendations: branch advice by the decision-maker's context when constraints differ, such as already committed vs not committed, high vs low reversibility, limited vs flexible budget, or short vs long horizon.
-
-For example, do not turn "is this stock a buy opportunity over the next six months?" into "prove the stock will definitely rise" or "reject it unless immediate heavy buying is justified." The reframed objective should preserve the user's actual decision and stakes.
-
-For high-stakes work, make the final recommendation conditional: if the key favorable assumptions hold, act one way; if they weaken, wait, reduce, pivot, or stop. Include a branch for "already committed/holding/using this" and a branch for "not yet committed" when those states matter.
+- Separate known facts, unverified assumptions, subjective judgments, missing information, and stakeholders.
+- Reconstruct the objective and list competing objectives before collecting sources.
+- Record hard constraints, soft constraints, user-specific constraints, missing constraints, and object/action split: a good object is not automatically a good action.
+- Use multi-start perspectives, Sensitivity And Counterfactuals, Bayesian update, decision tree reasoning, implied-expectation reverse-check, anti-narrative regularizers, and constraint-specific recommendation branches when the decision stakes justify them.
+- Preserve the user's actual decision and stakes. If a kill criterion only rejects an exaggerated version of the prompt, choose `Narrow` or `Pivot` instead of ending the survey.
 
 `NN-evolver.md` should contain the output of the built-in lightweight evolver:
 
@@ -421,7 +324,7 @@ For high-stakes work, make the final recommendation conditional: if the key favo
 - Next-round target
 - Evidence needed next
 
-### 3. Evolve The Target
+### Evolve The Target
 
 At the end of each round, run the built-in lightweight evolver. It is inspired by autoresearch-style `probe`, `reason`, and `improve` loops, but it is research-native: it evolves questions and decisions, not code.
 
@@ -431,7 +334,7 @@ The evolver must:
 
 1. Probe assumptions until the weak point is explicit.
 2. Run adversarial reasoning across at least five personas.
-3. Decide whether to keep, pivot, narrow, or kill the thesis using a single raw decision label, not an explanatory paragraph.
+3. Decide `Keep`, `Narrow`, `Pivot`, `Kill`, or `Final` using a single raw decision label, not an explanatory paragraph.
 4. Generate the next-round target as a testable question.
 5. Name the evidence that would change the decision.
 6. When the decision is `Kill`, write the Kill scope: thesis, path, candidate action, or original question. Also state whether the original question is still open and what pivot or next answer path remains.
@@ -445,7 +348,7 @@ Prefer narrower customer, geography, channel, workflow, and pricing assumptions.
 
 External autoresearch tools are optional. If available, prefer adversarial planning modes such as `probe`, `reason`, or `improve`. Use metric-based code optimization loops only when the research question has a command-based measurable metric.
 
-### 4. Wiki / Graph Index
+### Wiki / Graph Index
 
 Always maintain `index.md` with:
 
@@ -461,25 +364,9 @@ Always maintain `index.md` with:
 - Wiki / Graph Index Status
 - Decision log
 
-When long-term persistence is needed, route the survey into a wiki or graph index before final delivery:
+When long-term persistence is needed, route the survey into a wiki or graph index before final delivery. Prefer `karpathy-llm-wiki` / `Astro-Han/karpathy-llm-wiki`; fall back to local `llm-wiki`, project `pin-llm-wiki`, another document/graph indexer, or Markdown-only `index.md` when needed. Claim a wiki or graph was built only when the ingest/indexing command or file write actually ran. If only `index.md` was updated, say that directly.
 
-1. **Load and use a Karpathy-style LLM Wiki skill when available.**
-   - If `karpathy-llm-wiki` is installed, read its `SKILL.md` and follow its ingest workflow.
-   - If the environment has an `Astro-Han/karpathy-llm-wiki` checkout or equivalent raw/wiki structure, use that workflow.
-   - Persist at least: survey topic, latest thesis, current evidence-bound conclusion, continuation status, high-value source URLs, and links to `index.md` / key round files. Add `report.md` only after it exists.
-2. **Fallback: local `llm-wiki`.**
-   - If local `llm-wiki` is installed, read its `SKILL.md`.
-   - If `~/llm-wiki/wiki/index.md` is missing, follow that skill's auto-init behavior when applicable.
-   - Create or update a topic/source page for the survey and update wiki index/log according to the skill.
-3. **Fallback: `pin-llm-wiki` project wiki.**
-   - If `.pin-llm-wiki.yml` exists in the current project, queue or ingest the round's important source URLs with `pin-llm-wiki`, then record the command/result in `index.md`.
-   - If `pin-llm-wiki` is installed but the project is not initialized, record `Not built: pin-llm-wiki installed but .pin-llm-wiki.yml is missing; run pin-llm-wiki init first`.
-4. **Fallback: other graph/document indexer.**
-   - If a document graph tool is available, index the survey directory and record the command/result.
-5. **Fallback: Markdown only.**
-   - Use this only after the attempts above are impossible or fail. Update `index.md` and record the specific failure, not a generic statement.
-
-When wiki persistence is needed, `index.md` should include these fields under `Wiki / Graph Index Status`:
+When wiki persistence is needed, `index.md` records:
 
 - `Wiki Persistence Needed: ...`
 - `Wiki Tool Attempted: ...`
@@ -487,13 +374,11 @@ When wiki persistence is needed, `index.md` should include these fields under `W
 - `Wiki Fallback Reason: ...`
 - `Wiki Artifact Path: ...`
 
-Claim a wiki or graph was built only when the ingest/indexing command or file write actually ran. If only `index.md` was updated, say that directly. For bounded or one-off surveys, mark `Wiki Persistence Needed: no` and keep `index.md` as the persistence artifact.
+For bounded or one-off surveys, mark `Wiki Persistence Needed: no` and keep `index.md` as the persistence artifact. `code-review-graph` is not a substitute for the survey wiki; use it only when the survey target is a code repository and code structure analysis is needed.
 
-`code-review-graph` is not a substitute for the survey wiki. Use it only when the survey target is a code repository and code structure analysis is needed.
+### Final Quality Gate And Continuation
 
-### 5. Final Quality Gate And Continuation
-
-Super Survey supports arbitrary positive round numbers, while the evidence and evolver decision define the stopping rule. The helper accepts `round <survey-dir> 3`, `round <survey-dir> 4`, and later rounds when the completed round's evidence and evolver decision say another pass is needed. The brief keeps future round counts open.
+Super Survey supports arbitrary positive round numbers; evidence quality and the raw evolver decision define the stopping rule. The brief keeps future round counts open.
 
 Score the final `report.md` on a 100-point rubric before finalizing, and record that score in `index.md` under `Final Report Quality Gate`. Before `report.md` exists, record provisional quality notes in `NN-evolver.md` and `index.md` as provisional notes only.
 
@@ -510,69 +395,19 @@ Score the final `report.md` on a 100-point rubric before finalizing, and record 
 
 Mode-specific thresholds are stricter for deeper work. `quick` can pass at 80 when the user only needs directional triage. `standard` should pass at 90. `deep` should pass at 95 and use larger source/claim/evidence coverage. Use `quick` explicitly when speed matters more than completeness; keep `standard` and `deep` thresholds intact for reusable reports.
 
-Machine continuation gate:
+Use raw gates to decide whether to stop:
 
-- Stop only when both raw gates pass: the `index.md` final report score is at or above the selected mode threshold, and the latest round decision is `Final` or `Kill`.
-- `Keep`, `Narrow`, or `Pivot` always require another round. Use the evolver's raw decision as the authority over `report.md` explanations such as "future disclosure", "external validation", or "no decision-changing unknowns".
-- `Final` means no desk-research target remains that could materially change the decision, so the loop can move to final report writing.
-- `Kill` means the current thesis is not worth another desk-research round or should switch to non-desk validation. It can also move to final report writing when the user needs a final report explaining the stop rationale.
-- The survey stops only after `report.md` exists, the `index.md` final quality score passes, and `check-final` passes. The helper does not parse report prose as a stopping signal.
-- `survey_round.py check` may pass with a continuation warning when the latest decision is `Keep`, `Narrow`, or `Pivot`; that means the round artifacts are valid and the next round must be created. `survey_round.py check-final` must fail for those decisions.
+- `Keep`, `Narrow`, or `Pivot` always require another round.
+- `Final` means no desk-research target remains that could materially change the user's original decision, so the loop can move to final report writing.
+- `Kill` means the current thesis is not worth another desk-research round or should switch to non-desk validation.
+- Stop only after `report.md` exists, the `index.md` final quality score passes the selected mode threshold, the latest decision is `Final` or `Kill`, and `check-final` passes.
+- `report.md` may explain uncertainty, future disclosure needs, or external validation needs, but the helper relies only on the raw evolver decision and the score threshold.
 
-Report score thresholds:
+Run `survey_round.py check <survey-dir>` before treating a round as complete. It validates round artifacts, registry links, framework coverage, companion notes when required, and the latest raw evolver gate. Use `validate-evidence` only for focused registry debugging.
 
-- `quick`: score must be `>= 80`.
-- `standard`: score must be `>= 90`.
-- `deep`: score must be `>= 95`.
+Run `survey_round.py check-final <survey-dir>` before presenting the survey as final. If it fails because the report is legacy or thin, run `upgrade-report` when needed, expand the report, or create another round focused on the weakest dimensions.
 
-Continue another round when:
-
-- The conclusion depends on unresolved facts.
-- The red-team found serious unanswered objections.
-- The target is still too broad to act on.
-- A next-round question could materially change the decision.
-- The latest synthesis lists remaining unknowns that can still be reduced by desk research, current-source search, competitor checks, policy review, source triangulation, or repository analysis.
-- The evolver says `Keep`, `Narrow`, or `Pivot`.
-- After final report drafting, the `index.md` final report score is below the selected mode's pass threshold and the weak dimensions are improvable by another evidence pass.
-
-Stop when:
-
-- `Final/Kill + pass`: the latest evolver decision is `Final` or `Kill` and the `index.md` final report score passes the selected mode threshold.
-- The user explicitly stops or asks for a bounded checkpoint; still report unresolved quality risks instead of pretending the survey converged.
-
-Use raw gates to decide whether to stop. `report.md` can explain uncertainty, future disclosure needs, and external validation needs for the reader, while the helper relies only on the latest evolver decision and, for `check-final`, the score threshold recorded in `index.md`.
-
-### 6. Quality Gate
-
-Before reporting a round as complete:
-
-1. Run `survey_round.py check <survey-dir>` for round artifacts, registry validation, and the latest raw evolver gate.
-2. Use `survey_round.py validate-evidence <survey-dir>` only when debugging registry errors directly.
-3. Fix missing files, missing headings, empty required sections, or empty-template artifacts.
-4. Confirm every required section contains substantive content, not only placeholders such as `Status:`, `Notes:`, `Option A:`, or table headers.
-5. Confirm `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl` meet the selected mode's minimum coverage, use unique IDs, link every reference to an existing record, and pair supported/partial claims with relevant evidence.
-6. Confirm `00-brief.md` has a research lens, research framework, Decision Optimization Contract, and decision evidence standard specific enough to guide source selection and reader expectations.
-7. Confirm `00-brief.md` declares framework dimensions and expands each one under a `###` subheading with the core question, evidence needed, and boundary.
-8. For standard/deep split artifacts, confirm `NN-evidence-plan.md`, `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` expand the brief-defined dimensions, or the evidence-refined dimensions recorded in `index.md`, under `###` subheadings in their framework-relevant sections. For quick combined artifacts, confirm the essential evidence plan, research, red-team, synthesis, decision, and next-step sections are substantive.
-9. Confirm `NN-evidence-plan.md` defines decision-critical variables, minimum direct evidence, source plan, disconfirming evidence, and missing-evidence handling before source collection.
-10. Confirm `NN-research.md` records source type, freshness, confidence, contradictions, framework coverage, and current-source search path when current-source discovery was needed.
-11. Confirm `NN-redteam.md` checks substitutes, alternative explanations, and explicit kill criteria.
-12. Confirm `NN-synthesis.md` states decision rationale, framework-based synthesis, and Sensitivity And Counterfactuals, not only a conclusion.
-13. Confirm the latest decision line is one of `Keep / Narrow / Pivot / Kill / Final`, and `NN-evolver.md` records Kill scope and whether the original question is still open.
-14. Confirm `00-brief.md` records Round 0 brainstorming and each `NN-brainstorm.md` records the per-round checkpoint.
-15. Confirm `index.md` reflects the latest thesis, current evidence-bound conclusion, round ledger, continuation status, next research target, why it is not final yet, open questions, source inventory, framework refinement log, final report quality gate, wiki/graph status, and decision log.
-16. If the evolver says `Keep`, `Narrow`, or `Pivot`, update `index.md`, create the next round, and keep the survey in round-artifact mode.
-17. If the evolver says `Final` or `Kill`, write `report.md` as the final standalone report.
-18. Confirm `report.md` is complete, standalone, updated with the latest synthesis, and reads as a coherent report: executive summary, one top-level body chapter per framework dimension, main narrative, decision logic, final recommendation, change triggers, next actions, limits, then appendices for evidence, method/source quality, red-team notes, scenarios, and source notes.
-19. Confirm `index.md` has a `Final Report Quality Gate` section with total score, anti-sycophancy / objective-function integrity, score breakdown, pass/continue decision, lowest-scoring areas, and next-round focus.
-20. Confirm final report citations are standalone: replace `C*` / `E*` registry IDs with source titles, URLs, Markdown links, or footnotes in `report.md`.
-21. Confirm the report body obeys prose-first rules: it is not bullet-dominated and does not put evidence tables before the first appendix.
-22. Run `survey_round.py check-final <survey-dir>` before presenting the survey as final.
-23. If score is below the selected mode's threshold, create another round focused on the weakest dimensions and remove or revise premature final-report claims.
-24. Stop only when both gates pass: the mode/report score gate and the raw evolver decision gate.
-25. If `check-final` reports a legacy report schema error, run `upgrade-report` and fill the appended sections before presenting the report as final.
-26. Treat companion routing notes as auditable: the artifact must say which tool was used, what failed if fallback happened, and where the result was recorded.
-27. If wiki persistence was needed, confirm `index.md` records `Wiki Persistence Needed`, `Wiki Tool Attempted`, `Wiki Ingest Result`, `Wiki Fallback Reason`, and `Wiki Artifact Path`.
+Before final delivery, confirm the essentials: substantive sections, valid registry IDs, framework dimensions carried through the split artifacts or quick artifact, current-source search notes when needed, standalone report citations, prose-first body, final score in `index.md`, wiki status fields when persistence was needed, and no premature final report while the evolver says `Keep`, `Narrow`, or `Pivot`.
 
 If the check fails, say the round is still in progress and report the next fix.
 
@@ -580,7 +415,7 @@ If the check fails, say the round is still in progress and report the next fix.
 
 Use current sources for market, legal, pricing, platform policy, repository activity, APIs, company facts, and competitor claims. Mark inference explicitly.
 
-When current-source discovery matters and Tavily fits the source surface, prefer `tavily-search`; otherwise use a suitable search path and document the choice or fallback.
+For current-source discovery, follow the Current Source Search rule above and document the chosen search path or fallback.
 
 Use this confidence scale:
 

@@ -21,7 +21,7 @@ Super Survey starts from two first principles:
 1. The world is noisy, random, and not reliably predictable; an initial hunch can easily become bias or incomplete information. Every task must avoid the trap of deciding first and then collecting evidence to support the decision.
 2. The user's question is the starting point, not the objective function. Inspect the user's framing, hidden assumptions, and real optimization target before searching for evidence or converging on an answer.
 
-These principles make the workflow deliberately front-loaded. Before the evidence pass begins, Super Survey defines the objective, constraints, decision-critical variables, minimum direct evidence, implied expectations, and anti-narrative regularizers. The goal is to keep the agent from accepting the prompt's framing too quickly or collecting sources to justify a conclusion it already wants.
+These principles make front-loaded guidance deliberate: before the evidence pass begins, Super Survey defines the objective, constraints, decision-critical variables, minimum direct evidence, implied expectations, and anti-narrative regularizers. The goal is to keep the agent from accepting the prompt's framing too quickly or collecting sources to justify a conclusion it already wants.
 
 ## Theory
 
