@@ -126,15 +126,21 @@ When the latest decision is `Keep`, `Narrow`, or `Pivot`, `check` can pass with 
 
 ## Modes And Evidence Registry
 
-Choose the depth explicitly when speed or rigor matters:
+Mode selection is explicit. The default is `standard`. Use `quick` only when the user explicitly asks for quick/brief/fast/initial triage or a low-stakes directional scan. Use `deep` when the user explicitly asks for deep/formal/long research, many citations, strict source audit, or publication-quality delivery.
 
 | Mode | Use When | Minimum Registry | Report Gate |
 |---|---|---:|---|
-| `quick` | Directional scan or early triage | 1 source, 1 claim, 1 evidence item | score >=80 |
-| `standard` | Default reusable research report | 3 sources, 3 claims, 3 evidence items | score >=90 |
-| `deep` | Formal or high-stakes report, many citations, strict audit needs | 8 sources, 6 claims, 8 evidence items | score >=95 |
+| `quick` | Explicit quick, brief, fast, initial, or low-stakes directional scan request | 1 source, 1 claim, 1 evidence item | score >=80 |
+| `standard` | Default reusable research report, including ordinary "research whether X is worth doing/buying/adopting" requests | 3 sources, 3 claims, 3 evidence items | score >=90 |
+| `deep` | Explicit deep, formal, long, many-citation, strict-audit, publication-quality, or critical decision memo request | 8 sources, 6 claims, 8 evidence items | score >=95 |
 
 In `quick` mode, one combined `NN-round.md` can replace the standard/deep split artifacts when it contains the essential research question, evidence plan, evidence and sources, brainstorming checkpoint, red-team challenge, synthesis, raw decision, and next step.
+
+Do not use `quick` as the final delivery mode for high-stakes action decisions such as investment, legal, medical, security, production, or major business commitments. Use `standard` or `deep` so the staged artifacts, evidence coverage, and quality gate match the decision risk.
+
+If a request asks for speed on a high-stakes action, keep the mode at `standard` or `deep` and make the final summary shorter instead of downgrading the workflow to `quick`.
+
+If the request is ambiguous, run `python3 scripts/survey_round.py recommend-mode --text "<request>"` before `init`.
 
 The lightweight registry keeps report prose readable while preserving auditability:
 
@@ -227,6 +233,8 @@ Final delivery uses a 100-point quality gate recorded in `index.md`:
 The final quality gate in `index.md` must show the anti-sycophancy / objective-function integrity subscore. A report can have many sources and still fail if it simply accepts the user's initial framing, rewrites the question into an easier claim, or hides weak objective reconstruction behind a high total score.
 
 Mode thresholds are hard gates: `quick >=80`, `standard >=90`, and `deep >=95`. A final report below the selected threshold must continue another round focused on the weakest dimensions. The helper uses only the raw evolver decision plus the score threshold for stopping; it does not parse report prose such as "future disclosure" or "external validation" as a stopping rule.
+
+The raw evolver decision is a machine-readable line, not localized prose. In every language, the first non-empty line under the decision heading must be exactly `Keep`, `Narrow`, `Pivot`, `Kill`, or `Final`; put translation or explanation after that line.
 
 The final report should read like a human memo: answer, framework dimension chapters, narrative, decision logic, recommendation, change triggers, next actions, and limits first; evidence registers, source quality, red-team notes, scenarios, and source inventory in appendices. Quality scoring belongs in `index.md` under the final report quality gate, not in `report.md`. Framework dimensions must appear as top-level Markdown headings in the body, not only in method notes or appendices. Citations must be standalone links or source references, not `C*` / `E*` registry IDs. A body dominated by bullets or audit tables does not pass.
 

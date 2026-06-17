@@ -18,6 +18,31 @@ MIN_REPORT_SUBSTANTIVE_LINES = 20
 REPORT_PASS_SCORE = 90
 REPORT_CONDITIONAL_SCORE = 80
 REGISTRY_FILES = ("sources.jsonl", "claims.jsonl", "evidence.jsonl")
+CANONICAL_DECISIONS = {
+    "keep": "Keep",
+    "narrow": "Narrow",
+    "pivot": "Pivot",
+    "kill": "Kill",
+    "final": "Final",
+}
+HIGH_STAKES_ACTION_PATTERNS = (
+    (r"\b(stock|stocks|equity|equities|share|shares|portfolio|invest|investment|valuation|earnings)\b", "financial or investment action"),
+    (r"(股票|证券|港股|美股|A股|买入|卖出|加仓|减仓|重仓|投资|估值|财报|研报)", "financial or investment action"),
+    (r"(株式|投資|買い|売り|買入|売却|ポートフォリオ|バリュエーション)", "financial or investment action"),
+    (r"\b(legal|lawsuit|contract|compliance|regulatory|tax|medical|clinical|diagnosis|treatment|therapy|security incident|production outage)\b", "legal, medical, security, or production action"),
+    (r"(法律|诉讼|合同|合规|监管|税务|医疗|诊断|治疗|临床|安全事故|生产故障)", "legal, medical, security, or production action"),
+    (r"(法律|訴訟|契約|コンプライアンス|規制|税務|医療|診断|治療|臨床|セキュリティ事故|本番障害)", "legal, medical, security, or production action"),
+)
+QUICK_REQUEST_PATTERNS = (
+    (r"\b(quick|brief|fast|rough|initial|triage|directional scan|first pass|short answer)\b", "explicit quick or initial-triage request"),
+    (r"(快速|简短|簡短|初筛|初步|先扫|扫一遍|快看|粗略|方向性)", "explicit quick or initial-triage request"),
+    (r"(クイック|簡単|短く|初期|ざっと|方向性)", "explicit quick or initial-triage request"),
+)
+DEEP_REQUEST_PATTERNS = (
+    (r"\b(deep|formal|comprehensive|long report|many citations|strict citation|strict audit|publication|pdf|html|ultradeep)\b", "explicit deep, formal, or publication-quality request"),
+    (r"(深度|深入|正式|长报告|長報告|大量引用|严格引用|严格审计|嚴格審計|出版级|PDF|HTML)", "explicit deep, formal, or publication-quality request"),
+    (r"(深掘り|詳細|正式|長文|多数の引用|厳密な引用|監査|出版品質|PDF|HTML)", "explicit deep, formal, or publication-quality request"),
+)
 
 MODE_CONFIG = {
     "quick": {
@@ -27,7 +52,7 @@ MODE_CONFIG = {
         "min_report_lines": 12,
         "pass_score": 80,
         "target_report_length": "800-1,500 words",
-        "quality_gate": "quick directional memo; continue if the decision still turns on public facts",
+        "quality_gate": "quick directional memo for low-stakes triage; use standard/deep for high-stakes action decisions",
     },
     "standard": {
         "min_sources": 3,
@@ -158,6 +183,7 @@ SECTION_SCHEMAS = {
     ),
     "quick_round_headings": (
         "Research Question",
+        "Evidence Plan",
         "Evidence And Sources",
         "Brainstorming Checkpoint",
         "Red-Team Challenge",
@@ -323,6 +349,7 @@ LABELS = {
         ],
         "quick_round_headings": [
             "Research Question",
+            "Evidence Plan",
             "Evidence And Sources",
             "Brainstorming Checkpoint",
             "Red-Team Challenge",
@@ -544,7 +571,7 @@ LABELS = {
         "evolver": "轮轻量进化器",
         "empty": "- ",
         "confidence": "低 / 中 / 高",
-        "decision": "保留 / 收窄 / 转向 / 放弃 / 最终成稿",
+        "decision": "Keep / Narrow / Pivot / Kill / Final",
         "strength": "强 / 弱 / 未知",
         "verdict": "支持 / 担忧 / 反对",
         "brief_headings": [
@@ -687,6 +714,7 @@ LABELS = {
         ],
         "quick_round_headings": [
             "本轮问题",
+            "证据计划",
             "证据与来源",
             "Brainstorming 检查点",
             "反方挑战",
@@ -857,7 +885,7 @@ LABELS = {
             "- 能改变决策的证据："
         ),
         "evolver_decision_note": (
-            "保留 / 收窄 / 转向 / 放弃 / 最终成稿\n"
+            "Keep / Narrow / Pivot / Kill / Final\n"
             "- Kill scope（若放弃）：论点 / 路径 / 候选行动 / 原始问题\n"
             "- Original question still open: yes / no\n"
             "- 如果原始问题仍未关闭，写出转向或下一条回答路径："
@@ -892,7 +920,7 @@ LABELS = {
         "evolver": "回軽量エボルバー",
         "empty": "- ",
         "confidence": "低 / 中 / 高",
-        "decision": "維持 / 絞り込み / ピボット / 中止 / 最終化",
+        "decision": "Keep / Narrow / Pivot / Kill / Final",
         "strength": "強い / 弱い / 不明",
         "verdict": "支持 / 懸念 / 反対",
         "brief_headings": [
@@ -1035,6 +1063,7 @@ LABELS = {
         ],
         "quick_round_headings": [
             "今回の調査問い",
+            "証拠計画",
             "証拠と情報源",
             "Brainstorming チェックポイント",
             "レッドチーム",
@@ -1205,7 +1234,7 @@ LABELS = {
             "- 判断を変える証拠:"
         ),
         "evolver_decision_note": (
-            "維持 / 絞り込み / ピボット / 中止 / 最終化\n"
+            "Keep / Narrow / Pivot / Kill / Final\n"
             "- Kill scope（中止の場合）: 仮説 / 経路 / 候補行動 / 元の問い\n"
             "- Original question still open: yes / no\n"
             "- 元の問いがまだ開いている場合、ピボットまたは次の回答経路を書く:"
@@ -1960,6 +1989,89 @@ def validate_report_quality(
         errors.append(f"index.md: {mode} mode requires report score >= {pass_score}")
 
 
+def survey_text_for_mode_policy(survey_dir: Path, label: dict[str, object]) -> str:
+    parts: list[str] = []
+    for path in (survey_dir / "00-brief.md", survey_dir / "index.md"):
+        if path.exists():
+            parts.append(path.read_text(encoding="utf-8"))
+    metadata = read_metadata(survey_dir)
+    topic = metadata.get("topic")
+    if isinstance(topic, str):
+        parts.append(topic)
+    return "\n".join(parts)
+
+
+def detect_high_stakes_action_reason(text: str) -> str | None:
+    for pattern, reason in HIGH_STAKES_ACTION_PATTERNS:
+        if re.search(pattern, text, flags=re.IGNORECASE):
+            return reason
+    return None
+
+
+def detect_pattern_reason(text: str, patterns: tuple[tuple[str, str], ...]) -> str | None:
+    for pattern, reason in patterns:
+        if re.search(pattern, text, flags=re.IGNORECASE):
+            return reason
+    return None
+
+
+def recommend_mode_for_text(text: str) -> tuple[str, str]:
+    deep_reason = detect_pattern_reason(text, DEEP_REQUEST_PATTERNS)
+    if deep_reason:
+        return "deep", deep_reason
+    high_stakes_reason = detect_high_stakes_action_reason(text)
+    quick_reason = detect_pattern_reason(text, QUICK_REQUEST_PATTERNS)
+    if high_stakes_reason:
+        if quick_reason:
+            return "standard", f"{quick_reason}, but {high_stakes_reason} needs standard or deep mode before final delivery"
+        return "standard", "default standard for ordinary actionable survey requests"
+    if quick_reason:
+        return "quick", quick_reason
+    return "standard", "default standard for ordinary survey requests"
+
+
+def validate_mode_policy(
+    errors: list[str],
+    warnings: list[str],
+    survey_dir: Path,
+    mode: str,
+    label: dict[str, object],
+    *,
+    final: bool,
+) -> None:
+    if mode != "quick":
+        return
+    reason = detect_high_stakes_action_reason(survey_text_for_mode_policy(survey_dir, label))
+    if reason:
+        message = (
+            f"mode policy: quick mode is for low-stakes directional triage; {reason} needs standard or deep mode before final delivery"
+        )
+        if final:
+            errors.append(message)
+        else:
+            warnings.append(message)
+
+
+def recommend_mode_command(args: argparse.Namespace) -> None:
+    parts: list[str] = []
+    for value in (args.topic, args.text):
+        if value:
+            parts.append(value)
+    if args.file:
+        path = Path(args.file).expanduser().resolve()
+        if not path.exists():
+            print(f"ERROR: input file does not exist: {path}", file=sys.stderr)
+            raise SystemExit(2)
+        parts.append(path.read_text(encoding="utf-8"))
+    text = "\n".join(parts).strip()
+    if not text:
+        print("ERROR: provide --topic, --text, or --file", file=sys.stderr)
+        raise SystemExit(2)
+    mode, reason = recommend_mode_for_text(text)
+    print(mode)
+    print(f"reason: {reason}")
+
+
 def init_survey(args: argparse.Namespace) -> None:
     root = Path(args.root).expanduser().resolve()
     today = args.date or dt.date.today().isoformat()
@@ -2558,32 +2670,39 @@ def create_quick_round_template(survey_dir: Path, label: dict[str, object], roun
 
 ## {headings[1]}
 
+- Round target:
+- Decision-critical variables:
+- Minimum direct evidence:
+- What evidence would change the action:
+
+## {headings[2]}
+
 - Registry: sources.jsonl, claims.jsonl, evidence.jsonl
 - Key source/evidence notes:
 
-## {headings[2]}
+## {headings[3]}
 
 - Status:
 - Assumptions:
 - Candidate next moves:
 
-## {headings[3]}
+## {headings[4]}
 
 - Strongest objection:
 - Alternative explanation:
 - Kill or pivot trigger:
 
-## {headings[4]}
+## {headings[5]}
 
 - Current answer:
 - Confidence:
 - What changed:
 
-## {headings[5]}
-
-{label['decision']}
-
 ## {headings[6]}
+
+Keep / Narrow / Pivot / Kill / Final
+
+## {headings[7]}
 
 -
 """,
@@ -2758,35 +2877,8 @@ def parse_evolver_decision(path: Path, label: dict[str, object]) -> str | None:
     token = re.sub(r"^[\-\*\d\.\)\s]+", "", first_line).strip()
     token = re.sub(r"[。.!！、,，；;：:]+$", "", token).strip()
     normalized = token.lower()
-    exact_tokens = {
-        "kill": "Kill",
-        "放弃": "Kill",
-        "中止": "Kill",
-        "pivot": "Pivot",
-        "转向": "Pivot",
-        "ピボット": "Pivot",
-        "narrow": "Narrow",
-        "收窄": "Narrow",
-        "絞り込み": "Narrow",
-        "keep": "Keep",
-        "保留": "Keep",
-        "維持": "Keep",
-        "final": "Final",
-        "finalize": "Final",
-        "finalise": "Final",
-        "finalizable": "Final",
-        "ready": "Final",
-        "ready for final report": "Final",
-        "最终成稿": "Final",
-        "可最终成稿": "Final",
-        "最终": "Final",
-        "最終化": "Final",
-        "最終": "Final",
-    }
-    if normalized in exact_tokens:
-        return exact_tokens[normalized]
-    if token in exact_tokens:
-        return exact_tokens[token]
+    if normalized in CANONICAL_DECISIONS:
+        return CANONICAL_DECISIONS[normalized]
     return None
 
 
@@ -3042,6 +3134,7 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
     label = labels(language)
     schema_version = report_schema_version(survey_dir)
     warnings.extend(metadata_warnings(survey_dir))
+    validate_mode_policy(errors, warnings, survey_dir, mode, label, final=final)
 
     brief_path = survey_dir / "00-brief.md"
     check_required_file(errors, brief_path, list(label["brief_headings"]), language)
@@ -3216,6 +3309,12 @@ def main() -> None:
     p_init.add_argument("--language", choices=LANGUAGES, default="en")
     p_init.add_argument("--mode", choices=MODES, default="standard")
     p_init.set_defaults(func=init_survey)
+
+    p_recommend = sub.add_parser("recommend-mode", help="recommend a starting mode from the request text")
+    p_recommend.add_argument("topic", nargs="?")
+    p_recommend.add_argument("--text")
+    p_recommend.add_argument("--file")
+    p_recommend.set_defaults(func=recommend_mode_command)
 
     p_round = sub.add_parser("round", help="start a staged round by creating the evidence plan")
     p_round.add_argument("survey_dir")

@@ -53,10 +53,10 @@ class SurveyRoundCliTest(unittest.TestCase):
         self.addCleanup(self.temp_dir.cleanup)
         self.root = Path(self.temp_dir.name)
 
-    def init_survey_dir(self, language: str = "en", mode: str = "standard") -> Path:
+    def init_survey_dir(self, language: str = "en", mode: str = "standard", topic: str = "AI recruiting agent") -> Path:
         result = run_cli(
             "init",
-            "AI recruiting agent",
+            topic,
             "--root",
             str(self.root),
             "--date",
@@ -70,8 +70,8 @@ class SurveyRoundCliTest(unittest.TestCase):
         survey_dir = Path(result.stdout.strip())
         return survey_dir
 
-    def init_round(self, language: str = "en", mode: str = "standard") -> Path:
-        survey_dir = self.init_survey_dir(language=language, mode=mode)
+    def init_round(self, language: str = "en", mode: str = "standard", topic: str = "AI recruiting agent") -> Path:
+        survey_dir = self.init_survey_dir(language=language, mode=mode, topic=topic)
         result = run_cli("round", str(survey_dir), "1")
         self.assertEqual(result.returncode, 0, result.stderr)
         return survey_dir
@@ -1194,6 +1194,7 @@ Thin.
             "Round 1 Quick Survey",
             {
                 "Research Question": "Should this be pursued as a direction?",
+                "Evidence Plan": "Test the decision-critical demand and policy variables before treating the quick scan as final.",
                 "Evidence And Sources": "S1/E1/C1 support a directional read; source detail remains in JSONL.",
                 "Brainstorming Checkpoint": "The practical next move is to decide whether more desk research would change the answer.",
                 "Red-Team Challenge": "The strongest objection is that public evidence is too thin for a high-stakes decision.",
@@ -1206,6 +1207,109 @@ Thin.
         result = run_cli("check", str(survey_dir), "--mode", "quick")
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_quick_round_requires_evidence_plan_section(self) -> None:
+        survey_dir = self.init_round(mode="quick")
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            include_wiki_notes=False,
+            evolver_decision="Final.",
+            evolver_evidence_needed="No desk-research target remains.",
+        )
+        for suffix in ("research", "brainstorm", "redteam", "synthesis", "evolver"):
+            path = survey_dir / f"01-{suffix}.md"
+            if path.exists():
+                path.unlink()
+        write_markdown(
+            survey_dir / "01-round.md",
+            "Round 1 Quick Survey",
+            {
+                "Research Question": "Should this be pursued as a direction?",
+                "Evidence And Sources": "S1/E1/C1 support a directional read; source detail remains in JSONL.",
+                "Brainstorming Checkpoint": "The practical next move is to decide whether more desk research would change the answer.",
+                "Red-Team Challenge": "The strongest objection is that public evidence is too thin for a high-stakes decision.",
+                "Synthesis": "The directional answer is sufficient for quick mode and can move to a final memo.",
+                "Decision": "Final.",
+                "Next Step": "Write the short final report and disclose that this was quick mode.",
+            },
+        )
+
+        result = run_cli("check", str(survey_dir), "--mode", "quick")
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("01-round.md: missing heading '## Evidence Plan'", result.stdout)
+
+    def test_localized_raw_decision_label_is_rejected(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            evolver_decision="最终成稿",
+            evolver_evidence_needed="No desk-research target remains.",
+        )
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Decision first non-empty line must be exactly one of Keep, Narrow, Pivot, Kill, or Final", result.stdout)
+
+    def test_high_stakes_action_cannot_finalize_in_quick_mode(self) -> None:
+        survey_dir = self.init_round(language="zh", mode="quick", topic="小米公司股票是否值得买入")
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=True,
+            include_wiki_notes=False,
+            evolver_decision="Final.",
+            evolver_evidence_needed="No desk-research target remains.",
+        )
+        for suffix in ("research", "brainstorm", "redteam", "synthesis", "evolver"):
+            path = survey_dir / f"01-{suffix}.md"
+            if path.exists():
+                path.unlink()
+        write_markdown(
+            survey_dir / "01-round.md",
+            "第1轮 Quick Survey",
+            {
+                "本轮问题": "小米公司股票是否值得买入？",
+                "证据计划": "验证当前价格、财务质量、估值、风险和用户约束这些会改变行动的变量。",
+                "证据与来源": "S1/E1/C1 支持方向性判断；完整登记在 JSONL。",
+                "Brainstorming 检查点": "比较买入、等待和继续调研。",
+                "反方挑战": "最大反方是公开资料不足以支持高风险买入行动。",
+                "综合结论": "应升级到标准或深度模式，而不是用 quick 最终交付。",
+                "决策": "Final.",
+                "下一步": "升级模式并补充正式尽调证据。",
+            },
+        )
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("quick mode is for low-stakes directional triage", result.stdout)
+
+    def test_recommend_mode_defaults_to_standard_for_normal_research_requests(self) -> None:
+        result = run_cli("recommend-mode", "--text", "调研小米公司股票现在值不值得买入？")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines()[0], "standard")
+
+    def test_recommend_mode_returns_quick_only_for_explicit_low_stakes_triage(self) -> None:
+        result = run_cli("recommend-mode", "--text", "Please give me a quick directional scan of this topic.")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines()[0], "quick")
+
+    def test_recommend_mode_does_not_use_quick_for_high_stakes_action_even_when_fast_requested(self) -> None:
+        result = run_cli("recommend-mode", "--text", "快速调研小米公司股票现在值不值得买入？")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines()[0], "standard")
+        self.assertIn("needs standard or deep mode", result.stdout)
+
+    def test_recommend_mode_returns_deep_for_formal_or_publication_requests(self) -> None:
+        result = run_cli("recommend-mode", "--text", "Need a formal long report with many citations and strict audit.")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines()[0], "deep")
 
     def test_skill_describes_deep_research_as_optional_capability_route(self) -> None:
         skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
@@ -1263,7 +1367,7 @@ Thin.
                 "Pass / Continue Decision: pass; finalize the report because no decision-changing unknown remains desk-researchable, "
                 "and the evolver next evidence requires external validation through future disclosures."
             ),
-            evolver_decision="收窄",
+            evolver_decision="Narrow",
             evolver_evidence_needed=(
                 "Exchange PDF filings and financial statement breakdown.\n"
                 "2026Q2/Q3 gross margin, expense ratio, operating cash flow, and inventory changes.\n"

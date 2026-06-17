@@ -158,13 +158,23 @@ Resolve `<skill-dir>` to the directory containing this `SKILL.md` so the workflo
 
 Supported artifact languages: `en`, `zh`, and `ja`. Use the user's language by default. The helper stores the language in `.super-survey.json`; `round` and `check` reuse it automatically.
 
+Mode selection is explicit and follows a simple decision tree:
+
+1. Use `quick` only when the user explicitly asks for quick, brief, fast, initial triage, or a low-stakes directional scan.
+2. Use `deep` when the user explicitly asks for deep, formal, long-form, many-citation, strict-audit, or publication-quality research.
+3. When a quick wording appears inside a high-stakes action request, start with `standard` or `deep`; speed can shorten the summary, but it should not downgrade the evidence workflow.
+4. Use `standard` for everything else, including ordinary "research whether X is worth doing/buying/adopting" requests.
+5. If the request is ambiguous, run `python3 <skill-dir>/scripts/survey_round.py recommend-mode --text "<request>"` before `init`.
+
 Supported modes:
 
 | Mode | Use When | Minimum Registry | Report Gate |
 |---|---|---:|---|
-| `quick` | Directional scan or early triage | 1 source, 1 claim, 1 evidence item | score >=80, shorter report |
-| `standard` | Default reusable research report | 3 sources, 3 claims, 3 evidence items | score >=90 |
-| `deep` | Formal or high-stakes report, many citations, strict audit needs | 8 sources, 6 claims, 8 evidence items | score >=95, route long packaging to `deep-research` when available |
+| `quick` | Only when the user explicitly asks for quick, brief, fast, initial triage, or a low-stakes directional scan | 1 source, 1 claim, 1 evidence item | score >=80, shorter report |
+| `standard` | Default for ordinary survey requests, including "research whether X is worth doing/buying/adopting" | 3 sources, 3 claims, 3 evidence items | score >=90 |
+| `deep` | When the user explicitly asks for deep/formal/long research, many citations, strict audit, publication-quality delivery, or a critical decision memo | 8 sources, 6 claims, 8 evidence items | score >=95, route long packaging to `deep-research` when available |
+
+Use `standard` unless the user clearly asks for `quick` or `deep`. Do not infer `quick` from a short user prompt; a short prompt usually means the agent must reconstruct the objective, not reduce rigor. Use `deep` when the user asks for deep research, a formal report, many citations, strict source audit, HTML/PDF packaging, or high-confidence long-form delivery.
 
 Write `00-brief.md` with:
 
@@ -192,7 +202,7 @@ Keep the number of rounds open, and reserve stop conclusions for completed round
 
 Make the research framework travel through the whole workflow. Once `00-brief.md` names framework dimensions, every round artifact must use those dimensions as its thinking structure. Keep each dimension lightweight when needed, and write actual dimension-level reasoning instead of a generic audit note such as "framework coverage checked."
 
-If the user only wants a quick answer, use `--mode quick` and keep the artifact set lightweight. A quick survey can use one combined `NN-round.md` containing research, evidence, brainstorming, red-team critique, synthesis, decision, and next step, or it can use the full split artifact set when that is clearer. It needs `report.md` only at final delivery. The sections can be concise, and validation still includes red-team critique and the evolver decision.
+If the user explicitly wants a low-stakes quick answer, use `--mode quick` and keep the artifact set lightweight. Do not use quick final delivery for high-stakes action decisions such as investment, legal, medical, security, production, or major business commitments; use `standard` or `deep` instead. A quick survey can use one combined `NN-round.md` containing evidence plan, research, evidence, brainstorming, red-team critique, synthesis, decision, and next step, or it can use the full split artifact set when that is clearer. It needs `report.md` only at final delivery. The sections can be concise, and validation still includes red-team critique and the evolver decision.
 
 Create these registry files during initialization:
 
@@ -393,9 +403,9 @@ Score the final `report.md` on a 100-point rubric before finalizing, and record 
 
 `index.md` must include the anti-sycophancy / objective-function integrity subscore in the final quality gate. The helper treats a missing subscore as a final-gate failure because a high total score should not hide a report that simply accepts the user's initial framing.
 
-Mode-specific thresholds are stricter for deeper work. `quick` can pass at 80 when the user only needs directional triage. `standard` should pass at 90. `deep` should pass at 95 and use larger source/claim/evidence coverage. Use `quick` explicitly when speed matters more than completeness; keep `standard` and `deep` thresholds intact for reusable reports.
+Mode-specific thresholds are stricter for deeper work. `quick` can pass at 80 when the user explicitly asks for low-stakes directional triage. `standard` should pass at 90 and is the default mode. `deep` should pass at 95 and use larger source/claim/evidence coverage. Use `quick` only when speed matters more than completeness and the decision is reversible or low-stakes; keep `standard` and `deep` thresholds intact for reusable or high-stakes reports.
 
-Use raw gates to decide whether to stop:
+Use canonical English raw gates to decide whether to stop. In any artifact language, the first non-empty line under `Decision` / `判断` / `决策` must be exactly one of `Keep`, `Narrow`, `Pivot`, `Kill`, or `Final`; put localized explanation after that line.
 
 - `Keep`, `Narrow`, or `Pivot` always require another round.
 - `Final` means no desk-research target remains that could materially change the user's original decision, so the loop can move to final report writing.

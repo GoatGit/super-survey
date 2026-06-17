@@ -146,5 +146,9 @@ contains the same essential thinking:
 - brainstorming checkpoint
 - red-team challenge
 - synthesis
-- raw decision
+- raw decision: first non-empty decision line must be exactly `Keep`, `Narrow`, `Pivot`, `Kill`, or `Final`
 - next step
+
+Use quick mode for low-stakes triage. For investment, legal, medical, security,
+production, or major business commitment decisions, use standard or deep mode
+before final delivery.
