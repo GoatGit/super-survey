@@ -21,6 +21,7 @@ the detailed content contract for each staged artifact.
 `NN-evidence-plan.md` should contain:
 
 - Round decision target for this round, tied to the original question and the latest `index.md` state.
+- Target residual to reduce: identify the primary residual (`r_q`, `r_c`, `r_e`, `r_h`, `r_a`, `r_s`, or `r_j`), why this is the steepest useful direction, expected information value, research cost, and the result that would make another desk-research round unnecessary.
 - Decision-critical variables that could change the recommendation.
 - Minimum direct evidence: what must be observed directly, what is only background, and what cannot substitute for direct proof.
 - Source plan: primary or official sources, direct measurements, registry updates, current-source search path, and companion routing if needed.
@@ -91,6 +92,9 @@ the detailed content contract for each staged artifact.
 - Persona judgments.
 - Raw decision: exactly one of `Keep`, `Narrow`, `Pivot`, `Kill`, or `Final`.
 - Round evidence quality gate with one `### <framework dimension>` subsection per brief-defined or evidence-refined dimension.
+- Residual vector `r_q/r_c/r_e/r_h/r_a/r_s/r_j`, each scored 0-3. `0` means resolved for the decision, `1` means minor gap, `2` means material but manageable gap, and `3` means decision-level gap.
+- Target residual for the next round, expected information value of next research, research cost, and `VOI greater than cost: yes/no`.
+- Hard constraints satisfied, blocking hard constraints, and soft residuals that can be weighted.
 - Evidence coverage, weakest dimensions, implied expectation check and reverse-check, future facts vs desk-researchable gaps, anti-narrative regularizers, decision tree triggers, Bayesian update needed, Kill scope, original question still open, continue/stop implication, and next-round focus.
 - Next-round target.
 - Evidence needed next.
@@ -104,6 +108,8 @@ the detailed content contract for each staged artifact.
 - Continuation status, next research target, and why the survey is not final yet.
 - Open questions and source inventory.
 - Framework refinement log.
+- Residual Gate: residual vector, whether any residual is at 3, highest residual, pass/fail/pending status, and the next descent direction.
+- Hard Constraint Gate: whether hard constraints are satisfied, blocking hard constraints, and pass/fail/pending status.
 - Wiki / Graph Index Status.
 - Final Report Quality Gate after `report.md` exists.
 

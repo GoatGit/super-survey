@@ -118,7 +118,7 @@ Command meanings:
 - `synthesis`: creates `NN-synthesis.md` only after `NN-redteam.md` contains substantive content.
 - `evolve`: creates `NN-evolver.md` only after `NN-synthesis.md` contains substantive content.
 - `check`: validates round artifacts, `index.md`, the evidence registry, companion-routing notes, and the latest raw evolver decision. It does not require `report.md`.
-- `check-final`: runs the same checks plus final `report.md`, prose-first report rules, the mode-specific quality score recorded in `index.md`, and the requirement that the latest raw evolver decision is `Final` or `Kill`.
+- `check-final`: runs the same checks plus final `report.md`, prose-first report rules, the mode-specific quality score recorded in `index.md`, residual and hard-constraint gates, and the requirement that the latest raw evolver decision is `Final` or `Kill`.
 - `upgrade-report`: appends the full report schema to an older report. Older six-section reports are readable but do not pass the final gate; after upgrading, fill the new sections.
 - `validate-evidence`: narrow debugging command for `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`; normal round validation uses `check` / `check-final`.
 
@@ -186,14 +186,14 @@ This is the intended execution architecture from the anti-sycophancy paper:
 
 | Node | Work | Paper methods |
 |---|---|---|
-| Brief / Frame Contract | Preserve the original question, reconstruct the objective function, split facts/assumptions/inferences/value judgments, define constraints, candidate actions, and the research framework. | 4.1, 4.2, 4.3, 4.11 |
-| Evidence Plan / Minimum Direct Evidence | Define decision-critical variables, minimum direct evidence, priority source types, disconfirming evidence, missing-evidence handling, and framework-level evidence needs before source collection. | 4.2, 4.5, 4.6, 4.7, 4.12 |
-| Research | Collect current and primary evidence according to the plan, update source/claim/evidence registries, record contradictions, confidence, freshness, and framework coverage. | 4.2, 4.5, 4.7, 4.9 |
-| Post-Research Brainstorming | Re-open candidate explanations after evidence exists, compare multi-start perspectives, identify likely errors, next evidence moves, and evidence-triggered framework refinements. | 4.4, 4.5, 4.6, 4.12 |
-| Redteam | Attack the strongest current argument, substitutes, hidden assumptions, kill criteria, and anti-narrative regularizers. | 4.5, 4.8, 4.12 |
-| Synthesis | Integrate evidence and objections into sensitivity analysis, implied-expectation reverse-checks, Bayesian updates, scenarios, decision trees, and constraint-specific recommendation branches. | 4.6, 4.7, 4.9, 4.10, 4.11, 4.12 |
-| Evolver | Decide Keep / Narrow / Pivot / Kill / Final, separate future facts from desk-researchable gaps, and generate the next-round target or finalization rationale. | 4.4, 4.6, 4.8, 4.9, 4.10 |
-| Final Report | Write a standalone human decision memo with body chapters from the framework, decision logic, recommendation, change triggers, next actions, limits, and appendices. | 4.10, 4.11, 5.2, 5.3 |
+| Brief / Frame Contract | Preserve the original question, reconstruct the objective function, split facts/assumptions/inferences/value judgments, define constraints, candidate actions, and the research framework. | 4.1, 4.2, 4.3, 6.2 |
+| Evidence Plan / Minimum Direct Evidence | Define the target residual to reduce, decision-critical variables, minimum direct evidence, priority source types, disconfirming evidence, missing-evidence handling, and framework-level evidence needs before source collection. | 3.7.3, 3.7.4, 5.2, 5.3, 6.2 |
+| Research | Collect current and primary evidence according to the plan, update source/claim/evidence registries, record contradictions, confidence, freshness, and framework coverage. | 4.2, 4.5, 4.7, 4.9, 5.1 |
+| Post-Research Brainstorming | Re-open candidate explanations after evidence exists, compare multi-start perspectives, identify likely errors, next evidence moves, and evidence-triggered framework refinements. | 4.4, 4.5, 4.6, 5.3 |
+| Redteam | Attack the strongest current argument, substitutes, hidden assumptions, kill criteria, and anti-narrative regularizers. | 4.5, 4.8, 4.12, 5.2 |
+| Synthesis | Integrate evidence and objections into sensitivity analysis, implied-expectation reverse-checks, Bayesian updates, scenarios, decision trees, and constraint-specific recommendation branches. | 4.6, 4.7, 4.9, 4.10, 4.11 |
+| Evolver | Score residuals, compare VOI with research cost, decide Keep / Narrow / Pivot / Kill / Final, separate future facts from desk-researchable gaps, and generate the next-round target or finalization rationale. | 3.7.1-3.7.4, 5.2-5.5, 6.2-6.5 |
+| Final Report | Write a standalone human decision memo with body chapters from the framework, decision logic, recommendation, change triggers, next actions, limits, and appendices. | 4.10, 4.11, 6.3-6.5 |
 
 If evidence shows the framework should change, record it in `index.md` under `Framework Refinement Log`: current dimensions, evidence trigger for the change, and confirmation that the original question/core is preserved. Later rounds then use the refined dimensions. Silent framework drift is invalid.
 
@@ -213,11 +213,12 @@ For securities-style research, Super Survey can compose market, industry, and co
 
 README gives the operational shape; the full agent checklist lives in `SKILL.md`.
 
-There are three gates:
+There are four gates:
 
 - `check` is the round gate. It validates artifacts, registry links and weak-support checks, framework coverage including explicit refinements, companion notes when required, and the latest raw evolver decision. It can pass with a continuation warning when the decision is `Keep`, `Narrow`, or `Pivot`.
-- The evolver is the stop gate. `Keep`, `Narrow`, and `Pivot` mean create another round and update `index.md`; `Final` means the survey can move to final report writing; `Kill` means the current thesis should stop or switch away from desk research.
-- `check-final` is the delivery gate. It requires a complete prose-first `report.md`, a passing mode score recorded in `index.md`, and the latest raw evolver decision to be `Final` or `Kill`.
+- The evolver is the direction gate. `Keep`, `Narrow`, and `Pivot` mean create another round and update `index.md`; `Final` means the survey can move to final report writing; `Kill` means the current thesis should stop or switch away from desk research.
+- The residual / VOI / hard-constraint gate is the stop-safety gate. The latest evolver and `index.md` must record `r_q/r_c/r_e/r_h/r_a/r_s/r_j` from 0-3, the target residual, expected information value, research cost, whether VOI exceeds cost, and whether hard constraints are satisfied.
+- `check-final` is the delivery gate. It requires a complete prose-first `report.md`, a passing mode score recorded in `index.md`, a passing residual gate, a passing hard-constraint gate, and the latest raw evolver decision to be `Final` or `Kill`.
 
 Final delivery uses a 100-point quality gate recorded in `index.md`:
 
@@ -232,7 +233,9 @@ Final delivery uses a 100-point quality gate recorded in `index.md`:
 
 The final quality gate in `index.md` must show the anti-sycophancy / objective-function integrity subscore. A report can have many sources and still fail if it simply accepts the user's initial framing, rewrites the question into an easier claim, or hides weak objective reconstruction behind a high total score.
 
-Mode thresholds are hard gates: `quick >=80`, `standard >=90`, and `deep >=95`. A final report below the selected threshold must continue another round focused on the weakest dimensions. The helper uses only the raw evolver decision plus the score threshold for stopping; it does not parse report prose such as "future disclosure" or "external validation" as a stopping rule.
+Mode thresholds are hard gates: `quick >=80`, `standard >=90`, and `deep >=95`. A final report below the selected threshold must continue another round focused on the weakest dimensions. The helper uses only the raw evolver decision, score threshold, residual gate, and hard-constraint gate for stopping; it does not parse report prose such as "future disclosure" or "external validation" as a stopping rule.
+
+The residual vector is the operational version of the paper's residual-driven evidence iteration. `r_q` tracks question framing, `r_c` constraints, `r_e` evidence, `r_h` hypotheses, `r_a` adversarial testing, `r_s` sensitivity, and `r_j` actionability. Any residual at `3` is a decision-level gap. Continue when a concrete desk-research move can reduce that gap and its VOI is greater than cost. Move to final reporting only when no residual remains at `3`, hard constraints pass, and the remaining desk-research VOI is below cost.
 
 The raw evolver decision is a machine-readable line, not localized prose. In every language, the first non-empty line under the decision heading must be exactly `Keep`, `Narrow`, `Pivot`, `Kill`, or `Final`; put translation or explanation after that line.
 
@@ -262,13 +265,13 @@ flowchart TD
     X -->|No| F[NN-redteam.md<br/>risks, substitutes, kill criteria]
     F --> G[NN-synthesis.md<br/>sensitivity, Bayesian update, decision tree]
     G --> H[NN-evolver.md<br/>Keep / Narrow / Pivot / Kill / Final]
-    H --> Q{Evolver decision}
-    Q -->|Keep / Narrow / Pivot| I[index.md<br/>workbench: next target and why not final]
+    H --> V{Residual / VOI / hard constraints}
+    V -->|residual at 3 + VOI > cost| I[index.md<br/>workbench: next target and why not final]
     I --> P
-    Q -->|Final / Kill| J[Write report.md<br/>framework dimensions as body chapters]
-    J --> R[check-final<br/>score and prose-first gate]
-    R -->|Score below threshold| I
-    R -->|Score passes| K[Final answer<br/>decision-oriented summary]
+    V -->|Final / Kill + gates pass| J[Write report.md<br/>framework dimensions as body chapters]
+    J --> R[check-final<br/>score, residual, hard-constraint, prose-first gates]
+    R -->|any gate fails| I
+    R -->|all gates pass| K[Final answer<br/>decision-oriented summary]
 ```
 
 ## Inspiration: Karpathy's autoresearch

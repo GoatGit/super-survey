@@ -13,7 +13,7 @@ from pathlib import Path
 
 LANGUAGES = ("en", "zh", "ja")
 MODES = ("quick", "standard", "deep")
-REPORT_SCHEMA_VERSION = 3
+REPORT_SCHEMA_VERSION = 4
 MIN_REPORT_SUBSTANTIVE_LINES = 20
 REPORT_PASS_SCORE = 90
 REPORT_CONDITIONAL_SCORE = 80
@@ -101,6 +101,8 @@ SECTION_SCHEMAS = {
         "Source Inventory",
         "Framework Refinement Log",
         "Final Report Quality Gate",
+        "Residual Gate",
+        "Hard Constraint Gate",
         "Wiki / Graph Index Status",
         "Decision Log",
     ),
@@ -120,6 +122,7 @@ SECTION_SCHEMAS = {
     ),
     "evidence_plan_headings": (
         "Round Decision Target",
+        "Target Residual To Reduce",
         "Decision-Critical Variables",
         "Minimum Direct Evidence",
         "Source Plan",
@@ -235,6 +238,8 @@ LABELS = {
             "Source Inventory",
             "Framework Refinement Log",
             "Final Report Quality Gate",
+            "Residual Gate",
+            "Hard Constraint Gate",
             "Wiki / Graph Index Status",
             "Decision Log",
         ],
@@ -252,6 +257,9 @@ LABELS = {
             "Anti-sycophancy / objective-function integrity:",
             "Objective reconstruction quality:",
             "User-frame challenge quality:",
+            "Residual gate status:",
+            "Hard constraint gate status:",
+            "Goodhart check:",
             "Lowest-Scoring Areas:",
             "Next Round Focus:",
         ],
@@ -278,6 +286,7 @@ LABELS = {
         ],
         "evidence_plan_headings": [
             "Round Decision Target",
+            "Target Residual To Reduce",
             "Decision-Critical Variables",
             "Minimum Direct Evidence",
             "Source Plan",
@@ -450,6 +459,11 @@ LABELS = {
             "Create this only after",
         ],
         "evidence_plan_template_notes": [
+            "Primary residual:",
+            "Why this residual is the steepest useful direction:",
+            "Expected information value:",
+            "Research cost:",
+            "What result would make another round unnecessary:",
             "Variable:",
             "Why it can change the decision:",
             "Current assumption:",
@@ -470,6 +484,15 @@ LABELS = {
             "For each dimension from 00-brief.md, add `### <framework dimension>` and write the minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.",
         ],
         "evolver_quality_gate_notes": [
+            "Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3):",
+            "Any residual at 3: yes / no",
+            "Target residual for next round:",
+            "Expected information value of next research:",
+            "Research cost:",
+            "VOI greater than cost: yes / no",
+            "Hard constraints satisfied: yes / no",
+            "Blocking hard constraints:",
+            "Soft residuals that can be weighted:",
             "Evidence coverage this round:",
             "Framework coverage this round:",
             "Weakest evidence or framework dimensions:",
@@ -503,7 +526,10 @@ LABELS = {
             "- Candidate actions:\n"
             "- Do nothing / wait / continue research option:\n"
             "- Hard constraints:\n"
+            "- Hard constraint pass conditions:\n"
+            "- Blocking hard constraints:\n"
             "- Soft constraints:\n"
+            "- Soft residual weights:\n"
             "- Missing constraints:\n"
             "- Success criteria:\n"
             "- Failure criteria:\n"
@@ -600,6 +626,8 @@ LABELS = {
             "来源清单",
             "框架修正日志",
             "最终报告质量门",
+            "残差门",
+            "硬约束门",
             "Wiki / Graph 索引状态",
             "决策日志",
         ],
@@ -617,6 +645,9 @@ LABELS = {
             "反谄媚 / 目标函数完整性：",
             "目标函数重构质量：",
             "用户框架挑战质量：",
+            "Residual gate status:",
+            "Hard constraint gate status:",
+            "Goodhart check:",
             "最低分维度：",
             "下一轮重点：",
         ],
@@ -643,6 +674,7 @@ LABELS = {
         ],
         "evidence_plan_headings": [
             "本轮决策目标",
+            "本轮要压缩的目标残差",
             "决策关键变量",
             "最低直接证据",
             "来源计划",
@@ -815,6 +847,11 @@ LABELS = {
             "阶段化 CLI",
         ],
         "evidence_plan_template_notes": [
+            "Primary residual:",
+            "Why this residual is the steepest useful direction:",
+            "Expected information value:",
+            "Research cost:",
+            "What result would make another round unnecessary:",
             "Variable:",
             "Why it can change the decision:",
             "Current assumption:",
@@ -835,6 +872,15 @@ LABELS = {
             "For each dimension from 00-brief.md, add `### <framework dimension>` and write the minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.",
         ],
         "evolver_quality_gate_notes": [
+            "Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3):",
+            "Any residual at 3: yes / no",
+            "Target residual for next round:",
+            "Expected information value of next research:",
+            "Research cost:",
+            "VOI greater than cost: yes / no",
+            "Hard constraints satisfied: yes / no",
+            "Blocking hard constraints:",
+            "Soft residuals that can be weighted:",
             "本轮证据覆盖：",
             "本轮框架覆盖：",
             "最弱证据或框架维度：",
@@ -868,7 +914,10 @@ LABELS = {
             "- 候选行动：\n"
             "- 不行动 / 等待 / 继续调研选项：\n"
             "- 硬约束：\n"
+            "- 硬约束通过条件：\n"
+            "- 阻断性硬约束：\n"
             "- 软约束：\n"
+            "- 软残差权重：\n"
             "- 缺失约束：\n"
             "- 成功标准：\n"
             "- 失败标准：\n"
@@ -949,6 +998,8 @@ LABELS = {
             "情報源一覧",
             "フレームワーク修正ログ",
             "最終レポート品質ゲート",
+            "残差ゲート",
+            "ハード制約ゲート",
             "Wiki / Graph インデックス状態",
             "意思決定ログ",
         ],
@@ -966,6 +1017,9 @@ LABELS = {
             "反シコファンシー / 目的関数の整合性:",
             "目的関数再構築の品質:",
             "ユーザーフレーム検証の品質:",
+            "Residual gate status:",
+            "Hard constraint gate status:",
+            "Goodhart check:",
             "最低スコア領域:",
             "次回ラウンドの焦点:",
         ],
@@ -992,6 +1046,7 @@ LABELS = {
         ],
         "evidence_plan_headings": [
             "今回の判断目標",
+            "今回低減する対象残差",
             "判断に重要な変数",
             "最低限の直接証拠",
             "情報源計画",
@@ -1164,6 +1219,11 @@ LABELS = {
             "段階化 CLI",
         ],
         "evidence_plan_template_notes": [
+            "Primary residual:",
+            "Why this residual is the steepest useful direction:",
+            "Expected information value:",
+            "Research cost:",
+            "What result would make another round unnecessary:",
             "Variable:",
             "Why it can change the decision:",
             "Current assumption:",
@@ -1184,6 +1244,15 @@ LABELS = {
             "For each dimension from 00-brief.md, add `### <framework dimension>` and write the minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.",
         ],
         "evolver_quality_gate_notes": [
+            "Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3):",
+            "Any residual at 3: yes / no",
+            "Target residual for next round:",
+            "Expected information value of next research:",
+            "Research cost:",
+            "VOI greater than cost: yes / no",
+            "Hard constraints satisfied: yes / no",
+            "Blocking hard constraints:",
+            "Soft residuals that can be weighted:",
             "今回の証拠網羅:",
             "今回のフレームワーク網羅:",
             "最も弱い証拠またはフレームワーク次元:",
@@ -1217,7 +1286,10 @@ LABELS = {
             "- 候補行動:\n"
             "- 何もしない / 待つ / 調査継続の選択肢:\n"
             "- ハード制約:\n"
+            "- ハード制約の合格条件:\n"
+            "- ブロックするハード制約:\n"
             "- ソフト制約:\n"
+            "- ソフト残差の重み:\n"
             "- 欠落している制約:\n"
             "- 成功基準:\n"
             "- 失敗基準:\n"
@@ -1511,6 +1583,25 @@ def required_report_headings(label: dict[str, object], schema_version: int) -> l
     return list(label["legacy_report_headings"])
 
 
+def required_index_headings(label: dict[str, object], schema_version: int) -> list[str]:
+    headings = list(label["index_headings"])
+    if schema_version >= REPORT_SCHEMA_VERSION:
+        return headings
+    return [
+        heading
+        for heading in headings
+        if heading
+        not in {
+            "Residual Gate",
+            "Hard Constraint Gate",
+            "残差门",
+            "硬约束门",
+            "残差ゲート",
+            "ハード制約ゲート",
+        }
+    ]
+
+
 def required_evolver_headings(label: dict[str, object], schema_version: int) -> list[str]:
     headings = list(label["evolver_headings"])
     if schema_version >= REPORT_SCHEMA_VERSION:
@@ -1565,6 +1656,135 @@ def quality_gate_has_anti_sycophancy_subscore(text: str, heading: str) -> bool:
             "反シコファンシー / 目的関数の整合性",
         )
     )
+
+
+RESIDUAL_KEYS = ("r_q", "r_c", "r_e", "r_h", "r_a", "r_s", "r_j")
+
+
+def parse_residual_vector(text: str) -> dict[str, int]:
+    values: dict[str, int] = {}
+    for key in RESIDUAL_KEYS:
+        match = re.search(rf"{re.escape(key)}\s*[:=]\s*([0-3])\b", text, flags=re.IGNORECASE)
+        if match:
+            values[key] = int(match.group(1))
+    return values
+
+
+def body_has_yes(body: str, label_pattern: str) -> bool:
+    match = re.search(rf"{label_pattern}\s*[:：]\s*(.+)", body, flags=re.IGNORECASE)
+    if not match:
+        return False
+    value = match.group(1).strip().lower()
+    if "/" in value:
+        return False
+    return value.startswith("yes") or value.startswith("是") or value.startswith("はい")
+
+
+def body_has_no(body: str, label_pattern: str) -> bool:
+    match = re.search(rf"{label_pattern}\s*[:：]\s*(.+)", body, flags=re.IGNORECASE)
+    if not match:
+        return False
+    value = match.group(1).strip().lower()
+    if "/" in value:
+        return False
+    return value.startswith("no") or value.startswith("否") or value.startswith("いいえ") or value.startswith("なし")
+
+
+def body_has_status(body: str, label_pattern: str, expected: str) -> bool:
+    match = re.search(rf"{label_pattern}\s*[:：]\s*(.+)", body, flags=re.IGNORECASE)
+    if not match:
+        return False
+    value = match.group(1).strip().lower().strip(".。；; ")
+    if "/" in value:
+        return False
+    return value == expected.lower()
+
+
+def validate_residual_gate_body(errors: list[str], path_name: str, body: str, *, final: bool) -> None:
+    residuals = parse_residual_vector(body)
+    if len(residuals) < len(RESIDUAL_KEYS):
+        errors.append(
+            f"{path_name}: residual gate must record r_q/r_c/r_e/r_h/r_a/r_s/r_j as 0-3 values"
+        )
+        return
+    if final and any(value >= 3 for value in residuals.values()):
+        errors.append(f"{path_name}: final residual gate cannot pass with any residual at 3")
+    if final and not body_has_status(body, r"Residual gate status", "pass"):
+        errors.append(f"{path_name}: final residual gate must state 'Residual gate status: pass'")
+
+
+def validate_hard_constraint_gate_body(errors: list[str], path_name: str, body: str, *, final: bool) -> None:
+    if not re.search(r"Hard constraints satisfied\s*[:：]", body, flags=re.IGNORECASE):
+        errors.append(f"{path_name}: hard constraint gate must state 'Hard constraints satisfied: yes/no'")
+        return
+    if final and not body_has_yes(body, r"Hard constraints satisfied"):
+        errors.append(f"{path_name}: final hard constraint gate requires 'Hard constraints satisfied: yes'")
+    if final and not body_has_status(body, r"Hard constraint gate status", "pass"):
+        errors.append(f"{path_name}: final hard constraint gate must state 'Hard constraint gate status: pass'")
+
+
+def validate_index_residual_and_hard_gates(
+    errors: list[str],
+    index_path: Path,
+    label: dict[str, object],
+    *,
+    final: bool,
+) -> None:
+    if not index_path.exists():
+        return
+    text = index_path.read_text(encoding="utf-8")
+    residual_heading = str(label["index_headings"][10])
+    hard_heading = str(label["index_headings"][11])
+    residual_body = section_body(text, residual_heading)
+    hard_body = section_body(text, hard_heading)
+    if residual_body is None:
+        errors.append(f"index.md: missing {residual_heading}")
+    else:
+        validate_residual_gate_body(errors, "index.md", residual_body, final=final)
+    if hard_body is None:
+        errors.append(f"index.md: missing {hard_heading}")
+    else:
+        validate_hard_constraint_gate_body(errors, "index.md", hard_body, final=final)
+
+
+def validate_evolver_residual_and_voi(
+    errors: list[str],
+    evolver_path: Path,
+    label: dict[str, object],
+    *,
+    final: bool,
+) -> None:
+    if not evolver_path.exists():
+        return
+    text = evolver_path.read_text(encoding="utf-8")
+    gate_heading = str(label["evolver_headings"][4])
+    body = section_body(text, gate_heading)
+    if body is None:
+        return
+    residuals = parse_residual_vector(body)
+    if len(residuals) < len(RESIDUAL_KEYS):
+        errors.append(
+            f"{evolver_path.name}: Round Evidence Quality Gate must record r_q/r_c/r_e/r_h/r_a/r_s/r_j as 0-3 values"
+        )
+    if not re.search(r"Expected information value of next research\s*[:：]\s*\S+", body, flags=re.IGNORECASE):
+        errors.append(f"{evolver_path.name}: Round Evidence Quality Gate must record expected information value")
+    if not re.search(r"Research cost\s*[:：]\s*\S+", body, flags=re.IGNORECASE):
+        errors.append(f"{evolver_path.name}: Round Evidence Quality Gate must record research cost")
+    if not (
+        body_has_yes(body, r"VOI greater than cost")
+        or body_has_no(body, r"VOI greater than cost")
+    ):
+        errors.append(f"{evolver_path.name}: Round Evidence Quality Gate must state 'VOI greater than cost: yes/no'")
+    if not (
+        body_has_yes(body, r"Hard constraints satisfied")
+        or body_has_no(body, r"Hard constraints satisfied")
+    ):
+        errors.append(f"{evolver_path.name}: Round Evidence Quality Gate must state 'Hard constraints satisfied: yes/no'")
+    if final:
+        if residuals and any(value >= 3 for value in residuals.values()):
+            errors.append(f"{evolver_path.name}: final decision cannot pass with any residual at 3")
+        if not body_has_yes(body, r"Hard constraints satisfied"):
+            errors.append(f"{evolver_path.name}: final decision requires hard constraints satisfied")
 
 
 def normalize_dimension_text(text: str) -> str:
@@ -1950,9 +2170,8 @@ def validate_report_quality(
         return
 
     if schema_version < REPORT_SCHEMA_VERSION:
-        if not report_has_v2_headings(report_path, label):
-            errors.append("report.md: legacy report schema detected; run 'upgrade-report' and expand the new sections before final delivery")
-            return
+        errors.append("report.md: legacy report schema detected; run 'upgrade-report' and expand the new sections before final delivery")
+        return
 
     mode_config = MODE_CONFIG[mode]
     min_lines = int(mode_config["min_report_lines"])
@@ -2206,9 +2425,23 @@ def init_survey(args: argparse.Namespace) -> None:
 
 ## {headings[10]}
 
-{wiki_status_notes}
+- Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3):
+- Any residual at 3: yes / no
+- Highest residual:
+- Residual gate status: pass / fail / pending
+- Next descent direction:
 
 ## {headings[11]}
+
+- Hard constraints satisfied: yes / no
+- Blocking hard constraints:
+- Hard constraint gate status: pass / fail / pending
+
+## {headings[12]}
+
+{wiki_status_notes}
+
+## {headings[13]}
 
 -
 """,
@@ -2275,37 +2508,45 @@ def create_evidence_plan_template(survey_dir: Path, label: dict[str, object], la
 
 ## {headings[1]}
 
+- Primary residual:
+- Why this residual is the steepest useful direction:
+- Expected information value:
+- Research cost:
+- What result would make another round unnecessary:
+
+## {headings[2]}
+
 - Variable:
 - Why it can change the decision:
 - Current assumption:
 - Evidence needed:
 
-## {headings[2]}
+## {headings[3]}
 
 - Direct evidence that must be observed:
 - Evidence that is only background:
 - Evidence that cannot substitute for direct proof:
 
-## {headings[3]}
+## {headings[4]}
 
 - Primary or official sources:
 - Direct measurements or registry updates:
 - Current-source search path:
 - Companion routing if needed:
 
-## {headings[4]}
+## {headings[5]}
 
 - What would weaken the candidate action:
 - What would falsify the current path:
 - What substitute explanation must be checked:
 
-## {headings[5]}
+## {headings[6]}
 
 - If evidence is missing:
 - If evidence requires interviews, experiments, legal review, or future facts:
 - If another desk-research pass can reduce the gap:
 
-## {headings[6]}
+## {headings[7]}
 
 - For each dimension from 00-brief.md, add `### <framework dimension>` and write the minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.
 """,
@@ -3141,7 +3382,7 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
     check_continuation_policy(errors, brief_path, label)
     framework_dimensions = check_brief_framework_dimensions(errors, brief_path, label)
     index_path = survey_dir / "index.md"
-    check_required_file(errors, index_path, list(label["index_headings"]), language)
+    check_required_file(errors, index_path, required_index_headings(label, schema_version), language)
     effective_framework_dimensions = check_index_framework_refinement(
         errors,
         index_path,
@@ -3149,6 +3390,8 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
         framework_dimensions,
     )
     check_wiki_status_notes(errors, warnings, index_path, label, schema_version)
+    if schema_version >= REPORT_SCHEMA_VERSION:
+        validate_index_residual_and_hard_gates(errors, index_path, label, final=final)
     if final:
         report_path = survey_dir / "report.md"
         check_required_file(errors, report_path, required_report_headings(label, schema_version), language)
@@ -3224,6 +3467,8 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
             str(label["evolver_headings"][4]),
             effective_framework_dimensions,
         )
+        if schema_version >= REPORT_SCHEMA_VERSION:
+            validate_evolver_residual_and_voi(errors, evolver_path, label, final=final)
     if rounds:
         latest_evolver_path = decision_artifact_path(survey_dir, rounds[-1], mode)
         validate_evolver_gate(errors, warnings, latest_evolver_path, label, final=final)
@@ -3281,6 +3526,39 @@ def append_missing_report_sections(report_path: Path, label: dict[str, object]) 
     return True
 
 
+def append_missing_index_v4_sections(index_path: Path, label: dict[str, object]) -> bool:
+    if not index_path.exists():
+        return False
+    text = index_path.read_text(encoding="utf-8")
+    headings = list(label["index_headings"])
+    additions: list[str] = []
+    if not has_heading(text, str(headings[10])):
+        additions.append(
+            f"""## {headings[10]}
+
+- Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3):
+- Any residual at 3: yes / no
+- Highest residual:
+- Residual gate status: pass / fail / pending
+- Next descent direction:
+"""
+        )
+    if not has_heading(text, str(headings[11])):
+        additions.append(
+            f"""## {headings[11]}
+
+- Hard constraints satisfied: yes / no
+- Blocking hard constraints:
+- Hard constraint gate status: pass / fail / pending
+"""
+        )
+    if not additions:
+        return False
+    separator = "" if text.endswith("\n") else "\n"
+    index_path.write_text(text + separator + "\n".join(additions), encoding="utf-8")
+    return True
+
+
 def upgrade_report(args: argparse.Namespace) -> None:
     survey_dir = Path(args.survey_dir).expanduser().resolve()
     if not survey_dir.exists():
@@ -3293,8 +3571,9 @@ def upgrade_report(args: argparse.Namespace) -> None:
         print(f"ERROR: report.md does not exist: {report_path}", file=sys.stderr)
         raise SystemExit(2)
     changed = append_missing_report_sections(report_path, label)
+    index_changed = append_missing_index_v4_sections(survey_dir / "index.md", label)
     update_metadata(survey_dir, language=language, report_schema_version=REPORT_SCHEMA_VERSION)
-    status = "updated" if changed else "already current"
+    status = "updated" if changed or index_changed else "already current"
     print(f"report.md {status}: {report_path}")
 
 

@@ -545,6 +545,7 @@ Can this target customer pay for this workflow?
         self.assertIn("references/artifact-contracts.md", skill)
         for phrase in (
             "Round decision target for this round",
+            "Target residual to reduce",
             "Decision-critical variables that could change the recommendation",
             "Minimum direct evidence: what must be observed directly",
             "Source plan: primary or official sources",
@@ -559,6 +560,11 @@ Can this target customer pay for this workflow?
             "Sensitivity And Counterfactuals",
             "Implied-expectation reverse-check",
             "Constraint-specific recommendation branches",
+            "Residual vector `r_q/r_c/r_e/r_h/r_a/r_s/r_j`",
+            "VOI greater than cost",
+            "Hard constraints satisfied",
+            "Residual Gate",
+            "Hard Constraint Gate",
             "Evidence/source appendix",
             "Method and source quality",
             "Red-team notes",
@@ -642,6 +648,47 @@ Can this target customer pay for this workflow?
         self.assertIn("future facts vs desk-researchable gaps", evolver_ref)
         self.assertIn("Anti-narrative regularizers", evolver_ref)
         self.assertIn("constraint-specific recommendation branches", evolver_ref)
+        self.assertIn("residual-driven evidence iteration", evolver_ref)
+        self.assertIn("VOI greater than cost", evolver_ref)
+        self.assertIn("Hard constraints satisfied", evolver_ref)
+
+    def test_docs_describe_residual_voi_and_hard_constraint_gates(self) -> None:
+        docs = {
+            "README.md": (ROOT / "README.md").read_text(encoding="utf-8"),
+            "README.zh-CN.md": (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
+            "README.ja.md": (ROOT / "README.ja.md").read_text(encoding="utf-8"),
+            "SKILL.md": (ROOT / "SKILL.md").read_text(encoding="utf-8"),
+            "references/research-quality.md": (ROOT / "references" / "research-quality.md").read_text(encoding="utf-8"),
+        }
+
+        self.assertIn("residual / VOI / hard-constraint gate", docs["README.md"])
+        self.assertIn("残差 / VOI / 硬约束门", docs["README.zh-CN.md"])
+        self.assertIn("残差 / VOI / ハード制約ゲート", docs["README.ja.md"])
+        self.assertIn("r_q/r_c/r_e/r_h/r_a/r_s/r_j", docs["SKILL.md"])
+        self.assertIn("VOI stopping rule", docs["SKILL.md"])
+        self.assertIn("hard constraints are pass/fail", docs["SKILL.md"])
+        self.assertIn("Residual-Driven Evidence Iteration", docs["references/research-quality.md"])
+        self.assertIn("VOI And Hard Constraints", docs["references/research-quality.md"])
+        self.assertIn("Goodhart Check", docs["references/research-quality.md"])
+
+    def test_readmes_map_latest_paper_residual_chapters(self) -> None:
+        readmes = {
+            "README.md": (ROOT / "README.md").read_text(encoding="utf-8"),
+            "README.zh-CN.md": (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
+            "README.ja.md": (ROOT / "README.ja.md").read_text(encoding="utf-8"),
+        }
+
+        for text in readmes.values():
+            self.assertIn("3.7.1-3.7.4", text)
+            self.assertIn("5.2-5.5", text)
+            self.assertIn("6.2-6.5", text)
+            self.assertIn("3.7.3, 3.7.4", text)
+
+    def test_docs_refer_to_current_schema_version(self) -> None:
+        skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("report schema v4", skill)
+        self.assertNotIn("report schema v3", skill)
 
     def test_readmes_frame_super_survey_as_decision_optimization(self) -> None:
         readme_en = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -967,6 +1014,25 @@ Sources were checked during this round and remain directional.
         self.assertEqual(result.returncode, 1)
         self.assertIn("legacy report schema detected", result.stdout)
 
+    def test_legacy_metadata_cannot_skip_v4_final_gates_even_with_current_report_headings(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            report_score=94,
+            evolver_decision="Final.",
+            evolver_evidence_needed="No desk-research target remains.",
+        )
+        metadata = survey_dir / ".super-survey.json"
+        metadata.write_text(
+            '{"topic": "AI recruiting agent", "language": "en", "report_schema_version": 3}\n',
+            encoding="utf-8",
+        )
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("legacy report schema detected", result.stdout)
+
     def test_upgrade_report_appends_v3_sections_and_metadata(self) -> None:
         survey_dir = self.init_round()
         metadata = survey_dir / ".super-survey.json"
@@ -1013,7 +1079,11 @@ Sources were checked during this round and remain directional.
         self.assertNotIn("## Framework Dimension Analysis", report)
         self.assertNotIn("## Report Quality Score", report)
         self.assertIn("## Appendix: Evidence Register", report)
-        self.assertIn('"report_schema_version": 3', metadata.read_text(encoding="utf-8"))
+        self.assertIn('"report_schema_version": 4', metadata.read_text(encoding="utf-8"))
+        index = (survey_dir / "index.md").read_text(encoding="utf-8")
+        self.assertIn("## Residual Gate", index)
+        self.assertIn("## Hard Constraint Gate", index)
+        self.assertIn("Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j", index)
 
     def test_v2_report_rejects_thin_content(self) -> None:
         survey_dir = self.init_round()
@@ -1133,6 +1203,102 @@ Thin.
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("Final Report Quality Gate must include anti-sycophancy / objective-function integrity", result.stdout)
+
+    def test_round_check_requires_evolver_residual_vector(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        evolver_path = survey_dir / "01-evolver.md"
+        evolver = re.sub(
+            r"^Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j \(0-3\):.*\n",
+            "",
+            evolver_path.read_text(encoding="utf-8"),
+            flags=re.MULTILINE,
+        )
+        evolver_path.write_text(evolver, encoding="utf-8")
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Round Evidence Quality Gate must record r_q/r_c/r_e/r_h/r_a/r_s/r_j", result.stdout)
+
+    def test_round_check_requires_evolver_voi_fields(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        evolver_path = survey_dir / "01-evolver.md"
+        evolver = evolver_path.read_text(encoding="utf-8")
+        for field in (
+            "Expected information value of next research",
+            "Research cost",
+            "VOI greater than cost",
+        ):
+            evolver = re.sub(rf"^{re.escape(field)}:.*\n", "", evolver, flags=re.MULTILINE)
+        evolver_path.write_text(evolver, encoding="utf-8")
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Round Evidence Quality Gate must record expected information value", result.stdout)
+        self.assertIn("Round Evidence Quality Gate must record research cost", result.stdout)
+        self.assertIn("Round Evidence Quality Gate must state 'VOI greater than cost: yes/no'", result.stdout)
+
+    def test_final_check_rejects_high_residual_even_with_passing_score(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            report_score=94,
+            evolver_decision="Final.",
+            evolver_evidence_needed="No desk-research target remains.",
+        )
+        for path in (survey_dir / "index.md", survey_dir / "01-evolver.md"):
+            text = path.read_text(encoding="utf-8").replace(
+                "r_q=0, r_c=1, r_e=1, r_h=1, r_a=1, r_s=1, r_j=0",
+                "r_q=0, r_c=1, r_e=3, r_h=1, r_a=1, r_s=1, r_j=0",
+            )
+            text = text.replace("Any residual at 3: no", "Any residual at 3: yes")
+            text = text.replace("Highest residual: 1", "Highest residual: 3")
+            path.write_text(text, encoding="utf-8")
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("final residual gate cannot pass with any residual at 3", result.stdout)
+        self.assertIn("final decision cannot pass with any residual at 3", result.stdout)
+
+    def test_final_check_requires_hard_constraints_satisfied(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            report_score=94,
+            evolver_decision="Final.",
+            evolver_evidence_needed="No desk-research target remains.",
+        )
+        for path in (survey_dir / "index.md", survey_dir / "01-evolver.md"):
+            text = path.read_text(encoding="utf-8").replace(
+                "Hard constraints satisfied: yes",
+                "Hard constraints satisfied: no",
+            )
+            text = text.replace(
+                "Hard constraint gate status: pass",
+                "Hard constraint gate status: fail",
+            )
+            path.write_text(text, encoding="utf-8")
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("final hard constraint gate requires 'Hard constraints satisfied: yes'", result.stdout)
+        self.assertIn("final hard constraint gate must state 'Hard constraint gate status: pass'", result.stdout)
+        self.assertIn("final decision requires hard constraints satisfied", result.stdout)
 
     def test_evolver_final_allows_final_report_when_score_passes(self) -> None:
         survey_dir = self.init_round()
@@ -1643,13 +1809,27 @@ Sources were checked during this round and remain directional.
         for filename, heading in replacements.items():
             path = survey_dir / filename
             text = path.read_text(encoding="utf-8")
+            extra = ""
+            if filename == "01-evolver.md":
+                extra = (
+                    "\n\n"
+                    "Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3): r_q=0, r_c=1, r_e=1, r_h=1, r_a=1, r_s=1, r_j=0.\n"
+                    "Any residual at 3: no.\n"
+                    "Target residual for next round: r_e unless the decision is Final or Kill.\n"
+                    "Expected information value of next research: low because only external validation remains.\n"
+                    "Research cost: low.\n"
+                    "VOI greater than cost: no.\n"
+                    "Hard constraints satisfied: yes.\n"
+                    "Blocking hard constraints: none for final desk-research delivery.\n"
+                    "Soft residuals that can be weighted: evidence completeness and actionability.\n"
+                )
             text = re.sub(
                 rf"(?ms)^## {re.escape(heading)}\n\n.*?(?=^## |\Z)",
                 f"## {heading}\n\n### Policy Constraints\n\n"
                 "Current judgment: platform rules are the decision bottleneck. "
                 "Evidence impact: C2/E2 moves the next round toward official ToS review. "
                 "Counterpoint: assisted workflows may still be allowed. "
-                "Decision effect: continue only if a compliant workflow remains plausible.\n",
+                f"Decision effect: continue only if a compliant workflow remains plausible.{extra}\n",
                 text,
             )
             path.write_text(text, encoding="utf-8")
@@ -1886,9 +2066,24 @@ Sources were checked during this round and remain directional.
                     "Anti-sycophancy / objective-function integrity: 18 / 20.\n"
                     "Objective reconstruction quality: clear enough to preserve the original decision.\n"
                     "User-frame challenge quality: the report challenged the prompt without rewriting it into a stronger claim.\n"
+                    "Residual gate status: pass.\n"
+                    "Hard constraint gate status: pass.\n"
+                    "Goodhart check: score supports judgment rather than replacing it.\n"
                     f"{quality_decision}\n"
                     "Lowest-Scoring Areas: evidence completeness and analysis depth remain monitored, but both are above the pass threshold.\n"
                     "Next Round Focus: none for desk research; move to user interviews if further validation is needed."
+                ),
+                "Residual Gate": (
+                    "Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3): r_q=0, r_c=1, r_e=1, r_h=1, r_a=1, r_s=1, r_j=0.\n"
+                    "Any residual at 3: no.\n"
+                    "Highest residual: 1.\n"
+                    "Residual gate status: pass.\n"
+                    "Next descent direction: external validation, not another desk-research pass."
+                ),
+                "Hard Constraint Gate": (
+                    "Hard constraints satisfied: yes.\n"
+                    "Blocking hard constraints: none for desk research; policy remains a monitor for implementation.\n"
+                    "Hard constraint gate status: pass."
                 ),
                 "Wiki / Graph Index Status": wiki_status,
                 "Decision Log": "Continue one narrowed round.",
@@ -1978,6 +2173,13 @@ Sources were checked during this round and remain directional.
             "Round 1 Evidence Plan",
             {
                 "Round Decision Target": "Decide whether another desk-research round can materially change the build decision.",
+                "Target Residual To Reduce": (
+                    "Primary residual: r_e evidence residual.\n"
+                    "Why this residual is the steepest useful direction: policy and payment evidence can change the action.\n"
+                    "Expected information value: high if official policy or pricing evidence changes the recommendation.\n"
+                    "Research cost: low to medium desk research.\n"
+                    "What result would make another round unnecessary: no desk-researchable evidence target remains."
+                ),
                 "Decision-Critical Variables": (
                     "Policy permissiveness, willingness to pay, distribution reach, substitute strength, and implementation reliability are the variables most likely to change the action."
                 ),
@@ -2177,6 +2379,15 @@ Sources were checked during this round and remain directional.
                     "Kill scope (if Kill): thesis / path / candidate action / original question.\n"
                     "Original question still open: yes unless the original decision itself is answered.\n"
                     "If original question remains open, write the pivot or next answer path: compare policy-safe alternatives.\n"
+                    "Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3): r_q=0, r_c=1, r_e=1, r_h=1, r_a=1, r_s=1, r_j=0.\n"
+                    "Any residual at 3: no.\n"
+                    "Target residual for next round: r_e unless the decision is Final or Kill.\n"
+                    "Expected information value of next research: low if only interviews/legal review remain; high if policy pages remain unchecked.\n"
+                    "Research cost: low to medium.\n"
+                    "VOI greater than cost: no.\n"
+                    "Hard constraints satisfied: yes.\n"
+                    "Blocking hard constraints: none for final desk-research delivery.\n"
+                    "Soft residuals that can be weighted: evidence completeness and actionability.\n"
                     "Continue / stop implication: continue unless the raw decision is Final/Kill and final report quality later passes."
                 ),
                 "Next Research Target": "Can active US software job seekers use a browser-assisted copilot under platform constraints?",

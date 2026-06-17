@@ -170,6 +170,39 @@ For high-stakes decisions, track the hypothesis dynamically:
 
 Use this in `NN-synthesis.md`, `NN-evolver.md`, or the final report appendix when the decision should be updated as new evidence arrives.
 
+### Residual-Driven Evidence Iteration
+
+Use residuals to decide what the next round should reduce. A round should not merely add sources or length; it should reduce a decision-critical gap.
+
+Score these residuals from 0 to 3:
+
+| Residual | Meaning | High residual signal |
+|---|---|---|
+| `r_q` | question residual | the report still answers the user's wording instead of the reconstructed objective |
+| `r_c` | constraint residual | budget, timeline, risk, responsibility, or user-specific constraints remain missing |
+| `r_e` | evidence residual | decision-critical claims lack direct evidence |
+| `r_h` | hypothesis residual | core assumptions remain untested |
+| `r_a` | adversarial residual | the strongest objection is not handled |
+| `r_s` | sensitivity residual | conclusion-changing variables or thresholds are unclear |
+| `r_j` | action residual | the reader still does not know what to do, watch, wait for, or revisit |
+
+Use `0` for resolved, `1` for minor gaps, `2` for material but manageable gaps, and `3` for decision-level gaps. The next round should usually target the highest decision-relevant residual that can still be reduced by desk research.
+
+### VOI And Hard Constraints
+
+For each candidate next research move, compare expected information value with research cost:
+
+- High VOI: the evidence could change the action, lower a major uncertainty, or correct a flawed judgment.
+- Low VOI: the evidence would mostly add color, repeat known facts, or require non-desk validation such as interviews, experiments, legal review, time, or implementation.
+
+Continue desk research when a residual at `3` remains and a concrete desk-research move has VOI greater than cost. Move toward final reporting when all decision-level residuals are below `3`, hard constraints are satisfied, and the next desk-research move has VOI below cost.
+
+Hard constraints are not point deductions. Legal, policy, budget, data-access, safety, responsibility, or user-specific constraints can block finalization even when the quality score is high. Soft residuals can be weighted by task risk; hard constraints must pass.
+
+### Goodhart Check
+
+The score is a coarse observation of research quality, not the objective function. A report can score well on source count or structure while still failing if it optimizes the rubric rather than the decision. Use the residual vector and hard-constraint gate to keep scoring aligned with judgment quality.
+
 After choosing lenses, write an explicit research framework. The framework is the reader-visible method: it says which dimensions the survey covers, what each dimension is meant to answer, and where coverage is weak or intentionally out of scope.
 
 Framework starters:

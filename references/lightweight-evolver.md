@@ -24,6 +24,8 @@ Also read the `Decision Frame Integrity` section in `00-brief.md`. Treat the use
 
 Also read the `Decision Optimization Contract`. Carry forward its decision-critical variables, minimum direct evidence, implied expectations, constraint-specific recommendation branches, and anti-narrative regularizers.
 
+Also read the latest residual and hard-constraint notes in `index.md`. The evolver is the direction selector for residual-driven evidence iteration: it should choose the next round that can reduce the most decision-critical residual per unit cost, or explain why another desk-research move has low expected information value.
+
 ## Step 1: Probe Assumptions
 
 List the current thesis in one sentence, copied or tightly derived from the latest `NN-synthesis.md` and `index.md`. Keep it faithful to the user's original question and the latest artifacts, and reserve the final recommendation until the probes are answered. Then answer:
@@ -74,6 +76,10 @@ Before choosing, check whether an explicit kill criterion was met and whether it
 
 Before choosing, also check:
 
+- Residual vector: score `r_q/r_c/r_e/r_h/r_a/r_s/r_j` from 0-3 and identify whether any component is a decision-level gap.
+- VOI vs cost: would the next desk-research action likely change the action, reduce a major uncertainty, or correct a flawed judgment enough to justify its cost?
+- Hard constraints: are there legal, policy, budget, data, safety, responsibility, or user-specific constraints that block finalization regardless of the score?
+- Soft residuals: which gaps can be weighted and traded off by task risk?
 - Implied expectation reverse-check: which hidden future assumptions remain unsupported?
 - Future facts vs desk-researchable gaps: which uncertainties require time/interviews/experiments, and which can still be reduced by another desk research round?
 - Anti-narrative regularizers: what popular story, user preference, recency signal, or elegant explanation could be overfitting the answer?
@@ -116,6 +122,8 @@ Name the next round's evidence requirements:
 
 If the next evidence requirement needs interviews, experiments, legal review, or implementation rather than more desk research, say so in `Evidence Needed Next`. That can justify `Final` when the thesis remains usable and no desk-research target remains, or `Kill` when the current thesis should stop or switch to non-desk validation. Otherwise choose `Narrow` or `Pivot` and continue with the desk-research target.
 
+If any residual is still `3` and there is a desk-research move with `VOI greater than cost: yes`, choose `Keep`, `Narrow`, or `Pivot` and name that residual as the next target. If no residual is at `3`, hard constraints are satisfied, and the remaining desk-research VOI is below cost, choose `Final` when the original decision can be answered or `Kill` when the current thesis/path should stop.
+
 ## Output Template
 
 Save this as `NN-evolver.md`:
@@ -144,6 +152,15 @@ Keep / Narrow / Pivot / Kill / Final
 ## Round Evidence Quality Gate
 
 - For each framework dimension, record coverage quality, weakest gap, and whether a concrete next evidence target remains.
+- Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3):
+- Any residual at 3: yes / no
+- Target residual for next round:
+- Expected information value of next research:
+- Research cost:
+- VOI greater than cost: yes / no
+- Hard constraints satisfied: yes / no
+- Blocking hard constraints:
+- Soft residuals that can be weighted:
 - Evidence coverage this round:
 - Framework coverage this round:
 - Weakest evidence or framework dimensions:

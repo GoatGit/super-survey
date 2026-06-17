@@ -91,19 +91,20 @@ This is a tool-selection rule, not a research-type branch. It applies across pro
 Use this execution architecture for standard and deep surveys. It implements the
 anti-sycophancy paper through objective reconstruction, evidence planning,
 multi-start brainstorming, counterfactual and red-team testing, sensitivity
-analysis, implied-expectation checks, Bayesian updating, scenario/decision-tree
-synthesis, and final human-readable reporting.
+analysis, implied-expectation checks, residual-driven evidence iteration,
+Bayesian updating, scenario/decision-tree synthesis, and final human-readable
+reporting.
 
 | Node | Work | Runtime method |
 |---|---|---|
 | Brief / Frame Contract | Preserve the original question, reconstruct the objective function, split facts/assumptions/inferences/value judgments, define constraints, candidate actions, and the research framework. | Objective reconstruction; assumption split; object/action split; constraint modeling |
-| Evidence Plan / Minimum Direct Evidence | Define decision-critical variables, minimum direct evidence, priority source types, disconfirming evidence, missing-evidence handling, and framework-level evidence needs before source collection. | Evidence standard; counterfactual probes; sensitivity variables; anti-narrative regularizers |
+| Evidence Plan / Minimum Direct Evidence | Define the target residual to reduce, decision-critical variables, minimum direct evidence, priority source types, disconfirming evidence, missing-evidence handling, and framework-level evidence needs before source collection. | Residual descent direction; VOI vs cost; evidence standard; counterfactual probes; sensitivity variables; anti-narrative regularizers |
 | Research | Collect current and primary evidence according to the plan, update source/claim/evidence registries, record contradictions, confidence, freshness, and framework coverage. | Claim-level evidence; source freshness; contradiction tracking; Bayesian update inputs |
 | Post-Research Brainstorming | Re-open candidate explanations after evidence exists, compare multi-start perspectives, identify likely errors, next evidence moves, and evidence-triggered framework refinements. | Multi-start perspectives; counterfactual reframing; sensitivity focus; framework refinement |
 | Redteam | Attack the strongest current argument, substitutes, hidden assumptions, kill criteria, and anti-narrative regularizers. | Counterfactual testing; adversarial validation; regularization against popular narratives |
 | Synthesis | Integrate evidence and objections into sensitivity analysis, implied-expectation reverse-checks, Bayesian updates, scenarios, decision trees, and constraint-specific recommendation branches. | Sensitivity analysis; implied-expectation reverse-check; Bayesian updating; scenarios; decision tree output |
-| Evolver | Decide Keep / Narrow / Pivot / Kill / Final, separate future facts from desk-researchable gaps, and generate the next-round target or finalization rationale. | Multi-start search control; adversarial validation; evidence-driven continuation |
-| Final Report | Write a standalone human decision memo with body chapters from the framework, decision logic, recommendation, change triggers, next actions, limits, and appendices. | Decision memo; constraint-specific recommendation; quality gate |
+| Evolver | Diagnose residuals `r_q/r_c/r_e/r_h/r_a/r_s/r_j`, compare expected information value with research cost, decide Keep / Narrow / Pivot / Kill / Final, separate future facts from desk-researchable gaps, and generate the next-round target or finalization rationale. | Residual vector; hard constraints; VOI stopping rule; multi-start search control; adversarial validation; evidence-driven continuation |
+| Final Report | Write a standalone human decision memo with body chapters from the framework, decision logic, recommendation, change triggers, next actions, limits, and appendices. | Decision memo; constraint-specific recommendation; residual gate; hard-constraint gate; quality gate |
 
 ### Superpowers Brainstorming Loop
 
@@ -293,7 +294,7 @@ The readable body should contain, before appendices:
 
 For non-trivial surveys, `report.md` must be longer and more complete than `NN-synthesis.md`, but length alone is not quality. It should read like a coherent memo with supporting appendices, not a pile of evidence tables. A report that only contains a few bullets is incomplete; a report that opens with long source tables before explaining the judgment is also incomplete. A report that names a research framework but does not analyze those dimensions as body subchapters is incomplete.
 
-New surveys use report schema v3. Legacy reports with older report schemas remain readable, and the final delivery gate expects the v3 schema. Run `survey_round.py upgrade-report <survey-dir>` and then expand the appended sections before final delivery. `upgrade-report` appends missing v3 report sections and updates metadata; you still write the report content.
+New surveys use report schema v4. Legacy reports with older report schemas remain readable, and the final delivery gate expects the v4 schema. Run `survey_round.py upgrade-report <survey-dir>` and then expand the appended sections before final delivery. `upgrade-report` appends missing v4 report sections and updates metadata; you still write the report content.
 
 ### Research Lens And Framework
 
@@ -330,7 +331,7 @@ Use these checks across domains:
 - Probe questions and answers
 - Persona judgments
 - Keep / Narrow / Pivot / Kill / Final decision
-- Round evidence quality gate: one `### <framework dimension>` subsection per brief-defined dimension, then evidence coverage, weakest dimensions, implied expectation check and reverse-check, future facts vs desk-researchable gaps, anti-narrative regularizers, decision tree triggers, Bayesian update needed, Kill scope, original question still open, continue/stop implication, and next-round focus
+- Round evidence quality gate: one `### <framework dimension>` subsection per brief-defined dimension, then evidence coverage, weakest dimensions, residual vector `r_q/r_c/r_e/r_h/r_a/r_s/r_j` scored 0-3, target residual for the next round, expected information value, research cost, `VOI greater than cost: yes/no`, hard constraints satisfied, blocking hard constraints, soft residuals that can be weighted, implied expectation check and reverse-check, future facts vs desk-researchable gaps, anti-narrative regularizers, decision tree triggers, Bayesian update needed, Kill scope, original question still open, continue/stop implication, and next-round focus
 - Next-round target
 - Evidence needed next
 
@@ -392,6 +393,18 @@ Super Survey supports arbitrary positive round numbers; evidence quality and the
 
 Score the final `report.md` on a 100-point rubric before finalizing, and record that score in `index.md` under `Final Report Quality Gate`. Before `report.md` exists, record provisional quality notes in `NN-evolver.md` and `index.md` as provisional notes only.
 
+Also record the residual and hard-constraint gates in `index.md`. Use the residual vector from the paper:
+
+- `r_q`: question residual, whether the original wording is still being treated as the objective function.
+- `r_c`: constraint residual, whether budget, time, risk, responsibility, or user-specific constraints are missing.
+- `r_e`: evidence residual, whether decision-critical claims lack direct evidence.
+- `r_h`: hypothesis residual, whether core assumptions remain fragile.
+- `r_a`: adversarial residual, whether the strongest objection has been handled.
+- `r_s`: sensitivity residual, whether conclusion-changing variables and thresholds are clear.
+- `r_j`: action residual, whether the reader knows what to do, wait for, monitor, or revisit.
+
+Score each residual from `0` to `3`: `0` means resolved for the decision, `1` means minor gap, `2` means material but manageable gap, and `3` means decision-level gap. Soft residuals can be weighted by task risk, but hard constraints are pass/fail and cannot be offset by a high score elsewhere.
+
 | Dimension | Points | What Good Looks Like |
 |---|---:|---|
 | Anti-sycophancy / objective-function integrity | 20 | User framing is challenged, the original question is preserved, the objective function is reconstructed, stronger easy-to-kill claims are avoided, constraints and implied expectations are explicit |
@@ -410,14 +423,16 @@ Use canonical English raw gates to decide whether to stop. In any artifact langu
 - `Keep`, `Narrow`, or `Pivot` always require another round.
 - `Final` means no desk-research target remains that could materially change the user's original decision, so the loop can move to final report writing.
 - `Kill` means the current thesis is not worth another desk-research round or should switch to non-desk validation.
-- Stop only after `report.md` exists, the `index.md` final quality score passes the selected mode threshold, the latest decision is `Final` or `Kill`, and `check-final` passes.
-- `report.md` may explain uncertainty, future disclosure needs, or external validation needs, but the helper relies only on the raw evolver decision and the score threshold.
+- Continue when a residual at `3` remains and a desk-research action has expected information value greater than its research cost.
+- Move toward final reporting when the raw decision is `Final` or `Kill`, no residual remains at `3`, hard constraints are satisfied, and the next desk-research action has low expected information value relative to cost.
+- Stop only after `report.md` exists, the `index.md` final quality score passes the selected mode threshold, the residual gate passes, the hard-constraint gate passes, the latest decision is `Final` or `Kill`, and `check-final` passes.
+- `report.md` may explain uncertainty, future disclosure needs, or external validation needs, but the helper relies only on the raw evolver decision, the score threshold, the residual gate, and the hard-constraint gate.
 
 Run `survey_round.py check <survey-dir>` before treating a round as complete. It validates round artifacts, registry links, framework coverage, companion notes when required, and the latest raw evolver gate. Use `validate-evidence` only for focused registry debugging.
 
 Run `survey_round.py check-final <survey-dir>` before presenting the survey as final. If it fails because the report is legacy or thin, run `upgrade-report` when needed, expand the report, or create another round focused on the weakest dimensions.
 
-Before final delivery, confirm the essentials: substantive sections, valid registry IDs, framework dimensions carried through the split artifacts or quick artifact, current-source search notes when needed, standalone report citations, prose-first body, final score in `index.md`, wiki status fields when persistence was needed, and no premature final report while the evolver says `Keep`, `Narrow`, or `Pivot`.
+Before final delivery, confirm the essentials: substantive sections, valid registry IDs, framework dimensions carried through the split artifacts or quick artifact, current-source search notes when needed, standalone report citations, prose-first body, final score in `index.md`, residual vector and residual gate status, hard constraints satisfied and hard-constraint gate status, wiki status fields when persistence was needed, and no premature final report while the evolver says `Keep`, `Narrow`, or `Pivot`.
 
 If the check fails, say the round is still in progress and report the next fix.
 
