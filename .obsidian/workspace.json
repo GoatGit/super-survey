@@ -1,0 +1,227 @@
+{
+  "main": {
+    "id": "88576fe1878deae8",
+    "type": "split",
+    "children": [
+      {
+        "id": "d9d7f476974bdf47",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7e351e328e64ba1b",
+            "type": "leaf",
+            "state": {
+              "type": "split-diff-view",
+              "state": {
+                "aFile": "如何拒绝AI谄媚人类.md",
+                "bFile": "如何拒绝AI谄媚人类.md",
+                "aRef": ""
+              },
+              "icon": "diff",
+              "title": "Diff: 如何拒绝AI谄媚人类  (Working Tree)"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "51c67bfac517cd51",
+    "type": "split",
+    "children": [
+      {
+        "id": "efa968b638792710",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "29e462912d962f45",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "a40b9cababa6dcd0",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "363d24e19a1f88c5",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "77f67de22a07085c",
+    "type": "split",
+    "children": [
+      {
+        "id": "acba6c4e81c40cca",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "0c992324dd3d7882",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "反向链接"
+            }
+          },
+          {
+            "id": "339b0e6bb247ff14",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "出链"
+            }
+          },
+          {
+            "id": "3d432ab708b243a3",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "57676b67d92be055",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "a98e4b99b6fe99a5",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "大纲"
+            }
+          },
+          {
+            "id": "5c50070df87d9375",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
+            }
+          }
+        ],
+        "currentTab": 5
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false,
+      "publish:发布更改": false,
+      "obsidian-git:Open Git source control": false,
+      "typst-book-preview:Open Typst Book Preview": false
+    }
+  },
+  "active": "7e351e328e64ba1b",
+  "lastOpenFiles": [
+    "如何拒绝AI谄媚人类.pdf",
+    "如何拒绝AI谄媚人类.md",
+    "AGENTS.local.md",
+    "CODEX.md",
+    "README.zh-CN.md",
+    "未命名.canvas",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "未命名 2.base",
+    "未命名 1.base",
+    "未命名 1.canvas",
+    "2026-06-19.md",
+    "未命名.base",
+    "Rejecting-AI-Sycophancy-Toward-Humans.pdf",
+    "SKILL.md",
+    "Rejecting-AI-Sycophancy-Toward-Humans-page-25.png",
+    "Rejecting-AI-Sycophancy-Toward-Humans-page-23.png",
+    "Rejecting-AI-Sycophancy-Toward-Humans-page-19.png",
+    "Rejecting-AI-Sycophancy-Toward-Humans-page-27.png",
+    "Rejecting-AI-Sycophancy-Toward-Humans-page-24.png",
+    "Rejecting-AI-Sycophancy-Toward-Humans-page-28.png",
+    "Rejecting-AI-Sycophancy-Toward-Humans-page-29.png",
+    "Rejecting-AI-Sycophancy-Toward-Humans-page-26.png",
+    "Rejecting-AI-Sycophancy-Toward-Humans-page-21.png",
+    "Rejecting-AI-Sycophancy-Toward-Humans-page-17.png",
+    "Rejecting-AI-Sycophancy-Toward-Humans.typ",
+    "Rejecting-AI-Sycophancy-Toward-Humans.md",
+    "references/artifact-contracts.md"
+  ]
+}

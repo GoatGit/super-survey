@@ -76,23 +76,22 @@ The latter first requires answers to several questions: Who is buying? For how l
 
 This paper formalizes open-ended research as a constrained decision-optimization problem:
 
-\[
+$$
 \max_a \; U(a \mid E, H, C) - \lambda R(a) - \gamma I(a)
-\]
-
+$$
 where:
 
-- \(a\) is a candidate action, such as buy, wait, buy in tranches, avoid, or continue researching;
-- \(U(a \mid E, H, C)\) is the utility of the action under evidence \(E\), hypotheses \(H\), and constraints \(C\);
-- \(R(a)\) is risk, including drawdown, failure probability, opportunity cost, and irreversible loss;
-- \(I(a)\) is the uncertainty cost caused by insufficient information;
-- \(\lambda\) and \(\gamma\) are the user's penalty weights for risk and uncertainty.
+- $a$ is a candidate action, such as buy, wait, buy in tranches, avoid, or continue researching;
+- $U(a \mid E, H, C)$ is the utility of the action under evidence $E$, hypotheses $H$, and constraints $C$;
+- $R(a)$ is risk, including drawdown, failure probability, opportunity cost, and irreversible loss;
+- $I(a)$ is the uncertainty cost caused by insufficient information;
+- $\lambda$ and $\gamma$ are the user's penalty weights for risk and uncertainty.
 
-\(\lambda\) and \(\gamma\) should not be understood as physical constants that can be precisely estimated. They are normalized preference coefficients that write the user's constraints into the decision problem. To make reports comparable, \(U\), \(R\), and \(I\) should first be normalized onto the same scale, such as a 0-3 discrete level or a coarse 0-1 score, before weights are assigned. A practical default rule is:
+$\lambda$ and $\gamma$ should not be understood as physical constants that can be precisely estimated. They are normalized preference coefficients that write the user's constraints into the decision problem. To make reports comparable, $U$, $R$, and $I$ should first be normalized onto the same scale, such as a 0-3 discrete level or a coarse 0-1 score, before weights are assigned. A practical default rule is:
 
-- If the task is low-risk, reversible, and cheap to test, set roughly \(\lambda \approx 1,\ \gamma \approx 1\), so benefit, risk, and information insufficiency remain similarly weighted.
-- If the action involves large drawdown, irreversible loss, compliance responsibility, or high opportunity cost, raise \(\lambda\), so risk residuals enter the judgment first.
-- If missing evidence could change the action recommendation, raise \(\gamma\), so continued research can override premature conclusion.
+- If the task is low-risk, reversible, and cheap to test, set roughly $\lambda \approx 1,\ \gamma \approx 1$, so benefit, risk, and information insufficiency remain similarly weighted.
+- If the action involves large drawdown, irreversible loss, compliance responsibility, or high opportunity cost, raise $\lambda$, so risk residuals enter the judgment first.
+- If missing evidence could change the action recommendation, raise $\gamma$, so continued research can override premature conclusion.
 - If the user has not specified horizon, position size, budget, or responsibility boundary, the report should not pretend the weights are known. It should provide conditional judgments under different weight branches.
 
 In the Nvidia case, the action variable is not "give a bullish or bearish view." The real action variables include:
@@ -145,10 +144,9 @@ Open-ended research should not make a one-shot final judgment. A better approach
 
 This is consistent with Bayesian updating:
 
-\[
+$$
 P(H \mid E) = \frac{P(E \mid H)P(H)}{P(E)}
-\]
-
+$$
 A research report does not need to assign precise probabilities to every judgment, but it should reason probabilistically: the conclusion is conditional, revisable, and dependent on evidence strength.
 
 ## 3.4 Decision Analysis
@@ -169,22 +167,20 @@ This paper uses mathematical optimization not to create an illusion of precision
 
 ### 3.5.1 Initial Points and Local Optima
 
-In numerical optimization, many algorithms start from an initial point \(x_0\). When the objective function is non-convex, different initial points may lead to different local optima. Open-ended research is similar:
+In numerical optimization, many algorithms start from an initial point $x_0$. When the objective function is non-convex, different initial points may lead to different local optima. Open-ended research is similar:
 
-\[
+$$
 x_0 = \text{the user's original wording} + \text{the user's emotion} + \text{social narrative} + \text{model compliance tendency}
-\]
-
+$$
 If the user asks:
 
 > As an AI leader, is Nvidia still worth buying now?
 
 This initial point is clearly bullish. An agent can easily converge along the following path:
 
-\[
+$$
 \text{AI leader} \rightarrow \text{high growth} \rightarrow \text{strong moat} \rightarrow \text{long-term optimism} \rightarrow \text{buy}
-\]
-
+$$
 If the user asks:
 
 > Has Nvidia's valuation already priced in the next ten years of growth?
@@ -219,16 +215,14 @@ Counterfactual perturbation requires changing these parameters one by one and ob
 
 Sensitivity analysis answers which variable changes can most alter the conclusion. In an investment case, a simplified model can be used:
 
-\[
+$$
 P = EPS_{\mathrm{fwd}} \times PE_{\mathrm{fwd}}
-\]
-
+$$
 Then the stock-price change can be decomposed as:
 
-\[
+$$
 \Delta P \approx PE_{\mathrm{fwd}} \cdot \Delta EPS_{\mathrm{fwd}} + EPS_{\mathrm{fwd}} \cdot \Delta PE_{\mathrm{fwd}}
-\]
-
+$$
 This expression reminds us that even if EPS is revised upward, the stock price may still fall if the PE multiple compresses by more. In open-ended research, sensitivity analysis does not necessarily require complex formulas, but it must identify the "conclusion levers":
 
 - in product research, the most sensitive variables may be customer acquisition cost, retention, or paid conversion;
@@ -242,14 +236,12 @@ Many open-ended research tasks cannot only ask "is this object good?" They must 
 
 In the Nvidia case, if the current price is to deliver a target annualized return, then future EPS, valuation multiples, and the duration of growth must satisfy certain conditions:
 
-\[
+$$
 P_T^* = P_0 \times (1+r)^T
-\]
-
-\[
+$$
+$$
 EPS_T^* = \frac{P_T^*}{PE_T^{\mathrm{exit}}}
-\]
-
+$$
 If the reverse calculation shows that the future must maintain very high growth and a high valuation multiple for a long time, then a "buy" recommendation requires stronger evidence. The same method applies to other research:
 
 - Entering a market implies what customer acquisition cost and conversion rate?
@@ -296,10 +288,9 @@ These narratives may have a factual basis. But if a report develops only along t
 
 Bayesian updating emphasizes that judgments change with new evidence. The conclusion of open-ended research should not be written as a permanent judgment, but as a conditional one.
 
-\[
+$$
 P(H \mid E) \propto P(H) \times P(E \mid H)
-\]
-
+$$
 In a report, this can be translated into three kinds of content:
 
 1. Current judgment: based on existing evidence, which explanation is strongest?
@@ -360,70 +351,65 @@ This mapping can also be generalized beyond investment research. Product opportu
 
 ## 3.7 Residual-Driven Evidence Iteration: A Generalized Descent Theory for Open-Ended Research
 
-The preceding discussion is enough to show that open-ended research is not the minimization of a differentiable loss function. It is the continuous compression of decision residuals in a discrete state space formed by questions, constraints, evidence, hypotheses, and actions. In this paper, a residual means an uncompressed decision gap in the current report, such as unclear objectives, missing constraints, insufficient evidence, weak opposition, unclear sensitive variables, or non-executable action boundaries. Residual metrics refer to the discrete scoring and weighted aggregation of these gaps. This section gives only the formal language: state, residuals, operators, descent direction, and stopping conditions. How to execute one iteration is developed in Chapter 5. To write this iteration in a more unified theory, the research state at round \(t\) can be denoted as:
+The preceding discussion is enough to show that open-ended research is not the minimization of a differentiable loss function. It is the continuous compression of decision residuals in a discrete state space formed by questions, constraints, evidence, hypotheses, and actions. In this paper, a residual means an uncompressed decision gap in the current report, such as unclear objectives, missing constraints, insufficient evidence, weak opposition, unclear sensitive variables, or non-executable action boundaries. Residual metrics refer to the discrete scoring and weighted aggregation of these gaps. This section gives only the formal language: state, residuals, operators, descent direction, and stopping conditions. How to execute one iteration is developed in Chapter 5. To write this iteration in a more unified theory, the research state at round $t$ can be denoted as:
 
-\[
+$$
 x_t = (Q_t, C_t, F_t, E_t, H_t, A_t, J_t)
-\]
-
-where \(Q_t\) is the question statement, \(C_t\) is the constraint set, \(F_t\) is the research framework, \(E_t\) is the evidence set, \(H_t\) is the set of candidate hypotheses, \(A_t\) is the set of candidate actions, and \(J_t\) is the current judgment. This state is not an ordinary real-valued vector. It is a composite object carrying semantics, evidence, and decisions.
+$$
+where $Q_t$ is the question statement, $C_t$ is the constraint set, $F_t$ is the research framework, $E_t$ is the evidence set, $H_t$ is the set of candidate hypotheses, $A_t$ is the set of candidate actions, and $J_t$ is the current judgment. This state is not an ordinary real-valued vector. It is a composite object carrying semantics, evidence, and decisions.
 
 ### 3.7.1 Residual Vector
 
 Research quality can be written as a residual vector:
 
-\[
+$$
 r(x_t) = (r_q, r_c, r_e, r_h, r_a, r_s, r_j)
-\]
-
+$$
 where:
 
-- \(r_q\): question residual, whether the original question has been wrongly accepted;
-- \(r_c\): constraint residual, whether time horizon, budget, risk, position size, and responsibility boundaries are missing;
-- \(r_e\): evidence residual, whether key claims lack direct evidence;
-- \(r_h\): hypothesis residual, whether core hypotheses remain fragile;
-- \(r_a\): adversarial residual, whether the strongest opposing argument has been handled;
-- \(r_s\): sensitivity residual, whether the variables that would change the conclusion remain unclear;
-- \(r_j\): action residual, whether the reader still does not know what to do.
+- $r_q$: question residual, whether the original question has been wrongly accepted;
+- $r_c$: constraint residual, whether time horizon, budget, risk, position size, and responsibility boundaries are missing;
+- $r_e$: evidence residual, whether key claims lack direct evidence;
+- $r_h$: hypothesis residual, whether core hypotheses remain fragile;
+- $r_a$: adversarial residual, whether the strongest opposing argument has been handled;
+- $r_s$: sensitivity residual, whether the variables that would change the conclusion remain unclear;
+- $r_j$: action residual, whether the reader still does not know what to do.
 
-Let \(w_i \ge 0\) be the weight of each residual component under a given task. The total residual can be written as:
+Let $w_i \ge 0$ be the weight of each residual component under a given task. The total residual can be written as:
 
-\[
+$$
 \Phi(x_t)=\sum_i w_i r_i(x_t)
-\]
-
+$$
 Its meaning is simple: research is not a contest of length, but a contest of how many key residuals remain uncompressed. The weights are not meant to make scoring look precise. They let task-specific risk differences enter the judgment. For example, high-risk tasks place more weight on evidence, constraints, and responsibility boundaries, while low-risk creative tasks may tolerate higher uncertainty.
 
 ### 3.7.2 Non-Commutative Operators and Process Order
 
-From an algebraic point of view, question projection, evidence observation, multi-path expansion, adversarial testing, synthesis updating, and direction selection can be viewed as operators acting on the state space \(\mathcal{X}\). Under composition, they form a non-commutative semigroup: order is not an implementation detail, but a theoretical property. Research-then-redteam and redteam-then-research do not produce the same state.
+From an algebraic point of view, question projection, evidence observation, multi-path expansion, adversarial testing, synthesis updating, and direction selection can be viewed as operators acting on the state space $\mathcal{X}$. Under composition, they form a non-commutative semigroup: order is not an implementation detail, but a theoretical property. Research-then-redteam and redteam-then-research do not produce the same state.
 
 One round can be written as:
 
-\[
+$$
 x_{t+1} = V \circ S \circ A \circ G \circ M_E \circ \Pi_C (x_t)
-\]
-
+$$
 where:
 
-- \(\Pi_C\) is the projection operator that projects the question back into real constraints;
-- \(M_E\) is the observation operator that collects and updates evidence;
-- \(G\) is the multi-start operator that expands candidate paths again;
-- \(A\) is the adversarial operator that attacks the strongest current argument;
-- \(S\) is the synthesis-update operator that compresses the evidence and opposition back into judgment;
-- \(V\) is the direction-selection operator that decides which residual direction to iterate along next.
+- $\Pi_C$ is the projection operator that projects the question back into real constraints;
+- $M_E$ is the observation operator that collects and updates evidence;
+- $G$ is the multi-start operator that expands candidate paths again;
+- $A$ is the adversarial operator that attacks the strongest current argument;
+- $S$ is the synthesis-update operator that compresses the evidence and opposition back into judgment;
+- $V$ is the direction-selection operator that decides which residual direction to iterate along next.
 
 This also explains why open-ended research cannot form a conclusion first and then retrospectively add a framework, evidence, and opposing argument. That is not iteration. It is only an after-the-fact audit.
 
 ### 3.7.3 Generalized Descent Direction
 
-If traditional gradient descent moves along \(-\nabla L(x)\) in a continuous space, the descent direction in this paper is more like "the next step that reduces the residual most per unit cost." Formally:
+If traditional gradient descent moves along $-\nabla L(x)$ in a continuous space, the descent direction in this paper is more like "the next step that reduces the residual most per unit cost." Formally:
 
-\[
+$$
 d_t = \arg\max_{d \in \mathcal{D}} \frac{\mathbb{E}[\Phi(x_t)-\Phi(T_d(x_t))]}{\mathrm{Cost}(d)}
-\]
-
-where \(T_d\) denotes a candidate research action and \(\mathcal{D}\) is the set of all available actions. This definition does not claim that we can compute an exact gradient. It says that the next round should prioritize the evidence direction most likely to reduce judgment residuals.
+$$
+where $T_d$ denotes a candidate research action and $\mathcal{D}$ is the set of all available actions. This definition does not claim that we can compute an exact gradient. It says that the next round should prioritize the evidence direction most likely to reduce judgment residuals.
 
 Thus, residual-driven evidence iteration is closer to a combination of generalized coordinate descent, projected search, and trust-region updating in a discrete state space than to traditional gradient descent. It borrows the intuition of descent methods without depending on a differentiable loss function.
 
@@ -431,13 +417,12 @@ Thus, residual-driven evidence iteration is closer to a combination of generaliz
 
 Open-ended research should not iterate forever. The stopping condition is not "a lot has been written," but:
 
-\[
+$$
 \Phi(x_t) \le \epsilon
 \quad\text{and}\quad
 \mathrm{VOI}(d_t) < \mathrm{Cost}(d_t)
-\]
-
-where \(\mathrm{VOI}(d_t)\) is the expected value of information of the next research action \(d_t\): the likely benefit of changing the action recommendation, reducing major uncertainty, or correcting a wrong judgment. In other words, when remaining residuals are below the threshold and the expected information value of the next round is lower than the cost of continuing research, the process should stop and move into the final report. The quality gate is therefore only a coarse observation of residuals, not the objective function itself. If the quality score becomes the target, the model is more likely to optimize toward attractive audit tables rather than better judgment.
+$$
+where $\mathrm{VOI}(d_t)$ is the expected value of information of the next research action $d_t$: the likely benefit of changing the action recommendation, reducing major uncertainty, or correcting a wrong judgment. In other words, when remaining residuals are below the threshold and the expected information value of the next round is lower than the cost of continuing research, the process should stop and move into the final report. The quality gate is therefore only a coarse observation of residuals, not the objective function itself. If the quality score becomes the target, the model is more likely to optimize toward attractive audit tables rather than better judgment.
 
 ### 3.7.5 Correspondence with the Research Process
 
@@ -464,16 +449,14 @@ Original question:
 
 The implied objective function can easily become:
 
-\[
+$$
 \max \; S_{\mathrm{buy}}
-\]
-
+$$
 This induces the agent to search for reasons to "buy" or "not buy." A better objective function is:
 
-\[
+$$
 \max \; \mathbb{E}[R] - \lambda \mathcal{R} - \gamma \mathcal{U} - \eta \mathcal{O}
-\]
-
+$$
 The question is therefore reconstructed as:
 
 > Under current price, valuation, market expectations, AI compute demand, competitive structure, and my investment-horizon constraints, is Nvidia's risk-adjusted expected return attractive? If action is taken, what position size, waiting conditions, and risk controls are reasonable?
@@ -657,10 +640,9 @@ In the Nvidia case, key variables include at least:
 
 A simplified framework is:
 
-\[
+$$
 P_{\mathrm{future}} = EPS_{\mathrm{fwd}} \times PE_{\mathrm{fwd}}
-\]
-
+$$
 This yields three typical scenarios:
 
 | Scenario | EPS | PE | Possible result |
@@ -681,10 +663,9 @@ Valuation is not a static label. A high valuation does not necessarily mean high
 
 A simplified expression is:
 
-\[
+$$
 P = EPS_{\mathrm{fwd}} \times PE_{\mathrm{fwd}}
-\]
-
+$$
 If investors want a reasonable return, they must reverse-engineer:
 
 - what level future EPS must reach;
@@ -957,18 +938,17 @@ Improved prompt:
 
 ## 6.2 Residual Component Definitions
 
-Given a research state \(x\), define the residual mapping:
+Given a research state $x$, define the residual mapping:
 
-\[
+$$
 r(x) = (r_q, r_c, r_e, r_h, r_a, r_s, r_j)
-\]
-
+$$
 Each component is not a continuous value, but a discrete level. For execution, one can use:
 
-- \(0\): this dimension is sufficient to support the current action judgment;
-- \(1\): this dimension still has a gap, but the gap will not materially change the action recommendation;
-- \(2\): this dimension has a decision-level gap and may change the action recommendation;
-- \(3\): this dimension is seriously missing, and the current report should not be finalized.
+- $0$: this dimension is sufficient to support the current action judgment;
+- $1$: this dimension still has a gap, but the gap will not materially change the action recommendation;
+- $2$: this dimension has a decision-level gap and may change the action recommendation;
+- $3$: this dimension is seriously missing, and the current report should not be finalized.
 
 The general scoring rubric is:
 
@@ -983,13 +963,13 @@ The high-residual manifestations of each component are:
 
 | Residual component | Meaning | High-residual manifestation |
 |---|---|---|
-| \(r_q\) question residual | Whether the original question has been reconstructed into the true objective function | Still answering "buy or not," with no defined objective, horizon, or action variable |
-| \(r_c\) constraint residual | Whether key constraints are explicit | Missing horizon, budget, position size, risk tolerance, responsibility boundary |
-| \(r_e\) evidence residual | Whether core claims have direct evidence | Only broad narratives, no sources, dates, data definitions, or conflicting evidence |
-| \(r_h\) hypothesis residual | Whether core hypotheses have been tested | Key growth, competition, valuation, or user-demand assumptions remain unverified |
-| \(r_a\) adversarial residual | Whether the strongest opposition has been handled | Risks are only symbolic and cannot falsify the current conclusion |
-| \(r_s\) sensitivity residual | Whether variables that would change the conclusion are clear | It is unclear what conditions would move the recommendation from buy to wait or avoid |
-| \(r_j\) action residual | Whether the report supports action | After reading, the reader still does not know what to do, what to wait for, or when to review |
+| $r_q$ question residual | Whether the original question has been reconstructed into the true objective function | Still answering "buy or not," with no defined objective, horizon, or action variable |
+| $r_c$ constraint residual | Whether key constraints are explicit | Missing horizon, budget, position size, risk tolerance, responsibility boundary |
+| $r_e$ evidence residual | Whether core claims have direct evidence | Only broad narratives, no sources, dates, data definitions, or conflicting evidence |
+| $r_h$ hypothesis residual | Whether core hypotheses have been tested | Key growth, competition, valuation, or user-demand assumptions remain unverified |
+| $r_a$ adversarial residual | Whether the strongest opposition has been handled | Risks are only symbolic and cannot falsify the current conclusion |
+| $r_s$ sensitivity residual | Whether variables that would change the conclusion are clear | It is unclear what conditions would move the recommendation from buy to wait or avoid |
+| $r_j$ action residual | Whether the report supports action | After reading, the reader still does not know what to do, what to wait for, or when to review |
 
 This definition turns "report quality" from a subjective impression into a set of checkable discrete gaps.
 
@@ -997,19 +977,17 @@ This definition turns "report quality" from a subjective impression into a set o
 
 The total residual can be written as:
 
-\[
+$$
 \Phi(x)=\sum_i w_i r_i(x)
-\]
-
-where \(w_i\) is a weight. Different tasks can use different weights. In high-risk domains such as investment, medicine, and law, constraint residual, evidence residual, and adversarial residual should receive higher weight. In product opportunities and technology selection, residuals related to user demand, alternatives, execution cost, and reversibility may matter more. These weighted items are soft residuals: they allow trade-offs, but they cannot cover up critical gaps.
+$$
+where $w_i$ is a weight. Different tasks can use different weights. In high-risk domains such as investment, medicine, and law, constraint residual, evidence residual, and adversarial residual should receive higher weight. In product opportunities and technology selection, residuals related to user demand, alternatives, execution cost, and reversibility may matter more. These weighted items are soft residuals: they allow trade-offs, but they cannot cover up critical gaps.
 
 Hard constraints must also be defined. A hard constraint is not a "deduction point." It is a pass condition that cannot be compensated for by other strengths. For example, unclear responsibility boundaries, complete absence of key evidence, non-executable recommendations, or writing assumptions as facts may directly block finalization. An acceptable state can be written as:
 
-\[
+$$
 \mathcal{A}=\{x:\Phi(x)\le \epsilon,\ \max_i r_i(x)\le \tau,\ h_k(x)=1\ \forall k\in K\}
-\]
-
-where \(\mathcal{A}\) is the acceptable-state set and \(h_k(x)\) indicates whether the \(k\)-th hard constraint is satisfied. The second and third conditions are both important. Even if the total score looks good, a report cannot pass if a key dimension has an excessively high residual or if a hard constraint is not satisfied. For example, a report may contain abundant evidence and polished writing, but if it does not address what expectations the current price implies, it may still fail as an investment decision report.
+$$
+where $\mathcal{A}$ is the acceptable-state set and $h_k(x)$ indicates whether the $k$-th hard constraint is satisfied. The second and third conditions are both important. Even if the total score looks good, a report cannot pass if a key dimension has an excessively high residual or if a hard constraint is not satisfied. For example, a report may contain abundant evidence and polished writing, but if it does not address what expectations the current price implies, it may still fail as an investment decision report.
 
 ## 6.4 Evaluation Dimensions
 
@@ -1038,7 +1016,7 @@ A report reaches the passing standard not because it appears comprehensive, but 
 
 If these questions cannot be answered clearly, the report should proceed to the next research round rather than write a final conclusion early.
 
-In residual language: if any \(r_i(x)\) remains at a decision-level gap, the report should continue iterating along that residual direction. Only when all major residuals are below the threshold and continued research has insufficient information value to change the action recommendation should the report enter the acceptable set \(\mathcal{A}\).
+In residual language: if any $r_i(x)$ remains at a decision-level gap, the report should continue iterating along that residual direction. Only when all major residuals are below the threshold and continued research has insufficient information value to change the action recommendation should the report enter the acceptable set $\mathcal{A}$.
 
 # 7. Limitations
 
@@ -1048,9 +1026,9 @@ First, it cannot eliminate uncertainty. Constraint optimization and Bayesian upd
 
 Second, it depends on evidence quality. If sources are stale, data definitions are wrong, or key data is missing, even a good framework may produce misleading judgments.
 
-Third, residual measurement itself still requires judgment. The discrete level of \(r_i(x)\) is not a number given automatically by nature. It is an assessment made by the researcher according to task risk, evidence standards, and action consequences. It is more checkable than pure subjective impression, but it should not pretend to be a fully objective physical quantity.
+Third, residual measurement itself still requires judgment. The discrete level of $r_i(x)$ is not a number given automatically by nature. It is an assessment made by the researcher according to task risk, evidence standards, and action consequences. It is more checkable than pure subjective impression, but it should not pretend to be a fully objective physical quantity.
 
-Fourth, weight selection may introduce new bias. The setting of \(w_i\) differs across tasks. If the researcher overweights dimensions that are easy to satisfy, or underweights dimensions that are difficult but critical, the evaluation function will be distorted. This is also a form of Goodhart risk: when the quality score becomes the target, the model may optimize the score rather than the judgment.
+Fourth, weight selection may introduce new bias. The setting of $w_i$ differs across tasks. If the researcher overweights dimensions that are easy to satisfy, or underweights dimensions that are difficult but critical, the evaluation function will be distorted. This is also a form of Goodhart risk: when the quality score becomes the target, the model may optimize the score rather than the judgment.
 
 Fifth, it may increase research cost. For simple factual questions, the full process is too heavy. It is more suitable for open-ended decisions with high uncertainty and high cost. In practice, one should first judge whether the question deserves full iteration, rather than dragging every question into a complex process.
 

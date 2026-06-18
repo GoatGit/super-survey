@@ -1,0 +1,9 @@
+{
+  "id": "typst-book-preview",
+  "name": "Typst Book Preview",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Compile Typst files, preview PDFs, and add source-mode Typst formatting and template tools inside Obsidian.",
+  "author": "Wilbur Salazar",
+  "isDesktopOnly": true
+}
