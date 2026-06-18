@@ -220,6 +220,8 @@ There are four gates:
 - The residual / VOI / hard-constraint gate is the stop-safety gate. The latest evolver and `index.md` must record `r_q/r_c/r_e/r_h/r_a/r_s/r_j` from 0-3, the target residual, expected information value, research cost, whether VOI exceeds cost, and whether hard constraints are satisfied.
 - `check-final` is the delivery gate. It requires a complete prose-first `report.md`, a passing mode score recorded in `index.md`, a passing residual gate, a passing hard-constraint gate, and the latest raw evolver decision to be `Final` or `Kill`.
 
+Autonomous continuation is the default. After `Keep`, `Narrow`, or `Pivot`, create the next round immediately and continue the staged workflow; do not stop with "ready for the next round" or ask the user how to proceed unless the user explicitly requested checkpoint approval or a real blocker prevents progress.
+
 Final delivery uses a 100-point quality gate recorded in `index.md`:
 
 | Dimension | Points |

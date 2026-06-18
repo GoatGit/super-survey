@@ -416,6 +416,18 @@ Can this target customer pay for this workflow?
         self.assertIn("Implied expectations", brief)
         self.assertIn("Decision-changing evidence", brief)
 
+    def test_templates_include_autonomous_continuation_contract(self) -> None:
+        snapshots = self.create_stage_template_snapshots()
+        survey_dir = self.init_round()
+
+        brief = (survey_dir / "00-brief.md").read_text(encoding="utf-8")
+        evolver = snapshots["01-evolver.md"]
+
+        self.assertIn("Default continuation is autonomous", brief)
+        self.assertIn("create the next round immediately", brief)
+        self.assertIn("Do not stop and ask the user how to proceed after Keep, Narrow, or Pivot", brief)
+        self.assertIn("Autonomous continuation action", evolver)
+
     def test_synthesis_template_includes_sensitivity_and_counterfactuals(self) -> None:
         synthesis = self.create_stage_template_snapshots()["01-synthesis.md"]
 
@@ -537,6 +549,15 @@ Can this target customer pay for this workflow?
         self.assertNotIn("Paper methods", skill)
         self.assertNotIn("| 4.1", skill)
         self.assertNotIn("4.1, 4.2", skill)
+
+    def test_skill_requires_autonomous_continuation_after_keep_narrow_pivot(self) -> None:
+        skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("Autonomous continuation is the default", skill)
+        self.assertIn("Do not stop and ask the user how to proceed after `Keep`, `Narrow`, or `Pivot`", skill)
+        self.assertIn("create the next round immediately", skill)
+        self.assertIn("Only pause for checkpoint approval when the user explicitly requested checkpoint approval", skill)
+        self.assertIn("Do not say \"ready for the next round\"", skill)
 
     def test_stage_artifact_contracts_live_in_reference(self) -> None:
         skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
@@ -1588,6 +1609,8 @@ Thin.
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("continuation required: evolver decision Narrow requires another round", result.stdout)
+        self.assertIn("start the next round immediately", result.stdout)
+        self.assertIn("do not stop to ask the user how to proceed", result.stdout)
 
     def test_check_final_requires_final_report(self) -> None:
         survey_dir = self.init_round()

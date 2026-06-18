@@ -25,6 +25,9 @@ CANONICAL_DECISIONS = {
     "kill": "Kill",
     "final": "Final",
 }
+CONTINUATION_ACTION_WARNING = (
+    "start the next round immediately; do not stop to ask the user how to proceed"
+)
 HIGH_STAKES_ACTION_PATTERNS = (
     (r"\b(stock|stocks|equity|equities|share|shares|portfolio|invest|investment|valuation|earnings)\b", "financial or investment action"),
     (r"(股票|证券|港股|美股|A股|买入|卖出|加仓|减仓|重仓|投资|估值|财报|研报)", "financial or investment action"),
@@ -497,6 +500,7 @@ LABELS = {
             "Framework coverage this round:",
             "Weakest evidence or framework dimensions:",
             "Continue / stop implication:",
+            "Autonomous continuation action:",
             "Next-round focus:",
         ],
         "decision_frame_note": (
@@ -551,7 +555,7 @@ LABELS = {
             "- Original question still open: yes / no\n"
             "- If original question remains open, write the pivot or next answer path:"
         ),
-        "continuation_policy_note": "- Start with the next research round.\n- Keep the round count open until evidence, red-team critique, synthesis, and the raw evolver decision are written.\n- Record actual round history, next targets, and any stop conclusion in index.md after each completed round.",
+        "continuation_policy_note": "- Start with the next research round.\n- Keep the round count open until evidence, red-team critique, synthesis, and the raw evolver decision are written.\n- Default continuation is autonomous: after Keep, Narrow, or Pivot, create the next round immediately.\n- Do not stop and ask the user how to proceed after Keep, Narrow, or Pivot unless explicit checkpoint approval or a real blocker applies.\n- Record actual round history, next targets, and any stop conclusion in index.md after each completed round.",
         "report_template_notes": [
             "After the final gate passes, answer first: decision, confidence, key reason, strongest caveat, next action",
             "Readable narrative that explains the situation, why it matters, how the evidence changes the thesis, and what judgment follows",
@@ -885,6 +889,7 @@ LABELS = {
             "本轮框架覆盖：",
             "最弱证据或框架维度：",
             "继续 / 停止含义：",
+            "Autonomous continuation action:",
             "下一轮重点：",
         ],
         "decision_frame_note": (
@@ -939,7 +944,7 @@ LABELS = {
             "- Original question still open: yes / no\n"
             "- 如果原始问题仍未关闭，写出转向或下一条回答路径："
         ),
-        "continuation_policy_note": "- 从下一轮调研开始。\n- 让轮次数量保持开放，等证据、反方挑战、综合结论和原始进化器决策写入后再判断继续或停止。\n- 每轮完成后，把实际轮次历史、下一轮目标和停止结论记录到 index.md。",
+        "continuation_policy_note": "- 从下一轮调研开始。\n- 让轮次数量保持开放，等证据、反方挑战、综合结论和原始进化器决策写入后再判断继续或停止。\n- 默认自主继续：如果决策是 Keep、Narrow 或 Pivot，立即创建下一轮。\n- Keep、Narrow 或 Pivot 之后不要停下来询问用户如何继续，除非用户明确要求 checkpoint approval 或存在真实阻塞。\n- 每轮完成后，把实际轮次历史、下一轮目标和停止结论记录到 index.md。",
         "report_template_notes": [
             "最终门通过后，先给答案：决策、置信度、核心理由、最大保留意见和下一步",
             "用连贯正文解释背景、为什么重要、证据如何改变判断、最终判断为何成立",
@@ -1257,6 +1262,7 @@ LABELS = {
             "今回のフレームワーク網羅:",
             "最も弱い証拠またはフレームワーク次元:",
             "継続 / 停止の意味:",
+            "Autonomous continuation action:",
             "次回ラウンドの焦点:",
         ],
         "decision_frame_note": (
@@ -1311,7 +1317,7 @@ LABELS = {
             "- Original question still open: yes / no\n"
             "- 元の問いがまだ開いている場合、ピボットまたは次の回答経路を書く:"
         ),
-        "continuation_policy_note": "- 次の調査ラウンドから始める。\n- ラウンド数は、証拠、レッドチーム、統合結論、生のエボルバー判断を書き終えるまで開いたままにする。\n- 完了した各ラウンドの後、実際のラウンド履歴、次回目標、停止結論を index.md に記録する。",
+        "continuation_policy_note": "- 次の調査ラウンドから始める。\n- ラウンド数は、証拠、レッドチーム、統合結論、生のエボルバー判断を書き終えるまで開いたままにする。\n- デフォルトの継続は自律的に行う。Keep、Narrow、Pivot の後はすぐ次ラウンドを作成する。\n- Keep、Narrow、Pivot の後にユーザーへ進め方を尋ねて停止しない。明示的な checkpoint approval または実際のブロッカーがある場合だけ停止する。\n- 完了した各ラウンドの後、実際のラウンド履歴、次回目標、停止結論を index.md に記録する。",
         "report_template_notes": [
             "最終ゲート通過後に結論を先に示す: 判断、信頼度、主要理由、最大の留保、次の行動",
             "背景、重要性、証拠が仮説をどう変えたか、判断がなぜ成立するかを読みやすく説明する",
@@ -3148,7 +3154,7 @@ def validate_evolver_gate(
         if final:
             errors.append(message)
         else:
-            warnings.append(f"continuation required: {message}")
+            warnings.append(f"continuation required: {message}; {CONTINUATION_ACTION_WARNING}")
 
 
 def read_jsonl(path: Path, errors: list[str]) -> list[dict[str, object]]:

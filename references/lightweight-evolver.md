@@ -124,6 +124,8 @@ If the next evidence requirement needs interviews, experiments, legal review, or
 
 If any residual is still `3` and there is a desk-research move with `VOI greater than cost: yes`, choose `Keep`, `Narrow`, or `Pivot` and name that residual as the next target. If no residual is at `3`, hard constraints are satisfied, and the remaining desk-research VOI is below cost, choose `Final` when the original decision can be answered or `Kill` when the current thesis/path should stop.
 
+After `Keep`, `Narrow`, or `Pivot`, autonomous continuation is the default: create the next round immediately and continue the staged workflow. Do not stop with "ready for the next round" or ask the user how to proceed unless the user explicitly requested checkpoint approval or a real blocker prevents progress.
+
 ## Output Template
 
 Save this as `NN-evolver.md`:
@@ -170,6 +172,7 @@ Keep / Narrow / Pivot / Kill / Final
 - Constraint-specific recommendation branches:
 - Most conclusion-changing variable:
 - Continue / stop implication:
+- Autonomous continuation action:
 - Next-round focus:
 
 ## Next Research Target

@@ -32,6 +32,8 @@ Empty templates are not artifacts. A round is incomplete until each file contain
 
 `index.md` is the per-round workbench, navigation page, and decision log. Reserve `report.md` for the final complete deliverable: a full standalone report in the selected artifact language, written after the raw evolver decision is `Final` or `Kill`, then validated with the final quality gate before the user-facing answer. During continuing rounds, update `index.md` for progress, decisions, and next targets.
 
+Autonomous continuation is the default. Do not stop and ask the user how to proceed after `Keep`, `Narrow`, or `Pivot`; create the next round immediately and continue the staged workflow. Only pause for checkpoint approval when the user explicitly requested checkpoint approval before the round, a new constraint is required to continue, or a tool/environment blocker prevents meaningful work. Do not say "ready for the next round", "let me know how you would like to proceed", or similar handoff language after a continuing decision. A progress update may state that the next round is starting and name its target.
+
 Use front-loaded guidance to improve research quality before the agent starts collecting evidence. Do not compensate for weak research by raising after-the-fact thresholds. The brief and round templates should surface decision-critical variables, minimum direct evidence, implied-expectation reverse-checks, constraint-specific recommendation branches, and anti-narrative regularizers early enough to guide source selection and synthesis.
 
 ## Workflow
@@ -115,7 +117,7 @@ Use `$superpowers brainstorming` throughout the survey. It has two roles:
    - audience / buyer / target user
    - success criteria and disqualifying conditions
    - depth mode
-   - whether the user wants autonomous continuation or checkpoint approval
+   - whether the user explicitly wants checkpoint approval; otherwise autonomous continuation is assumed
 
 2. **Per-round checkpoint**: after each research pass and before the next round, use brainstorming to:
    - restate what changed
@@ -125,6 +127,8 @@ Use `$superpowers brainstorming` throughout the survey. It has two roles:
    - record the preferred exploration path and assumptions
 
 Brainstorming proposes routes; the latest `NN-evolver.md` decision owns the machine-readable continue/stop decision.
+
+Per-round brainstorming is a route-selection checkpoint, not permission to stop. If the latest raw decision is `Keep`, `Narrow`, or `Pivot`, record the preferred route and continue into the next round unless the user explicitly requested checkpoint approval.
 
 For quick exploratory requests, keep each checkpoint lightweight: explicit assumptions and a concise next-move comparison are enough when the user already gave enough constraints.
 
@@ -428,6 +432,8 @@ Use canonical English raw gates to decide whether to stop. In any artifact langu
 - Stop only after `report.md` exists, the `index.md` final quality score passes the selected mode threshold, the residual gate passes, the hard-constraint gate passes, the latest decision is `Final` or `Kill`, and `check-final` passes.
 - `report.md` may explain uncertainty, future disclosure needs, or external validation needs, but the helper relies only on the raw evolver decision, the score threshold, the residual gate, and the hard-constraint gate.
 
+After `survey_round.py check` passes with a continuation warning for `Keep`, `Narrow`, or `Pivot`, treat that as an instruction to continue, not as a stopping point. Use the next-round target from `NN-evolver.md` / `index.md`, run `survey_round.py round <survey-dir> <N+1>` or `plan`, and continue through research, brainstorming, red-team, synthesis, and evolve.
+
 Run `survey_round.py check <survey-dir>` before treating a round as complete. It validates round artifacts, registry links, framework coverage, companion notes when required, and the latest raw evolver gate. Use `validate-evidence` only for focused registry debugging.
 
 Run `survey_round.py check-final <survey-dir>` before presenting the survey as final. If it fails because the report is legacy or thin, run `upgrade-report` when needed, expand the report, or create another round focused on the weakest dimensions.
@@ -463,6 +469,8 @@ Final user-facing responses should be concise and decision-oriented:
 
 Save the full research document to disk and summarize the important parts in chat.
 
+During continuing rounds, do not send a final user-facing response. If a status update is needed, state the current round result and that the next round is starting, without asking the user what to do next. Only deliver the final response after `report.md` exists, the latest decision is `Final` or `Kill`, and `check-final` passes.
+
 Use the same language as the user's request unless they ask otherwise. When writing survey artifacts, keep all headings, findings, red-team critique, synthesis, and evolver output in one selected language: English (`en`), Chinese (`zh`), or Japanese (`ja`). Source titles and quoted terms may stay in their original language.
 
 ## Common Failure Modes
@@ -480,4 +488,5 @@ Use the same language as the user's request unless they ask otherwise. When writ
 - **Registry-ID citations**: `report.md` cites `C1`, `E1`, or similar IDs that require opening JSONL files. Fix by replacing them with source titles, Markdown links, footnotes, and URLs.
 - **Framework-as-audit-note**: framework dimensions appear only as a list or coverage checklist, while `brief`, `research`, `brainstorm`, `redteam`, `synthesis`, `evolver`, or `report.md` jump to generic narrative. Fix by using the brief-defined dimensions as `###` subheadings in every framework-relevant stage and as body chapters in the final report.
 - **Round-count autopilot**: the survey stops because it reached a familiar count, while the report score is weak or unknowns remain desk-researchable. Fix by scoring the report and creating the next round around the lowest-scoring dimensions.
+- **Checkpoint handoff after continuation**: the survey says it is ready for the next round or asks the user how to proceed after `Keep`, `Narrow`, or `Pivot`. Fix by starting the next round immediately unless explicit checkpoint approval or a blocker applies.
 - **Sycophantic framing / local optimum**: the survey accepts the user's stance as fact, optimizes the initial wording, or rewrites the question into a stronger easy-to-kill claim. Fix by rebuilding the objective in `Decision Frame Integrity`, checking multiple perspectives, and making recommendations conditional on the facts that would change them.
