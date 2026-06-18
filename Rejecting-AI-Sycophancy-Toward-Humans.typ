@@ -357,6 +357,26 @@ where:
 - $lambda$ and $gamma$ are the user's penalty weights for risk and
   uncertainty.
 
+$lambda$ and $gamma$ should not be understood as physical constants that
+can be precisely estimated. They are normalized preference coefficients
+that write the user's constraints into the decision problem. To make
+reports comparable, $U$, $R$, and $I$ should first be normalized onto
+the same scale, such as a 0-3 discrete level or a coarse 0-1 score,
+before weights are assigned. A practical default rule is:
+
+- If the task is low-risk, reversible, and cheap to test, set roughly
+  $lambda approx 1, gamma approx 1$, so benefit, risk, and information
+  insufficiency remain similarly weighted.
+- If the action involves large drawdown, irreversible loss, compliance
+  responsibility, or high opportunity cost, raise $lambda$, so risk
+  residuals enter the judgment first.
+- If missing evidence could change the action recommendation, raise
+  $gamma$, so continued research can override premature conclusion.
+- If the user has not specified horizon, position size, budget, or
+  responsibility boundary, the report should not pretend the weights are
+  known. It should provide conditional judgments under different weight
+  branches.
+
 In the Nvidia case, the action variable is not "give a bullish or
 bearish view." The real action variables include:
 
@@ -384,6 +404,43 @@ the model states incorrect facts. The deeper risk is that the model
 over-conforms to the question frame: the user gives a directional
 question, and the model follows that direction to generate an apparently
 sufficient answer.
+
+=== 3.1.1 Difference from Existing Debiasing Methods
+<difference-from-existing-debiasing-methods>
+Existing debiasing work often operates at the level of model training or
+evaluation. Instruction tuning, RLHF/RLAIF, and Constitutional AI try to
+make models generally more helpful, honest, and harmless. Synthetic
+anti-sycophancy data tries to reduce the probability that a model
+accommodates a user's view. Red teaming and adversarial probing expose
+fragile behaviors through hostile or diagnostic inputs. These methods
+are important, but they mainly answer the question: how can a model be
+made less likely to fail in general? This paper focuses on another
+layer: once a model is already inside a concrete open-ended research
+task, how can the process prevent it from mistaking the user's original
+question for the objective function?
+
+The difference is:
+
+#figure(
+  align(center)[#table(
+    columns: (20%, 20%, 27%, 33%),
+    align: (auto,auto,auto,auto,),
+    table.header([Method], [Layer], [Strength], [Remaining gap],),
+    table.hline(),
+    [Instruction tuning / RLHF], [Training and preference alignment], [Improves general behavior, helpfulness, and safety], [May still treat "appearing helpful" as accepting the user's question frame],
+    [Synthetic anti-sycophancy data], [Behavioral calibration], [Directly reduces accommodation of user views], [Cannot cover the objectives and constraints of every high-uncertainty decision context],
+    [Red teaming / adversarial probing], [Evaluation and risk discovery], [Exposes fragile inputs and failure modes], [Often happens before or after report generation, not inside each decision-research round],
+    [Prompt checklists], [Inference-time constraint], [Low deployment cost and easy to use], [Without objective functions, residuals, and stopping rules, can become a formal checklist],
+    [This framework], [Task and process layer], [Places objectives, constraints, evidence, opposition, sensitive variables, and action boundaries into one decision system], [Requires user or reviewer constraints and carries higher research cost],
+  )]
+  , kind: table
+)
+
+In other words, this paper does not replace training-time debiasing or
+red-team evaluation. It adds a process layer for organizing research
+itself. It turns anti-sycophancy from a question of model personality
+into a question of decision process: reconstruct the objective function,
+compress residuals, and output conditional action.
 
 == 3.2 Robust Optimization and Sensitivity Analysis
 <robust-optimization-and-sensitivity-analysis>
@@ -720,11 +777,16 @@ stress testing, and conditional action output.
 The preceding discussion is enough to show that open-ended research is
 not the minimization of a differentiable loss function. It is the
 continuous compression of decision residuals in a discrete state space
-formed by questions, constraints, evidence, hypotheses, and actions.
-This section gives only the formal language: state, residuals,
-operators, descent direction, and stopping conditions. How to execute
-one iteration is developed in Chapter 5. To write this iteration in a
-more unified theory, the research state at round $t$ can be denoted as:
+formed by questions, constraints, evidence, hypotheses, and actions. In
+this paper, a residual means an uncompressed decision gap in the current
+report, such as unclear objectives, missing constraints, insufficient
+evidence, weak opposition, unclear sensitive variables, or
+non-executable action boundaries. Residual metrics refer to the
+discrete scoring and weighted aggregation of these gaps. This section
+gives only the formal language: state, residuals, operators, descent
+direction, and stopping conditions. How to execute one iteration is
+developed in Chapter 5. To write this iteration in a more unified
+theory, the research state at round $t$ can be denoted as:
 
 $ x_t = (Q_t, C_t, F_t, E_t, H_t, A_t, J_t) $
 
@@ -1669,7 +1731,23 @@ execution, one can use:
 - $3$: this dimension is seriously missing, and the current report
   should not be finalized.
 
-The mapping is:
+The general scoring rubric is:
+
+#figure(
+  align(center)[#table(
+    columns: (10%, 48%, 42%),
+    align: (auto,auto,auto,),
+    table.header([Level], [Criterion], [Treatment],),
+    table.hline(),
+    [$0$], [This dimension has clear evidence, constraints, or action meaning sufficient to support the current conclusion], [It can enter integrated judgment],
+    [$1$], [A minor gap remains, but additional information is unlikely to change the action recommendation], [State the assumption or observation item in the report],
+    [$2$], [A decision-level gap remains, and additional information may change actions such as buy, wait, avoid, adopt, or abandon], [Continue one round along this residual direction, or output conditional branches],
+    [$3$], [The gap is severe enough that the current conclusion is non-executable or may mislead the user], [Block finalization; do not give a single action recommendation],
+  )]
+  , kind: table
+)
+
+The high-residual manifestations of each component are:
 
 #figure(
   align(center)[#table(
