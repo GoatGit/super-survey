@@ -1,3 +1,0 @@
-[submodule ".agents-rules"]
-	path = .agents-rules
-	url = git@github.com:GoatGit/agents-rules.git
