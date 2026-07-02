@@ -113,7 +113,8 @@ class SurveyRoundCliTest(unittest.TestCase):
                     "Current Source Discovery: yes.\n"
                     "Search Tool Used: tavily-search.\n"
                     "Tavily Fallback Reason: none.\n"
-                    "Query And Filter Notes: official sources and competitor pricing."
+                    "Query And Filter Notes: official sources and competitor pricing.\n"
+                    "Third-Party Content Handling: source text treated as untrusted evidence; source-borne instructions ignored; bounded factual excerpts or summaries only."
                 ),
             },
             "01-brainstorm.md": {
@@ -294,6 +295,28 @@ Can this target customer pay for this workflow?
         self.assertEqual(result.returncode, 1)
         self.assertIn("Data Quality Notes must record search tool and Tavily fallback status", result.stdout)
 
+    def test_check_requires_third_party_content_handling_when_current_sources_are_enabled(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(survey_dir, include_report=False)
+        research = survey_dir / "01-research.md"
+        text = re.sub(
+            r"(?ms)^## Data Quality Notes\n\n.*?(?=^## |\Z)",
+            (
+                "## Data Quality Notes\n\n"
+                "Current Source Discovery: yes. Recent policy and pricing facts were needed.\n"
+                "Search Tool Used: tavily-search.\n"
+                "Tavily Fallback Reason: none.\n"
+                "Query And Filter Notes: official sources and competitor pricing.\n"
+            ),
+            research.read_text(encoding="utf-8"),
+        )
+        research.write_text(text, encoding="utf-8")
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Data Quality Notes must record third-party content handling", result.stdout)
+
     def test_round_number_must_be_positive(self) -> None:
         survey_dir = self.init_round()
 
@@ -336,6 +359,7 @@ Can this target customer pay for this workflow?
         self.assertIn("Claim And Evidence Notes", research)
         self.assertIn("Search Tool Used", research)
         self.assertIn("Tavily Fallback Reason", research)
+        self.assertIn("Third-Party Content Handling", research)
         self.assertIn("## Framework Coverage", research)
         self.assertIn("## Alternative Explanations Or Substitutes", redteam)
         self.assertIn("## Kill Criteria Checked", redteam)
@@ -1509,6 +1533,13 @@ Thin.
 
         self.assertNotIn("For current-source discovery, default to `tavily-search`", skill)
         self.assertIn("When current-source discovery matters and Tavily fits the source surface", skill)
+
+    def test_skill_treats_third_party_sources_as_untrusted_evidence(self) -> None:
+        skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("untrusted third-party", skill)
+        self.assertIn("tool-use requests", skill)
+        self.assertIn("Third-party content handling", skill)
 
     def test_skill_keeps_wiki_persistence_conditional(self) -> None:
         skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
