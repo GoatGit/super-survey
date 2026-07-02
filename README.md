@@ -4,7 +4,7 @@ Language: English | [中文](README.zh-CN.md) | [日本語](README.ja.md)
 
 Super Survey is a general-purpose research skill for agents. It is not a domain-specific stock, product, or open-source template; the same loop can be used for product opportunities, markets, technical feasibility, open-source adoption, diligence, policy, strategy, or any question where a reader needs a grounded judgment rather than a link dump.
 
-The project is a concrete implementation of the paper [如何拒绝AI谄媚人类.md](如何拒绝AI谄媚人类.md). The paper argues that open-ended research should be treated as constrained decision optimization, not direct answer generation. Super Survey turns that idea into a staged workflow: rebuild the objective function, constraints, hidden assumptions, evidence standard, counterarguments, synthesis, and next-round question before producing a final report.
+The project is a concrete implementation of the paper [Resisting AI Sycophancy in Open-Ended Research](Rejecting-AI-Sycophancy-Toward-Humans.md). The paper argues that open-ended research should be treated as constrained decision optimization, not direct answer generation. Super Survey turns that idea into a staged workflow: rebuild the objective function, constraints, hidden assumptions, evidence standard, counterarguments, synthesis, and next-round question before producing a final report.
 
 In practical terms, it turns a vague target into a constrained decision-optimization workflow: it rebuilds the objective function before it searches for evidence, then keeps each conclusion provisional until the evidence, red-team critique, synthesis, and evolver decision are written down.
 
