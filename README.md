@@ -89,10 +89,9 @@ python3 scripts/survey_round.py init "AI採用エージェント" --language ja
 python3 scripts/survey_round.py init "formal market report" --mode deep
 ```
 
-Create and check a round. Fill each generated stage with substantive content before running the next stage command:
+`init` also creates the first round entrypoint (`01-evidence-plan.md`, or `01-round.md` in quick mode). Fill each generated stage with substantive content before running the next stage command:
 
 ```bash
-python3 scripts/survey_round.py round surveys/2026-06-13-ai-recruiting-agent 1
 python3 scripts/survey_round.py research surveys/2026-06-13-ai-recruiting-agent 1
 python3 scripts/survey_round.py brainstorm surveys/2026-06-13-ai-recruiting-agent 1
 python3 scripts/survey_round.py redteam surveys/2026-06-13-ai-recruiting-agent 1

@@ -87,10 +87,9 @@ python3 scripts/survey_round.py init "AI採用エージェント" --language ja
 python3 scripts/survey_round.py init "formal market report" --mode deep
 ```
 
-ラウンドを作成して検証します。各段階コマンドで生成されたファイルに実質的な内容を書いてから、次の段階コマンドを実行します:
+`init` は最初のラウンド入口ファイルも作成します（standard/deep は `01-evidence-plan.md`、quick は `01-round.md`）。各段階コマンドで生成されたファイルに実質的な内容を書いてから、次の段階コマンドを実行します:
 
 ```bash
-python3 scripts/survey_round.py round surveys/2026-06-13-ai採用エージェント 1
 python3 scripts/survey_round.py research surveys/2026-06-13-ai採用エージェント 1
 python3 scripts/survey_round.py brainstorm surveys/2026-06-13-ai採用エージェント 1
 python3 scripts/survey_round.py redteam surveys/2026-06-13-ai採用エージェント 1

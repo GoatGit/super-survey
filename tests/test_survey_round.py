@@ -76,6 +76,18 @@ class SurveyRoundCliTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         return survey_dir
 
+    def test_init_creates_first_round_entrypoint(self) -> None:
+        standard_dir = self.init_survey_dir(mode="standard")
+        deep_dir = self.init_survey_dir(mode="deep", topic="Formal diligence")
+        quick_dir = self.init_survey_dir(mode="quick", topic="Quick triage")
+
+        self.assertTrue((standard_dir / "01-evidence-plan.md").exists())
+        self.assertTrue((deep_dir / "01-evidence-plan.md").exists())
+        self.assertTrue((quick_dir / "01-round.md").exists())
+        self.assertFalse((standard_dir / "report.md").exists())
+        self.assertFalse((deep_dir / "report.md").exists())
+        self.assertFalse((quick_dir / "report.md").exists())
+
     def write_minimal_stage(self, survey_dir: Path, filename: str) -> None:
         sections_by_file = {
             "01-evidence-plan.md": {

@@ -170,8 +170,13 @@ Use the helper to initialize the survey and start the first staged round:
 python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent" --mode standard
 python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent" --language zh --mode quick
 python3 <skill-dir>/scripts/survey_round.py init "AI recruiting agent" --language ja --mode deep
-python3 <skill-dir>/scripts/survey_round.py round surveys/2026-06-12-ai-recruiting-agent 1
 ```
+
+`init` creates `00-brief.md`, `index.md`, registry JSONL files, and the first
+round entrypoint (`01-evidence-plan.md` for standard/deep mode or `01-round.md`
+for quick mode). Use `round <survey-dir> <N>` or `plan <survey-dir> <N>` for
+later rounds, or to recreate a missing entrypoint without overwriting an
+existing artifact.
 
 Resolve `<skill-dir>` to the directory containing this `SKILL.md` so the workflow works across Codex, agent, and local installs.
 

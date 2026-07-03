@@ -87,10 +87,9 @@ python3 scripts/survey_round.py init "AI採用エージェント" --language ja
 python3 scripts/survey_round.py init "正式市场报告" --mode deep
 ```
 
-创建并检查一轮。每条阶段命令生成文件后，先写入实质内容，再运行下一条阶段命令：
+`init` 会同时创建第一轮入口文件（标准/深度模式为 `01-evidence-plan.md`，quick 模式为 `01-round.md`）。每条阶段命令生成文件后，先写入实质内容，再运行下一条阶段命令：
 
 ```bash
-python3 scripts/survey_round.py round surveys/2026-06-13-ai-招聘助手 1
 python3 scripts/survey_round.py research surveys/2026-06-13-ai-招聘助手 1
 python3 scripts/survey_round.py brainstorm surveys/2026-06-13-ai-招聘助手 1
 python3 scripts/survey_round.py redteam surveys/2026-06-13-ai-招聘助手 1

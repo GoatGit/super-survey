@@ -3056,6 +3056,10 @@ def init_survey(args: argparse.Namespace) -> None:
 -
 """,
     )
+    if mode == "quick":
+        create_quick_round_template(survey_dir, label, 1, "01")
+    else:
+        create_stage_template(survey_dir, label, language, 1, "evidence-plan")
     print(survey_dir)
 
 
@@ -4305,7 +4309,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
 
-    p_init = sub.add_parser("init", help="create a survey directory")
+    p_init = sub.add_parser("init", help="create a survey directory and first round entrypoint")
     p_init.add_argument("topic")
     p_init.add_argument("--root", default=".")
     p_init.add_argument("--date")
@@ -4319,7 +4323,7 @@ def main() -> None:
     p_recommend.add_argument("--file")
     p_recommend.set_defaults(func=recommend_mode_command)
 
-    p_round = sub.add_parser("round", help="start a staged round by creating the evidence plan")
+    p_round = sub.add_parser("round", help="start or recreate a staged round by creating the evidence plan")
     p_round.add_argument("survey_dir")
     p_round.add_argument("round", type=positive_int)
     p_round.add_argument("--language", choices=LANGUAGES)
