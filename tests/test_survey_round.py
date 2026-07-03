@@ -214,6 +214,21 @@ class SurveyRoundCliTest(unittest.TestCase):
         self.assertIn("01-evidence-plan.md: appears to be only an empty template", result.stdout)
         self.assertNotIn("report.md", result.stdout)
 
+    def test_check_rejects_premature_report_before_final_or_kill_evolver(self) -> None:
+        survey_dir = self.init_round()
+        write_markdown(
+            survey_dir / "report.md",
+            "Premature Report",
+            {"Executive Summary": "This report was written before the staged round completed."},
+        )
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("report.md is premature", result.stdout)
+        self.assertIn("latest evolver decision must be Final or Kill", result.stdout)
+        self.assertIn("missing/invalid 01-evolver.md", result.stdout)
+
     def test_round_starts_only_the_evidence_plan_stage(self) -> None:
         survey_dir = self.init_round()
 
@@ -1166,7 +1181,7 @@ Can this target customer pay for this workflow?
 
     def test_check_warns_for_missing_wiki_attempt_notes_when_not_required(self) -> None:
         survey_dir = self.init_round()
-        self._write_substantive_required_files(survey_dir, include_wiki_notes=False)
+        self._write_substantive_required_files(survey_dir, include_report=False, include_wiki_notes=False)
 
         result = run_cli("check", str(survey_dir))
 

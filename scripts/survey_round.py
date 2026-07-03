@@ -3878,6 +3878,31 @@ def validate_evolver_gate(
             warnings.append(f"continuation required: {message}; {CONTINUATION_ACTION_WARNING}")
 
 
+def check_premature_report(
+    errors: list[str],
+    survey_dir: Path,
+    rounds: list[int],
+    mode: str,
+    label: dict[str, object],
+) -> None:
+    report_path = survey_dir / "report.md"
+    if not report_path.exists():
+        return
+    if not rounds:
+        errors.append(
+            "report.md is premature: write report.md only after a completed round has an evolver decision of Final or Kill"
+        )
+        return
+    latest_decision_path = decision_artifact_path(survey_dir, rounds[-1], mode)
+    latest_decision = parse_evolver_decision(latest_decision_path, label)
+    if latest_decision not in {"Final", "Kill"}:
+        decision_note = latest_decision or f"missing/invalid {latest_decision_path.name}"
+        errors.append(
+            "report.md is premature: latest evolver decision must be Final or Kill before writing report.md "
+            f"(current: {decision_note})"
+        )
+
+
 def read_jsonl(path: Path, errors: list[str]) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     if not path.exists():
@@ -4140,6 +4165,7 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
     rounds = detect_rounds(survey_dir)
     if not rounds:
         errors.append("missing round files: run the 'round' command first")
+    check_premature_report(errors, survey_dir, rounds, mode, label)
 
     for round_number in rounds:
         prefix = f"{round_number:02d}"
