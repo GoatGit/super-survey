@@ -16,7 +16,7 @@ The foundational anti-sycophancy theory paper for this skill is `如何拒绝AI�
 Every survey round follows one staged judgment loop:
 
 1. Frame the user's wording as a starting point, not the objective function.
-2. Choose a generic research lens, explicit framework dimensions, and evidence standard.
+2. Route the question through the Adaptive Research Framework: choose a decision archetype, 1-3 lens packs, domain hints, explicit framework dimensions, and an evidence standard.
 3. Write the evidence plan and minimum direct evidence before current-source search.
 4. Gather evidence, update `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`, and separate findings from interpretation.
 5. Re-enter brainstorming after research to compare reframes and next evidence moves.
@@ -120,7 +120,7 @@ reporting.
 | Redteam | Attack the strongest current argument, substitutes, hidden assumptions, kill criteria, and anti-narrative regularizers. | Counterfactual testing; adversarial validation; regularization against popular narratives |
 | Synthesis | Integrate evidence and objections into sensitivity analysis, implied-expectation reverse-checks, Bayesian updates, scenarios, decision trees, and constraint-specific recommendation branches. | Sensitivity analysis; implied-expectation reverse-check; Bayesian updating; scenarios; decision tree output |
 | Evolver | Diagnose residuals `r_q/r_c/r_e/r_h/r_a/r_s/r_j`, compare expected information value with research cost, decide Keep / Narrow / Pivot / Kill / Final, separate future facts from desk-researchable gaps, and generate the next-round target or finalization rationale. | Residual vector; hard constraints; VOI stopping rule; multi-start search control; adversarial validation; evidence-driven continuation |
-| Final Report | Write a standalone human decision memo with body chapters from the framework, decision logic, recommendation, change triggers, next actions, limits, and appendices. | Decision memo; constraint-specific recommendation; residual gate; hard-constraint gate; quality gate |
+| Final Report | Write a standalone human decision memo with body sections from the framework, decision logic, recommendation, change triggers, next actions, limits, and appendices. | Decision memo; constraint-specific recommendation; residual gate; hard-constraint gate; quality gate |
 
 ### Superpowers Brainstorming Loop
 
@@ -201,7 +201,7 @@ Write `00-brief.md` with:
 - Superpowers Brainstorming Gate
 - Practical decision to make
 - Research lens
-- Research framework with explicit dimensions and one `###` subsection per dimension
+- Research framework with a Framework Profile Router, Framework Contract, Evidence Contract, explicit dimensions, and one `###` subsection per dimension
 - Decision evidence standard
 - Decision frame integrity
 - Decision Optimization Contract: original question, reconstructed objective function, candidate actions, wait/continue option, constraints, success/failure criteria, opportunity cost, reversibility, implied expectations, implied-expectation reverse-check, decision-critical variables, minimum direct evidence, constraint-specific recommendations, anti-narrative regularizers, and decision-changing evidence
@@ -302,7 +302,7 @@ Draft the report section by section from the argument rather than the audit trai
 The readable body should contain, before appendices:
 
 - Executive summary with the answer, confidence, key reason, strongest caveat, and next action.
-- Framework dimension chapters: each effective framework dimension from `index.md` / `00-brief.md` must become a top-level body heading such as `## Market Environment` or `## User Pain`, with narrative analysis under it. Put the dimension analysis in the body rather than under a generic `Framework Dimension Analysis` heading, method note, scorecard, evidence appendix, or source audit.
+- Framework dimension sections: each effective framework dimension from `index.md` / `00-brief.md` must get a substantive body section before appendices. It may be a top-level heading or a nested heading under the narrative / decision logic when that reads better. Put the dimension analysis in the body rather than only under a generic method note, scorecard, evidence appendix, or source audit.
 - Main narrative: the situation, why it matters, what changed across rounds, and why the conclusion follows.
 - Decision logic: the reasoning chain, tradeoffs, and why alternatives were rejected.
 - Final recommendation: who should act, who should wait, conditions, and confidence.
@@ -310,7 +310,7 @@ The readable body should contain, before appendices:
 - Next actions with concrete steps, monitoring metrics, stop/continue triggers, and owner/timeframe where useful.
 - Limits of the report: missing data, uncertainty, freshness, and external validation needs.
 
-For non-trivial surveys, `report.md` must be longer and more complete than `NN-synthesis.md`, but length alone is not quality. It should read like a coherent memo with supporting appendices, not a pile of evidence tables. A report that only contains a few bullets is incomplete; a report that opens with long source tables before explaining the judgment is also incomplete. A report that names a research framework but does not analyze those dimensions as body subchapters is incomplete.
+For non-trivial surveys, `report.md` must be longer and more complete than `NN-synthesis.md`, but length alone is not quality. It should read like a coherent memo with supporting appendices, not a pile of evidence tables. A report that only contains a few bullets is incomplete; a report that opens with long source tables before explaining the judgment is also incomplete. A report that names a research framework but does not analyze those dimensions as body sections is incomplete.
 
 New surveys use report schema v4. Legacy reports with older report schemas remain readable, and the final delivery gate expects the v4 schema. Run `survey_round.py upgrade-report <survey-dir>` and then expand the appended sections before final delivery. `upgrade-report` appends missing v4 report sections and updates metadata; you still write the report content.
 
@@ -320,7 +320,19 @@ Use a research lens as a lightweight emphasis guide, not a hard decision-type br
 
 Pick or write 1-3 lenses that best match the question, such as buyer/user, workflow, market/competitor, technical, policy/trust, open-source, or a custom lens. Then select or write a research framework with explicit dimensions. The framework answers: what dimensions will this research cover, what question does each dimension answer, and which dimensions are weak or intentionally out of scope?
 
-The framework must travel through the whole workflow. `00-brief.md` defines the dimensions; `NN-evidence-plan.md`, `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` each expand those same dimensions with `###` subheadings in their framework-relevant section. The final `report.md` then turns the dimensions into readable body chapters. This prevents the common failure mode where the agent lists materials first and only adds a framework audit note afterward.
+Use the Adaptive Research Framework as the explicit routing layer for this selection. It keeps the common Super Survey loop intact while preventing every report from having the same body shape. Do not create rigid industry templates. Route by decision type first, use lenses as evidence emphasis, and use domain hints only as contextual modifiers.
+
+Record this in `00-brief.md` under `Research Framework`:
+
+- Framework Profile Router: primary decision archetype, secondary archetypes if any, selected lens packs, domain hints, profiles considered but rejected, and why the chosen profile fits the user's actual decision.
+- Framework Contract: active dimensions, veto dimensions, intentionally deferred or out-of-scope dimensions, chapter weights, and why each dimension affects the action recommendation.
+- Evidence Contract: minimum direct evidence by dimension, preferred source types by dimension, disconfirming evidence by dimension, evidence that cannot substitute for direct proof, and the weakest expected evidence area.
+
+Decision archetypes are reusable starting points, not final templates. Prefer archetypes such as product opportunity, market entry, competitor/positioning analysis, technical feasibility, open-source adoption, adoption/procurement, investment/diligence, policy/trust risk, or a custom archetype. Combine them when the decision genuinely spans categories, but name the primary archetype so the evidence plan has a clear center of gravity.
+
+Domain hints such as healthcare, fintech, education, devtools, legal, gaming, enterprise SaaS, regulated workflow, or public-sector procurement may raise evidence standards or add veto dimensions. They must not replace objective reconstruction, the Decision Optimization Contract, residual gates, hard-constraint gates, or the evolver decision.
+
+The framework must travel through the whole workflow. `00-brief.md` defines the dimensions; `NN-evidence-plan.md`, `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` expand the dimensions that are active for the round's target residual and any veto dimensions. If a dimension has no new evidence in a round, mark it under `Deferred dimensions:` or `Unchanged dimensions:` with a short reason instead of writing boilerplate. The final `report.md` then turns the dimensions into readable body sections. This prevents the common failure mode where the agent lists materials first and only adds a framework audit note afterward, without forcing every process file to become a grid-filling exercise.
 
 Evidence can refine the framework, but only explicitly. If a round shows that the initial dimensions are too broad, missing a veto dimension, or no longer match the evidence, update `index.md` under `Framework Refinement Log` with:
 
@@ -328,7 +340,7 @@ Evidence can refine the framework, but only explicitly. If a round shows that th
 - `Evidence trigger for changes: ...`
 - `Original question/core preserved: ...`
 
-After that, use the current dimensions from `index.md` in later round artifacts. Make framework revisions explicit in `index.md`; a revision is valid only when it is evidence-triggered and preserves the user's original decision frame.
+After that, use the current dimensions from `index.md` in later round artifacts. Make framework revisions explicit in `index.md`; a revision is valid only when it is evidence-triggered and preserves the user's original decision frame. A profile can be narrowed, combined, or pivoted only when the evidence, residual vector, red-team critique, or hard constraint shows that the earlier framework is no longer the best decision model.
 
 Fit the framework to the user's actual question rather than forcing every survey into a predefined category. The lens determines which evidence deserves extra attention; the framework makes the research method visible to readers. The common Super Survey loop still applies, and a framework is a method, not a prewritten conclusion or a narrow decision-type branch. Read `references/research-quality.md` for framework starters and domain examples.
 
@@ -409,7 +421,7 @@ For bounded or one-off surveys, mark `Wiki Persistence Needed: no` and keep `ind
 
 Super Survey supports arbitrary positive round numbers; evidence quality and the raw evolver decision define the stopping rule. The brief keeps future round counts open.
 
-Score the final `report.md` on a 100-point rubric before finalizing, and record that score in `index.md` under `Final Report Quality Gate`. Before `report.md` exists, record provisional quality notes in `NN-evolver.md` and `index.md` as provisional notes only.
+Score the final `report.md` on a 100-point rubric before finalizing, and record that score in `index.md` under `Final Report Quality Gate`. The gate must include parseable structured subscores for every rubric row (`Label: N / Max`); the helper sums those subscores and does not trust an unsupported total. Before `report.md` exists, record provisional quality notes in `NN-evolver.md` and `index.md` as provisional notes only.
 
 Also record the residual and hard-constraint gates in `index.md`. Use the residual vector from the paper:
 
@@ -426,7 +438,7 @@ Score each residual from `0` to `3`: `0` means resolved for the decision, `1` me
 | Dimension | Points | What Good Looks Like |
 |---|---:|---|
 | Anti-sycophancy / objective-function integrity | 20 | User framing is challenged, the original question is preserved, the objective function is reconstructed, stronger easy-to-kill claims are avoided, constraints and implied expectations are explicit |
-| Source, method, and framework quality | 15 | Current sources where needed, primary sources preferred, search tools/fallbacks recorded, research framework stated, body chapters cover the framework dimensions, and coverage gaps are disclosed |
+| Source, method, and framework quality | 15 | Current sources where needed, primary sources preferred, search tools/fallbacks recorded, research framework stated, body sections cover the framework dimensions, and coverage gaps are disclosed |
 | Evidence completeness | 20 | Claim-level evidence, contradictions, confidence, source freshness, and enough coverage for the decision |
 | Analysis and red-team quality | 20 | Synthesis across evidence, alternatives, objections, kill criteria, and falsification tests |
 | Actionability | 15 | Concrete recommendation, next actions, owners/timeframes when useful, monitoring and stop/continue triggers |
@@ -452,7 +464,7 @@ Run `survey_round.py check <survey-dir>` before treating a round as complete. It
 
 Run `survey_round.py check-final <survey-dir>` before presenting the survey as final. If it fails because the report is legacy or thin, run `upgrade-report` when needed, expand the report, or create another round focused on the weakest dimensions.
 
-Before final delivery, confirm the essentials: substantive sections, valid registry IDs, framework dimensions carried through the split artifacts or quick artifact, current-source search notes when needed, standalone report citations, prose-first body, final score in `index.md`, residual vector and residual gate status, hard constraints satisfied and hard-constraint gate status, wiki status fields when persistence was needed, and no premature final report while the evolver says `Keep`, `Narrow`, or `Pivot`.
+Before final delivery, confirm the essentials: substantive sections, valid registry IDs, framework dimensions carried through the split artifacts or explicitly deferred when unchanged, current-source search notes when needed, standalone report citations with source URLs, a `Decision-Critical Claims` appendix mapping, prose-first body, structured final score in `index.md`, residual vector and residual gate status, hard constraints satisfied and hard-constraint gate status, wiki status fields when persistence was needed, and no premature final report while the evolver says `Keep`, `Narrow`, or `Pivot`.
 
 If the check fails, say the round is still in progress and report the next fix.
 
@@ -500,7 +512,7 @@ Use the same language as the user's request unless they ask otherwise. When writ
 - **Thin final report**: `report.md` repeats only a short synthesis and omits methodology, evidence table, red-team critique, scenarios, action plan, or open questions. Fix by expanding it into a standalone report.
 - **Audit-table report**: `report.md` starts with dense source tables, claim registers, or checklist sections and stays hard to read. Fix by writing a narrative body first and moving audit material into appendices.
 - **Registry-ID citations**: `report.md` cites `C1`, `E1`, or similar IDs that require opening JSONL files. Fix by replacing them with source titles, Markdown links, footnotes, and URLs.
-- **Framework-as-audit-note**: framework dimensions appear only as a list or coverage checklist, while `brief`, `research`, `brainstorm`, `redteam`, `synthesis`, `evolver`, or `report.md` jump to generic narrative. Fix by using the brief-defined dimensions as `###` subheadings in every framework-relevant stage and as body chapters in the final report.
+- **Framework-as-audit-note**: framework dimensions appear only as a list or coverage checklist, while `brief`, `research`, `brainstorm`, `redteam`, `synthesis`, `evolver`, or `report.md` jump to generic narrative. Fix by using active dimensions as `###` subheadings in framework-relevant stages, explicitly deferring unchanged dimensions, and covering every effective dimension as a body section in the final report.
 - **Round-count autopilot**: the survey stops because it reached a familiar count, while the report score is weak or unknowns remain desk-researchable. Fix by scoring the report and creating the next round around the lowest-scoring dimensions.
 - **Checkpoint handoff after continuation**: the survey says it is ready for the next round or asks the user how to proceed after `Keep`, `Narrow`, or `Pivot`. Fix by starting the next round immediately unless explicit checkpoint approval or a blocker applies.
 - **Sycophantic framing / local optimum**: the survey accepts the user's stance as fact, optimizes the initial wording, or rewrites the question into a stronger easy-to-kill claim. Fix by rebuilding the objective in `Decision Frame Integrity`, checking multiple perspectives, and making recommendations conditional on the facts that would change them.

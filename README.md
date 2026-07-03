@@ -176,7 +176,9 @@ Before selecting the framework, do an anti-sycophancy framing pass. Split the us
 
 A good object is not automatically a good action. Good company does not automatically mean good stock; good product does not automatically mean good business; good technology does not automatically mean good project; good open-source library does not automatically mean good dependency. Super Survey should evaluate action attractiveness under current constraints, prices, timing, maintenance cost, risk, and alternatives.
 
-This is the main writing rule: the framework is not an audit checklist at the end. `00-brief.md` defines the dimensions; `NN-evidence-plan.md`, `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` each expand those same dimensions with Markdown subheadings. The final `report.md` then turns the dimensions into readable body chapters before appendices.
+Super Survey now uses an Adaptive Research Framework as the routing layer before evidence collection. It routes by decision archetype first, then adds lens packs and domain hints. Domain hints can raise evidence standards or add veto dimensions, but they are not rigid industry templates and do not replace the Decision Optimization Contract, residual / VOI / hard-constraint gates, or the evolver decision.
+
+This is the main writing rule: the framework is not an audit checklist at the end. `00-brief.md` defines the dimensions; `NN-evidence-plan.md`, `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and `NN-evolver.md` expand the dimensions active for the round's target residual and explicitly mark unchanged dimensions as deferred. The final `report.md` then turns the dimensions into readable body sections before appendices.
 
 The staged CLI enforces the dependency order. Start with `NN-evidence-plan.md`, then create `NN-research.md`, `NN-brainstorm.md`, `NN-redteam.md`, `NN-synthesis.md`, and finally `NN-evolver.md`. Downstream artifacts should cite written upstream findings instead of predicting the final conclusion.
 
@@ -193,7 +195,7 @@ This is the intended execution architecture from the anti-sycophancy paper:
 | Redteam | Attack the strongest current argument, substitutes, hidden assumptions, kill criteria, and anti-narrative regularizers. | 4.5, 4.8, 4.12, 5.2 |
 | Synthesis | Integrate evidence and objections into sensitivity analysis, implied-expectation reverse-checks, Bayesian updates, scenarios, decision trees, and constraint-specific recommendation branches. | 4.6, 4.7, 4.9, 4.10, 4.11 |
 | Evolver | Score residuals, compare VOI with research cost, decide Keep / Narrow / Pivot / Kill / Final, separate future facts from desk-researchable gaps, and generate the next-round target or finalization rationale. | 3.7.1-3.7.4, 5.2-5.5, 6.2-6.5 |
-| Final Report | Write a standalone human decision memo with body chapters from the framework, decision logic, recommendation, change triggers, next actions, limits, and appendices. | 4.10, 4.11, 6.3-6.5 |
+| Final Report | Write a standalone human decision memo with body sections from the framework, decision logic, recommendation, change triggers, next actions, limits, and appendices. | 4.10, 4.11, 6.3-6.5 |
 
 If evidence shows the framework should change, record it in `index.md` under `Framework Refinement Log`: current dimensions, evidence trigger for the change, and confirmation that the original question/core is preserved. Later rounds then use the refined dimensions. Silent framework drift is invalid.
 
@@ -241,7 +243,7 @@ The residual vector is the operational version of the paper's residual-driven ev
 
 The raw evolver decision is a machine-readable line, not localized prose. In every language, the first non-empty line under the decision heading must be exactly `Keep`, `Narrow`, `Pivot`, `Kill`, or `Final`; put translation or explanation after that line.
 
-The final report should read like a human memo: answer, framework dimension chapters, narrative, decision logic, recommendation, change triggers, next actions, and limits first; evidence registers, source quality, red-team notes, scenarios, and source inventory in appendices. Quality scoring belongs in `index.md` under the final report quality gate, not in `report.md`. Framework dimensions must appear as top-level Markdown headings in the body, not only in method notes or appendices. Citations must be standalone links or source references, not `C*` / `E*` registry IDs. A body dominated by bullets or audit tables does not pass.
+The final report should read like a human memo: answer, framework dimension sections, narrative, decision logic, recommendation, change triggers, next actions, and limits first; evidence registers, source quality, red-team notes, scenarios, and source inventory in appendices. Quality scoring belongs in `index.md` under the final report quality gate, not in `report.md`, and must include structured subscores that add up to the total. Framework dimensions must appear as substantive body sections before appendices, not only in method notes or appendices. Citations must be standalone links or source references, not `C*` / `E*` registry IDs, and the appendix must include a `Decision-Critical Claims` mapping with source URLs. A body dominated by bullets or audit tables does not pass.
 
 Companion skills are optional helpers for search, long reports, VOC/customer research, competitor analysis, brainstorming, and wiki persistence. When current-source discovery matters, prefer `tavily-search` and record the search path or fallback. Prefer `deep-research` for formal long reports, many citations, HTML/PDF output, or strict citation validation when it is available. Use wiki persistence when long-term knowledge reuse is needed. Super Survey still owns the judgment loop.
 
@@ -270,7 +272,7 @@ flowchart TD
     H --> V{Residual / VOI / hard constraints}
     V -->|residual at 3 + VOI > cost| I[index.md<br/>workbench: next target and why not final]
     I --> P
-    V -->|Final / Kill + gates pass| J[Write report.md<br/>framework dimensions as body chapters]
+    V -->|Final / Kill + gates pass| J[Write report.md<br/>framework dimensions as body sections]
     J --> R[check-final<br/>score, residual, hard-constraint, prose-first gates]
     R -->|any gate fails| I
     R -->|all gates pass| K[Final answer<br/>decision-oriented summary]

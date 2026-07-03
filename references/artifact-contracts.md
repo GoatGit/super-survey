@@ -23,11 +23,11 @@ the detailed content contract for each staged artifact.
 - Round decision target for this round, tied to the original question and the latest `index.md` state.
 - Target residual to reduce: identify the primary residual (`r_q`, `r_c`, `r_e`, `r_h`, `r_a`, `r_s`, or `r_j`), why this is the steepest useful direction, expected information value, research cost, and the result that would make another desk-research round unnecessary.
 - Decision-critical variables that could change the recommendation.
-- Minimum direct evidence: what must be observed directly, what is only background, and what cannot substitute for direct proof.
+- Minimum direct evidence: what must be observed directly, what is only background, what cannot substitute for direct proof, and how the Framework Profile Router / Evidence Contract changes those requirements.
 - Source plan: primary or official sources, direct measurements, registry updates, current-source search path, and companion routing if needed.
 - Disconfirming evidence and substitutes that would weaken or falsify the current path.
 - Missing evidence handling: whether the gap needs another desk-research pass, non-desk validation, future facts, interviews, experiments, legal review, or explicit uncertainty.
-- Framework evidence map: one `### <framework dimension>` subsection per brief-defined or evidence-refined dimension, naming the minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.
+- Framework evidence map: one `### <framework dimension>` subsection per brief-defined or evidence-refined dimension, naming the dimension weight, veto status, minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.
 
 ## Research
 
@@ -121,7 +121,7 @@ human decision memo, while dense audit material belongs in appendices.
 The readable body should contain:
 
 - Executive summary with the answer, confidence, key reason, strongest caveat, and next action.
-- Framework dimension chapters: each effective framework dimension from `index.md` / `00-brief.md` becomes a top-level body heading with narrative analysis.
+- Framework dimension sections: each effective framework dimension from `index.md` / `00-brief.md` gets a readable body section before appendices. These sections are derived from the current Framework Contract, not from a rigid industry template. They may be top-level chapters or nested under the narrative / decision logic when that reads better, but each dimension needs substantive analysis, not only a checklist mention.
 - Main narrative: the situation, why it matters, what changed across rounds, and why the conclusion follows.
 - Decision logic: reasoning chain, tradeoffs, and why alternatives were rejected.
 - Final recommendation: who should act, who should wait, conditions, and confidence.
@@ -131,15 +131,52 @@ The readable body should contain:
 
 Appendices should contain:
 
-- Evidence/source appendix with decisive claims, source titles, URLs, dates checked, and confidence notes; summarize decisive evidence and keep full registry detail in JSONL.
-- Method and source quality, including search tools used, source types, confidence rules, fallback notes, and companion-routing notes.
+- Evidence/source appendix with a `Decision-Critical Claims` mapping: decisive claims, status, source titles, URLs, dates checked, and confidence notes. Summarize decisive evidence and keep full registry detail in JSONL.
+- Method and source quality, including search tools used, source types, confidence rules, fallback notes, Framework Profile Router choices, Evidence Contract coverage, and companion-routing notes.
 - Red-team notes with strongest objections, substitutes, kill criteria, and falsification tests.
 - Options or scenarios with pros, cons, trigger conditions, and expected implications.
 - Source notes with source inventory, dates checked, URLs, and companion/wiki/indexing notes.
 
 Keep final report citations standalone. Use source titles, Markdown links,
 footnotes, URLs, or an appendix reference list in `report.md`; reserve `C*` and
-`E*` registry IDs for working artifacts and JSONL registries.
+`E*` registry IDs for working artifacts and JSONL registries. Every registered
+source URL used by supported, partial, or contested decision-critical claims
+should appear in the final report appendix so the reader can audit the report
+without opening JSONL files.
+
+For round artifacts, do not fill every framework dimension with boilerplate just
+to satisfy the shape. The active round should expand the dimensions tied to the
+target residual and any veto dimensions. Dimensions with no new evidence may be
+listed as `Deferred dimensions:` or `Unchanged dimensions:` with a short reason.
+
+## Adaptive Research Framework
+
+The Adaptive Research Framework is a routing layer, not a replacement for the
+staged workflow. It should be visible in `00-brief.md` and carried through the
+round artifacts as the current framework state.
+
+`00-brief.md` should record:
+
+- Framework Profile Router: primary decision archetype, secondary archetypes,
+  selected lens packs, domain hints, profiles considered but rejected, and why
+  the selected profile fits the real decision.
+- Framework Contract: active dimensions, veto dimensions, intentionally
+  deferred or out-of-scope dimensions, chapter weights, and why each dimension
+  affects the action recommendation.
+- Evidence Contract: minimum direct evidence by dimension, preferred source
+  types by dimension, disconfirming evidence by dimension, evidence that cannot
+  substitute for direct proof, and the weakest expected evidence area.
+
+Use decision archetypes such as product opportunity, market entry,
+competitor/positioning analysis, technical feasibility, open-source adoption,
+adoption/procurement, investment/diligence, policy/trust risk, or a custom
+archetype. Industry/domain hints may raise the evidence standard or add veto
+dimensions, but they must not become rigid industry templates.
+
+If evidence shows the original profile is wrong, record the change in
+`index.md` under Framework Refinement Log with the evidence trigger and a note
+that the original question/core is preserved. A profile refinement is valid only
+when it follows from evidence, residuals, red-team critique, or hard constraints.
 
 ## Quick Mode
 
@@ -153,6 +190,7 @@ contains the same essential thinking:
 - red-team challenge
 - synthesis
 - raw decision: first non-empty decision line must be exactly `Keep`, `Narrow`, `Pivot`, `Kill`, or `Final`
+- stopping gate: residual vector, whether any residual is at `3`, VOI vs cost, hard constraints, and blocking hard constraints
 - next step
 
 Use quick mode for low-stakes triage. For investment, legal, medical, security,

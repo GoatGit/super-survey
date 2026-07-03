@@ -29,6 +29,45 @@ Useful lenses:
 
 The lens is not the answer. It only decides which claims require stronger evidence.
 
+### Adaptive Research Framework
+
+Use the Adaptive Research Framework to make framework selection explicit without turning the skill into industry-specific templates. The Framework Profile Router should route by decision type first, then add lenses and domain hints:
+
+1. Identify the object and action: product, market, company, open-source project, architecture, policy, workflow, or custom object; build, buy, adopt, invest, enter, compare, stop, monitor, or another action.
+2. Choose the primary decision archetype: product opportunity, market entry, competitor/positioning analysis, technical feasibility, open-source adoption, adoption/procurement, investment/diligence, policy/trust risk, or custom.
+3. Add 1-3 lens packs: buyer/user, workflow, market/competitor, technical, policy/trust, open-source, business model, growth/channel, or custom.
+4. Add domain hints only as modifiers: healthcare, fintech, education, devtools, legal, gaming, enterprise SaaS, regulated workflow, public-sector procurement, and similar labels may raise evidence standards or add veto dimensions, but they do not own the template.
+5. Write a Framework Contract and Evidence Contract before source collection.
+
+Record the Framework Contract in `00-brief.md`:
+
+- Active framework dimensions.
+- Veto dimensions: dimensions that can block the action even if other evidence is strong.
+- Intentionally deferred or out-of-scope dimensions.
+- Chapter weights: high / medium / low priority for the final report body.
+- Why each dimension affects the action recommendation.
+
+Record the Evidence Contract in `00-brief.md` and refine it in `NN-evidence-plan.md`:
+
+- Minimum direct evidence by dimension.
+- Preferred source types by dimension.
+- Disconfirming evidence by dimension.
+- Evidence that cannot substitute for direct proof.
+- Weakest expected evidence area and how missing evidence will affect confidence.
+
+Good routing examples:
+
+| User question shape | Primary archetype | Likely lenses | Domain hints |
+|---|---|---|---|
+| "Is this startup idea worth doing?" | Product opportunity | buyer/user, workflow, market/competitor | domain and buyer context |
+| "Should we adopt this library?" | Open-source adoption | technical, open-source, operations | language/runtime/ecosystem |
+| "Can this architecture work in production?" | Technical feasibility | technical, reliability, security | scale, compliance, team capacity |
+| "Should we buy/deploy this vendor?" | Adoption/procurement | buyer/user, workflow, policy/trust | procurement, integration, data handling |
+| "Is this market worth entering?" | Market entry | market/competitor, distribution, business model | geography, regulation, channel |
+| "What is the policy or compliance risk?" | Policy/trust risk | policy/trust, workflow, technical | jurisdiction, platform, liability |
+
+The profile is a starting prior, not a conclusion. If evidence shows the selected archetype is wrong, update `index.md` under Framework Refinement Log and preserve the original question/core. Do not replace the Decision Optimization Contract, residual gate, hard-constraint gate, or evolver decision with profile labels.
+
 ## Anti-Sycophancy / Anti-Local-Optimum Checks
 
 Treat the user's question as the initial point, not the objective function. Before choosing sources or writing a thesis, rebuild the problem frame:
@@ -291,7 +330,7 @@ Good coverage means the report can explain both what was checked and what remain
 
 ## Final Report Framework Chapters
 
-In final `report.md`, framework dimensions are body-level analysis, not just audit metadata. Make each effective framework dimension its own top-level body chapter before the appendices.
+In final `report.md`, framework dimensions are body-level analysis, not just audit metadata. Give each effective framework dimension a substantive body section before the appendices. The section may be top-level or nested under the narrative / decision logic when that reads better.
 
 Example:
 

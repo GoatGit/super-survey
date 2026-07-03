@@ -18,6 +18,62 @@ MIN_REPORT_SUBSTANTIVE_LINES = 20
 REPORT_PASS_SCORE = 90
 REPORT_CONDITIONAL_SCORE = 80
 REGISTRY_FILES = ("sources.jsonl", "claims.jsonl", "evidence.jsonl")
+QUALITY_RUBRIC = (
+    (
+        "Anti-sycophancy / objective-function integrity",
+        20,
+        (
+            "Anti-sycophancy / objective-function integrity",
+            "反谄媚 / 目标函数完整性",
+            "反シコファンシー / 目的関数の整合性",
+        ),
+    ),
+    (
+        "Source, method, and framework quality",
+        15,
+        (
+            "Source, method, and framework quality",
+            "来源、方法与研究框架质量",
+            "情報源、方法、フレームワーク品質",
+        ),
+    ),
+    (
+        "Evidence completeness",
+        20,
+        (
+            "Evidence completeness",
+            "证据完整性",
+            "証拠の完全性",
+        ),
+    ),
+    (
+        "Analysis and red-team quality",
+        20,
+        (
+            "Analysis and red-team quality",
+            "分析与反方挑战质量",
+            "分析とレッドチーム品質",
+        ),
+    ),
+    (
+        "Actionability",
+        15,
+        (
+            "Actionability",
+            "行动可执行性",
+            "実行可能性",
+        ),
+    ),
+    (
+        "Structure and readability",
+        10,
+        (
+            "Structure and readability",
+            "结构与可读性",
+            "構成と読みやすさ",
+        ),
+    ),
+)
 CANONICAL_DECISIONS = {
     "keep": "Keep",
     "narrow": "Narrow",
@@ -195,6 +251,7 @@ SECTION_SCHEMAS = {
         "Red-Team Challenge",
         "Synthesis",
         "Decision",
+        "Stopping Gate",
         "Next Step",
     ),
 }
@@ -258,6 +315,11 @@ LABELS = {
             "Passed:",
             "Score Breakdown:",
             "Anti-sycophancy / objective-function integrity:",
+            "Source, method, and framework quality:",
+            "Evidence completeness:",
+            "Analysis and red-team quality:",
+            "Actionability:",
+            "Structure and readability:",
             "Objective reconstruction quality:",
             "User-frame challenge quality:",
             "Residual gate status:",
@@ -367,6 +429,7 @@ LABELS = {
             "Red-Team Challenge",
             "Synthesis",
             "Decision",
+            "Stopping Gate",
             "Next Step",
         ],
         "probe_cols": "Probe | Answer | Strength",
@@ -384,12 +447,24 @@ LABELS = {
             "- Round evidence notes: reference claim_id and evidence_id values; keep the full registry table in JSONL"
         ),
         "research_framework_note": (
-            "- Selected framework:\n"
+            "- Framework Profile Router:\n"
+            "- Primary decision archetype:\n"
+            "- Secondary archetypes:\n"
+            "- Selected lens packs:\n"
+            "- Domain hints:\n"
+            "- Profiles considered but rejected:\n"
+            "- Why this profile fits the decision:\n"
+            "- Framework Contract:\n"
             "- Dimensions to cover:\n"
-            "- Why this framework fits the decision:\n"
+            "- Veto dimensions:\n"
+            "- Chapter weights:\n"
             "- Dimensions intentionally out of scope:\n"
+            "- Evidence Contract:\n"
+            "- Minimum direct evidence by dimension:\n"
+            "- Preferred source types by dimension:\n"
+            "- Disconfirming evidence by dimension:\n"
+            "- Evidence that cannot substitute for direct proof:\n"
             "- Decision-critical variables:\n"
-            "- Minimum direct evidence:\n"
             "- Implied expectation reverse-check:\n"
             "- Constraint-specific recommendations:\n"
             "- Anti-narrative regularizers:"
@@ -475,6 +550,10 @@ LABELS = {
             "Direct evidence that must be observed:",
             "Evidence that is only background:",
             "Evidence that cannot substitute for direct proof:",
+            "Evidence Contract dimension:",
+            "Profile-specific minimum direct evidence:",
+            "Dimension weight:",
+            "Veto dimension:",
             "Primary or official sources:",
             "Direct measurements or registry updates:",
             "Current-source search path:",
@@ -485,7 +564,7 @@ LABELS = {
             "If evidence is missing:",
             "If evidence requires interviews, experiments, legal review, or future facts:",
             "If another desk-research pass can reduce the gap:",
-            "For each dimension from 00-brief.md, add `### <framework dimension>` and write the minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.",
+            "For each dimension from 00-brief.md, add `### <framework dimension>` and write the dimension weight, veto dimension status, minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.",
         ],
         "evolver_quality_gate_notes": [
             "Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3):",
@@ -546,6 +625,11 @@ LABELS = {
             "- Evidence required for those expectations:\n"
             "- Decision-critical variables:\n"
             "- Minimum direct evidence:\n"
+            "- Evidence Contract:\n"
+            "- Minimum direct evidence by dimension:\n"
+            "- Preferred source types by dimension:\n"
+            "- Disconfirming evidence by dimension:\n"
+            "- Evidence that cannot substitute for direct proof:\n"
             "- Constraint-specific recommendations:\n"
             "- Anti-narrative regularizers: check whether a narrative, user preference, or recent signal is overfitting the answer.\n"
             "- Decision-changing evidence:"
@@ -559,14 +643,14 @@ LABELS = {
         "continuation_policy_note": "- Start with the next research round.\n- Keep the round count open until evidence, red-team critique, synthesis, and the raw evolver decision are written.\n- Default continuation is autonomous: after Keep, Narrow, or Pivot, create the next round immediately.\n- Do not stop and ask the user how to proceed after Keep, Narrow, or Pivot unless explicit checkpoint approval or a real blocker applies.\n- Record actual round history, next targets, and any stop conclusion in index.md after each completed round.",
         "report_template_notes": [
             "After the final gate passes, answer first: decision, confidence, key reason, strongest caveat, next action",
-            "Readable narrative that explains the situation, why it matters, how the evidence changes the thesis, and what judgment follows",
+            "Readable narrative that explains the situation, why it matters, how the evidence changes the thesis, what judgment follows, and how body framework sections derive from the current Framework Contract rather than a rigid industry template",
             "Reasoning chain from question to recommendation, including tradeoffs and why alternatives were rejected",
             "Final recommendation with conditions, who should act, who should wait, and confidence",
             "Concrete evidence or events that would upgrade, downgrade, pivot, or kill the conclusion",
             "Concrete next actions, monitoring metrics, owners/timeframes where useful, and stop/continue triggers",
             "Limits, uncertainty, missing data, freshness caveats, and external validation needs",
             "Appendix only: claim-level evidence with confidence, contradictions, source freshness, and source names",
-            "Appendix only: search tools used, source freshness, source types, confidence rules, and fallback notes",
+            "Appendix only: search tools used, source freshness, source types, confidence rules, fallback notes, Framework Profile Router choices, Evidence Contract coverage, and any profile refinement notes",
             "Appendix only: strongest objections, substitutes, kill criteria, and falsification tests",
             "Appendix only: options, scenarios, or alternatives with pros, cons, and trigger conditions",
             "Appendix only: source inventory with URLs, dates checked, and companion/indexing notes",
@@ -648,11 +732,16 @@ LABELS = {
             "是否通过：",
             "分项得分：",
             "反谄媚 / 目标函数完整性：",
+            "来源、方法与研究框架质量：",
+            "证据完整性：",
+            "分析与反方挑战质量：",
+            "行动可执行性：",
+            "结构与可读性：",
             "目标函数重构质量：",
             "用户框架挑战质量：",
-            "Residual gate status:",
-            "Hard constraint gate status:",
-            "Goodhart check:",
+            "残差门状态：",
+            "硬约束门状态：",
+            "Goodhart 检查：",
             "最低分维度：",
             "下一轮重点：",
         ],
@@ -757,6 +846,7 @@ LABELS = {
             "反方挑战",
             "综合结论",
             "决策",
+            "停止门",
             "下一步",
         ],
         "probe_cols": "探针 | 回答 | 强度",
@@ -774,12 +864,24 @@ LABELS = {
             "- 本轮证据备注：引用 claim_id 和 evidence_id，不复制完整登记表"
         ),
         "research_framework_note": (
-            "- 选定框架：\n"
+            "- Framework Profile Router：\n"
+            "- 主要决策原型：\n"
+            "- 辅助决策原型：\n"
+            "- 选定 lens packs：\n"
+            "- 行业/领域提示：\n"
+            "- 曾考虑但拒绝的 profile：\n"
+            "- 为什么该 profile 适合本决策：\n"
+            "- Framework Contract：\n"
             "- 需要覆盖的维度：\n"
-            "- 为什么该框架适合本决策：\n"
+            "- 否决性维度：\n"
+            "- 章节权重：\n"
             "- 有意排除的维度：\n"
+            "- Evidence Contract：\n"
+            "- 按维度列出的最低直接证据：\n"
+            "- 按维度列出的优先来源类型：\n"
+            "- 按维度列出的反证证据：\n"
+            "- 不能替代直接证据的材料：\n"
             "- 决策关键变量：\n"
-            "- 最低直接证据：\n"
             "- 隐含预期反推：\n"
             "- 按约束分层建议：\n"
             "- 反叙事正则项："
@@ -865,6 +967,10 @@ LABELS = {
             "Direct evidence that must be observed:",
             "Evidence that is only background:",
             "Evidence that cannot substitute for direct proof:",
+            "Evidence Contract dimension:",
+            "Profile-specific minimum direct evidence:",
+            "Dimension weight:",
+            "Veto dimension:",
             "Primary or official sources:",
             "Direct measurements or registry updates:",
             "Current-source search path:",
@@ -875,7 +981,7 @@ LABELS = {
             "If evidence is missing:",
             "If evidence requires interviews, experiments, legal review, or future facts:",
             "If another desk-research pass can reduce the gap:",
-            "For each dimension from 00-brief.md, add `### <framework dimension>` and write the minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.",
+            "For each dimension from 00-brief.md, add `### <framework dimension>` and write the dimension weight, veto dimension status, minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.",
         ],
         "evolver_quality_gate_notes": [
             "Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3):",
@@ -936,6 +1042,11 @@ LABELS = {
             "- 这些预期需要的证据：\n"
             "- 决策关键变量：\n"
             "- 最低直接证据：\n"
+            "- Evidence Contract：\n"
+            "- 按维度列出的最低直接证据：\n"
+            "- 按维度列出的优先来源类型：\n"
+            "- 按维度列出的反证证据：\n"
+            "- 不能替代直接证据的材料：\n"
             "- 按约束分层建议：\n"
             "- 反叙事正则项：检查叙事、用户偏好或近期信号是否让答案过拟合。\n"
             "- 能改变决策的证据："
@@ -949,14 +1060,14 @@ LABELS = {
         "continuation_policy_note": "- 从下一轮调研开始。\n- 让轮次数量保持开放，等证据、反方挑战、综合结论和原始进化器决策写入后再判断继续或停止。\n- 默认自主继续：如果决策是 Keep、Narrow 或 Pivot，立即创建下一轮。\n- Keep、Narrow 或 Pivot 之后不要停下来询问用户如何继续，除非用户明确要求 checkpoint approval 或存在真实阻塞。\n- 每轮完成后，把实际轮次历史、下一轮目标和停止结论记录到 index.md。",
         "report_template_notes": [
             "最终门通过后，先给答案：决策、置信度、核心理由、最大保留意见和下一步",
-            "用连贯正文解释背景、为什么重要、证据如何改变判断、最终判断为何成立",
+            "用连贯正文解释背景、为什么重要、证据如何改变判断、最终判断为何成立，并让正文框架章节来自当前 Framework Contract 而不是固定行业模板",
             "从问题到建议的推理链，包括取舍和为什么排除其他选择",
             "最终建议、适合行动的人、不适合行动的人、条件和置信度",
             "哪些证据或事件会让结论升级、降级、转向或放弃",
             "具体下一步、监控指标、责任/时间框架（如适用）和停止/继续触发条件",
             "本报告的边界、未知、缺失数据、时效性和外部验证需求",
             "仅作附录：claim-level 证据，包含置信度、矛盾证据、来源新鲜度和来源名",
-            "仅作附录：使用的搜索工具、来源新鲜度、来源类型、置信规则和 fallback 记录",
+            "仅作附录：使用的搜索工具、来源新鲜度、来源类型、置信规则、fallback 记录、Framework Profile Router 选择、Evidence Contract 覆盖情况和 profile 修正备注",
             "仅作附录：最强反对意见、替代方案、放弃条件和证伪测试",
             "仅作附录：选项、情景或替代路径，并写明优缺点和触发条件",
             "仅作附录：来源清单、URL、检查日期和 companion/indexing 备注",
@@ -1022,11 +1133,16 @@ LABELS = {
             "合格:",
             "スコア内訳:",
             "反シコファンシー / 目的関数の整合性:",
+            "情報源、方法、フレームワーク品質:",
+            "証拠の完全性:",
+            "分析とレッドチーム品質:",
+            "実行可能性:",
+            "構成と読みやすさ:",
             "目的関数再構築の品質:",
             "ユーザーフレーム検証の品質:",
-            "Residual gate status:",
-            "Hard constraint gate status:",
-            "Goodhart check:",
+            "残差ゲート状態:",
+            "ハード制約ゲート状態:",
+            "Goodhart チェック:",
             "最低スコア領域:",
             "次回ラウンドの焦点:",
         ],
@@ -1131,6 +1247,7 @@ LABELS = {
             "レッドチーム",
             "統合結論",
             "判断",
+            "停止ゲート",
             "次の行動",
         ],
         "probe_cols": "プローブ | 回答 | 強度",
@@ -1148,12 +1265,24 @@ LABELS = {
             "- 今回の証拠メモ: claim_id と evidence_id を参照し、完全なレジストリ表を重複させない"
         ),
         "research_framework_note": (
-            "- 選択したフレームワーク:\n"
+            "- Framework Profile Router:\n"
+            "- 主な意思決定アーキタイプ:\n"
+            "- 補助アーキタイプ:\n"
+            "- 選択した lens packs:\n"
+            "- ドメインヒント:\n"
+            "- 検討したが採用しない profile:\n"
+            "- この profile が判断に適している理由:\n"
+            "- Framework Contract:\n"
             "- 網羅すべき次元:\n"
-            "- この判断に適している理由:\n"
+            "- 拒否権を持つ次元:\n"
+            "- 章の重み:\n"
             "- 意図的に対象外とした次元:\n"
+            "- Evidence Contract:\n"
+            "- 次元ごとの最低限の直接証拠:\n"
+            "- 次元ごとの優先情報源タイプ:\n"
+            "- 次元ごとの反証証拠:\n"
+            "- 直接証拠の代替にならないもの:\n"
             "- 判断に重要な変数:\n"
-            "- 最低限の直接証拠:\n"
             "- 暗黙期待の逆算チェック:\n"
             "- 制約別の推奨分岐:\n"
             "- 反ナラティブ正則化:"
@@ -1239,6 +1368,10 @@ LABELS = {
             "Direct evidence that must be observed:",
             "Evidence that is only background:",
             "Evidence that cannot substitute for direct proof:",
+            "Evidence Contract dimension:",
+            "Profile-specific minimum direct evidence:",
+            "Dimension weight:",
+            "Veto dimension:",
             "Primary or official sources:",
             "Direct measurements or registry updates:",
             "Current-source search path:",
@@ -1249,7 +1382,7 @@ LABELS = {
             "If evidence is missing:",
             "If evidence requires interviews, experiments, legal review, or future facts:",
             "If another desk-research pass can reduce the gap:",
-            "For each dimension from 00-brief.md, add `### <framework dimension>` and write the minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.",
+            "For each dimension from 00-brief.md, add `### <framework dimension>` and write the dimension weight, veto dimension status, minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.",
         ],
         "evolver_quality_gate_notes": [
             "Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3):",
@@ -1310,6 +1443,11 @@ LABELS = {
             "- その期待に必要な証拠:\n"
             "- 判断に重要な変数:\n"
             "- 最低限の直接証拠:\n"
+            "- Evidence Contract:\n"
+            "- 次元ごとの最低限の直接証拠:\n"
+            "- 次元ごとの優先情報源タイプ:\n"
+            "- 次元ごとの反証証拠:\n"
+            "- 直接証拠の代替にならないもの:\n"
             "- 制約別の推奨分岐:\n"
             "- 反ナラティブ正則化: ナラティブ、ユーザー選好、直近シグナルが答えを過剰適合させていないか確認する。\n"
             "- 判断を変える証拠:"
@@ -1323,14 +1461,14 @@ LABELS = {
         "continuation_policy_note": "- 次の調査ラウンドから始める。\n- ラウンド数は、証拠、レッドチーム、統合結論、生のエボルバー判断を書き終えるまで開いたままにする。\n- デフォルトの継続は自律的に行う。Keep、Narrow、Pivot の後はすぐ次ラウンドを作成する。\n- Keep、Narrow、Pivot の後にユーザーへ進め方を尋ねて停止しない。明示的な checkpoint approval または実際のブロッカーがある場合だけ停止する。\n- 完了した各ラウンドの後、実際のラウンド履歴、次回目標、停止結論を index.md に記録する。",
         "report_template_notes": [
             "最終ゲート通過後に結論を先に示す: 判断、信頼度、主要理由、最大の留保、次の行動",
-            "背景、重要性、証拠が仮説をどう変えたか、判断がなぜ成立するかを読みやすく説明する",
+            "背景、重要性、証拠が仮説をどう変えたか、判断がなぜ成立するかを読みやすく説明し、本文のフレームワーク章は固定業界テンプレートではなく現在の Framework Contract から派生させる",
             "問いから推奨までの推論、トレードオフ、却下した代替案の理由",
             "最終推奨、行動すべき人/すべきでない人、条件、信頼度",
             "結論を上方修正、下方修正、ピボット、または中止させる証拠や事象",
             "具体的な次の行動、監視指標、担当/時期が有用な場合の記載、停止/継続トリガー",
             "本レポートの範囲、未知、欠落データ、鮮度、外部検証の必要性",
             "付録のみ: claim-level 証拠、信頼度、矛盾する証拠、鮮度、情報源名",
-            "付録のみ: 使用した検索ツール、情報源の鮮度、情報源タイプ、信頼度基準、fallback 記録",
+            "付録のみ: 使用した検索ツール、情報源の鮮度、情報源タイプ、信頼度基準、fallback 記録、Framework Profile Router の選択、Evidence Contract の網羅状況、profile 修正メモ",
             "付録のみ: 最も強い反論、代替手段、中止条件、反証テスト",
             "付録のみ: 選択肢、シナリオ、代替案と、それぞれの長所、短所、発動条件",
             "付録のみ: 情報源一覧、URL、確認日、companion/indexing メモ",
@@ -1371,6 +1509,62 @@ def labels(language: str) -> dict[str, object]:
         }
         label[schema_key] = [localized_by_canonical.get(heading, heading) for heading in canonical_headings]
     return label
+
+
+def residual_gate_template(language: str) -> str:
+    if language == "zh":
+        return (
+            "- Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3):\n"
+            "- 是否存在残差为 3：yes / no\n"
+            "- 最高残差：\n"
+            "- 残差门状态：pass / fail / pending\n"
+            "- 下一步下降方向："
+        )
+    if language == "ja":
+        return (
+            "- Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3):\n"
+            "- 3 の残差があるか: yes / no\n"
+            "- 最大残差:\n"
+            "- 残差ゲート状態: pass / fail / pending\n"
+            "- 次の低減方向:"
+        )
+    return (
+        "- Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3):\n"
+        "- Any residual at 3: yes / no\n"
+        "- Highest residual:\n"
+        "- Residual gate status: pass / fail / pending\n"
+        "- Next descent direction:"
+    )
+
+
+def hard_constraint_gate_template(language: str) -> str:
+    if language == "zh":
+        return (
+            "- 硬约束已满足：yes / no\n"
+            "- 阻断性硬约束：\n"
+            "- 硬约束门状态：pass / fail / pending"
+        )
+    if language == "ja":
+        return (
+            "- ハード制約を満たしている: yes / no\n"
+            "- ブロックしているハード制約:\n"
+            "- ハード制約ゲート状態: pass / fail / pending"
+        )
+    return (
+        "- Hard constraints satisfied: yes / no\n"
+        "- Blocking hard constraints:\n"
+        "- Hard constraint gate status: pass / fail / pending"
+    )
+
+
+def language_from_label(label: dict[str, object]) -> str:
+    headings = list(label.get("index_headings", []))
+    if len(headings) > 10:
+        if headings[10] == "残差门":
+            return "zh"
+        if headings[10] == "残差ゲート":
+            return "ja"
+    return "en"
 
 
 def positive_int(value: str) -> int:
@@ -1667,6 +1861,43 @@ def quality_gate_has_anti_sycophancy_subscore(text: str, heading: str) -> bool:
     )
 
 
+def parse_quality_subscore(body: str, labels_for_dimension: tuple[str, ...], max_points: int) -> int | None:
+    for dimension_label in labels_for_dimension:
+        pattern = rf"{re.escape(dimension_label)}\s*[:：]\s*(\d{{1,3}})\s*/\s*{max_points}\b"
+        match = re.search(pattern, body, flags=re.IGNORECASE)
+        if not match:
+            continue
+        score = int(match.group(1))
+        if 0 <= score <= max_points:
+            return score
+    return None
+
+
+def validate_quality_gate_subscores(errors: list[str], index_text: str, heading: str, total_score: int) -> None:
+    body = section_body(index_text, heading)
+    if body is None:
+        return
+
+    parsed_scores: dict[str, int] = {}
+    for canonical_label, max_points, label_variants in QUALITY_RUBRIC:
+        score = parse_quality_subscore(body, label_variants, max_points)
+        if score is None:
+            errors.append(
+                f"index.md: {heading} must include '{canonical_label}: N / {max_points}'"
+            )
+            continue
+        parsed_scores[canonical_label] = score
+
+    if len(parsed_scores) != len(QUALITY_RUBRIC):
+        return
+
+    subscore_total = sum(parsed_scores.values())
+    if subscore_total != total_score:
+        errors.append(
+            f"index.md: {heading} subscores total {subscore_total}, but Total Score is {total_score}"
+        )
+
+
 RESIDUAL_KEYS = ("r_q", "r_c", "r_e", "r_h", "r_a", "r_s", "r_j")
 
 
@@ -1709,6 +1940,45 @@ def body_has_status(body: str, label_pattern: str, expected: str) -> bool:
     return value == expected.lower()
 
 
+def body_has_status_any(body: str, label_patterns: tuple[str, ...], expected: str) -> bool:
+    return any(body_has_status(body, pattern, expected) for pattern in label_patterns)
+
+
+def body_has_yes_any(body: str, label_patterns: tuple[str, ...]) -> bool:
+    return any(body_has_yes(body, pattern) for pattern in label_patterns)
+
+
+def body_has_no_any(body: str, label_patterns: tuple[str, ...]) -> bool:
+    return any(body_has_no(body, pattern) for pattern in label_patterns)
+
+
+RESIDUAL_GATE_STATUS_LABELS = (
+    r"Residual gate status",
+    r"残差门状态",
+    r"残差ゲート状態",
+)
+HARD_CONSTRAINT_STATUS_LABELS = (
+    r"Hard constraint gate status",
+    r"硬约束门状态",
+    r"ハード制約ゲート状態",
+)
+HARD_CONSTRAINTS_SATISFIED_LABELS = (
+    r"Hard constraints satisfied",
+    r"硬约束已满足",
+    r"ハード制約を満たしている",
+)
+ANY_RESIDUAL_AT_3_LABELS = (
+    r"Any residual at 3",
+    r"是否存在残差为 3",
+    r"3 の残差があるか",
+)
+VOI_GREATER_THAN_COST_LABELS = (
+    r"VOI greater than cost",
+    r"VOI 大于成本",
+    r"VOI がコストを上回る",
+)
+
+
 def validate_residual_gate_body(errors: list[str], path_name: str, body: str, *, final: bool) -> None:
     residuals = parse_residual_vector(body)
     if len(residuals) < len(RESIDUAL_KEYS):
@@ -1718,17 +1988,17 @@ def validate_residual_gate_body(errors: list[str], path_name: str, body: str, *,
         return
     if final and any(value >= 3 for value in residuals.values()):
         errors.append(f"{path_name}: final residual gate cannot pass with any residual at 3")
-    if final and not body_has_status(body, r"Residual gate status", "pass"):
+    if final and not body_has_status_any(body, RESIDUAL_GATE_STATUS_LABELS, "pass"):
         errors.append(f"{path_name}: final residual gate must state 'Residual gate status: pass'")
 
 
 def validate_hard_constraint_gate_body(errors: list[str], path_name: str, body: str, *, final: bool) -> None:
-    if not re.search(r"Hard constraints satisfied\s*[:：]", body, flags=re.IGNORECASE):
+    if not any(re.search(rf"{label}\s*[:：]", body, flags=re.IGNORECASE) for label in HARD_CONSTRAINTS_SATISFIED_LABELS):
         errors.append(f"{path_name}: hard constraint gate must state 'Hard constraints satisfied: yes/no'")
         return
-    if final and not body_has_yes(body, r"Hard constraints satisfied"):
+    if final and not body_has_yes_any(body, HARD_CONSTRAINTS_SATISFIED_LABELS):
         errors.append(f"{path_name}: final hard constraint gate requires 'Hard constraints satisfied: yes'")
-    if final and not body_has_status(body, r"Hard constraint gate status", "pass"):
+    if final and not body_has_status_any(body, HARD_CONSTRAINT_STATUS_LABELS, "pass"):
         errors.append(f"{path_name}: final hard constraint gate must state 'Hard constraint gate status: pass'")
 
 
@@ -1780,20 +2050,66 @@ def validate_evolver_residual_and_voi(
     if not re.search(r"Research cost\s*[:：]\s*\S+", body, flags=re.IGNORECASE):
         errors.append(f"{evolver_path.name}: Round Evidence Quality Gate must record research cost")
     if not (
-        body_has_yes(body, r"VOI greater than cost")
-        or body_has_no(body, r"VOI greater than cost")
+        body_has_yes_any(body, VOI_GREATER_THAN_COST_LABELS)
+        or body_has_no_any(body, VOI_GREATER_THAN_COST_LABELS)
     ):
         errors.append(f"{evolver_path.name}: Round Evidence Quality Gate must state 'VOI greater than cost: yes/no'")
     if not (
-        body_has_yes(body, r"Hard constraints satisfied")
-        or body_has_no(body, r"Hard constraints satisfied")
+        body_has_yes_any(body, HARD_CONSTRAINTS_SATISFIED_LABELS)
+        or body_has_no_any(body, HARD_CONSTRAINTS_SATISFIED_LABELS)
     ):
         errors.append(f"{evolver_path.name}: Round Evidence Quality Gate must state 'Hard constraints satisfied: yes/no'")
     if final:
         if residuals and any(value >= 3 for value in residuals.values()):
             errors.append(f"{evolver_path.name}: final decision cannot pass with any residual at 3")
-        if not body_has_yes(body, r"Hard constraints satisfied"):
+        if not body_has_yes_any(body, HARD_CONSTRAINTS_SATISFIED_LABELS):
             errors.append(f"{evolver_path.name}: final decision requires hard constraints satisfied")
+
+
+def validate_quick_round_stopping_gate(
+    errors: list[str],
+    quick_path: Path,
+    label: dict[str, object],
+    *,
+    final: bool,
+) -> None:
+    if not quick_path.exists():
+        return
+    text = quick_path.read_text(encoding="utf-8")
+    gate_heading = str(label["quick_round_headings"][-2])
+    body = section_body(text, gate_heading)
+    if body is None:
+        return
+
+    residuals = parse_residual_vector(body)
+    if len(residuals) < len(RESIDUAL_KEYS):
+        errors.append(
+            f"{quick_path.name}: {gate_heading} must record r_q/r_c/r_e/r_h/r_a/r_s/r_j as 0-3 values"
+        )
+    if not (
+        body_has_yes_any(body, ANY_RESIDUAL_AT_3_LABELS)
+        or body_has_no_any(body, ANY_RESIDUAL_AT_3_LABELS)
+    ):
+        errors.append(f"{quick_path.name}: {gate_heading} must state 'Any residual at 3: yes/no'")
+    if not re.search(r"Expected information value of next research\s*[:：]\s*\S+", body, flags=re.IGNORECASE):
+        errors.append(f"{quick_path.name}: {gate_heading} must record expected information value")
+    if not re.search(r"Research cost\s*[:：]\s*\S+", body, flags=re.IGNORECASE):
+        errors.append(f"{quick_path.name}: {gate_heading} must record research cost")
+    if not (
+        body_has_yes_any(body, VOI_GREATER_THAN_COST_LABELS)
+        or body_has_no_any(body, VOI_GREATER_THAN_COST_LABELS)
+    ):
+        errors.append(f"{quick_path.name}: {gate_heading} must state 'VOI greater than cost: yes/no'")
+    if not (
+        body_has_yes_any(body, HARD_CONSTRAINTS_SATISFIED_LABELS)
+        or body_has_no_any(body, HARD_CONSTRAINTS_SATISFIED_LABELS)
+    ):
+        errors.append(f"{quick_path.name}: {gate_heading} must state 'Hard constraints satisfied: yes/no'")
+    if final:
+        if residuals and any(value >= 3 for value in residuals.values()):
+            errors.append(f"{quick_path.name}: final quick decision cannot pass with any residual at 3")
+        if not body_has_yes_any(body, HARD_CONSTRAINTS_SATISFIED_LABELS):
+            errors.append(f"{quick_path.name}: final quick decision requires hard constraints satisfied")
 
 
 def normalize_dimension_text(text: str) -> str:
@@ -1810,6 +2126,156 @@ CURRENT_DIMENSION_PATTERNS = (
     r"(?:Current dimensions)\s*[:：]\s*(.+)",
     r"(?:当前维度|目前维度)\s*[:：]\s*(.+)",
     r"(?:現在の次元)\s*[:：]\s*(.+)",
+)
+
+ADAPTIVE_FRAMEWORK_MARKERS = (
+    (
+        "Framework Profile Router",
+        (
+            "Framework Profile Router",
+        ),
+    ),
+    (
+        "Primary decision archetype",
+        (
+            "Primary decision archetype",
+            "主要决策原型",
+            "主な意思決定アーキタイプ",
+        ),
+    ),
+    (
+        "Selected lens packs",
+        (
+            "Selected lens packs",
+            "选定 lens packs",
+            "選択した lens packs",
+        ),
+    ),
+    (
+        "Domain hints",
+        (
+            "Domain hints",
+            "行业/领域提示",
+            "ドメインヒント",
+        ),
+    ),
+    (
+        "Framework Contract",
+        (
+            "Framework Contract",
+        ),
+    ),
+    (
+        "Veto dimensions",
+        (
+            "Veto dimensions",
+            "否决性维度",
+            "拒否権を持つ次元",
+        ),
+    ),
+    (
+        "Chapter weights",
+        (
+            "Chapter weights",
+            "章节权重",
+            "章の重み",
+        ),
+    ),
+    (
+        "Evidence Contract",
+        (
+            "Evidence Contract",
+        ),
+    ),
+    (
+        "Minimum direct evidence by dimension",
+        (
+            "Minimum direct evidence by dimension",
+            "按维度列出的最低直接证据",
+            "次元ごとの最低限の直接証拠",
+        ),
+    ),
+    (
+        "Preferred source types by dimension",
+        (
+            "Preferred source types by dimension",
+            "按维度列出的优先来源类型",
+            "次元ごとの優先情報源タイプ",
+        ),
+    ),
+    (
+        "Disconfirming evidence by dimension",
+        (
+            "Disconfirming evidence by dimension",
+            "按维度列出的反证证据",
+            "次元ごとの反証証拠",
+        ),
+    ),
+)
+
+ADAPTIVE_FRAMEWORK_VALUE_MARKERS = (
+    "Primary decision archetype",
+    "Selected lens packs",
+    "Domain hints",
+    "Veto dimensions",
+    "Chapter weights",
+    "Minimum direct evidence by dimension",
+    "Preferred source types by dimension",
+    "Disconfirming evidence by dimension",
+)
+
+ADAPTIVE_FRAMEWORK_PLACEHOLDER_VALUES = {
+    "",
+    "-",
+    "todo",
+    "tbd",
+    "n/a",
+    "na",
+    "fill",
+    "fill in",
+    "to fill",
+    "to be filled",
+    "placeholder",
+    "待补充",
+    "待填写",
+    "未填写",
+    "占位",
+    "あとで",
+    "未記入",
+    "プレースホルダー",
+}
+
+ADAPTIVE_FRAMEWORK_STOP_MARKERS = (
+    "Secondary archetypes",
+    "辅助决策原型",
+    "補助アーキタイプ",
+    "Profiles considered but rejected",
+    "曾考虑但拒绝的 profile",
+    "検討したが採用しない profile",
+    "Why this profile fits the decision",
+    "为什么该 profile 适合本决策",
+    "この profile が判断に適している理由",
+    "Dimensions to cover",
+    "需要覆盖的维度",
+    "網羅すべき次元",
+    "Dimensions intentionally out of scope",
+    "有意排除的维度",
+    "意図的に対象外とした次元",
+    "Evidence that cannot substitute for direct proof",
+    "不能替代直接证据的材料",
+    "直接証拠の代替にならないもの",
+    "Decision-critical variables",
+    "决策关键变量",
+    "判断に重要な変数",
+    "Implied expectation reverse-check",
+    "隐含预期反推",
+    "暗黙期待の逆算チェック",
+    "Constraint-specific recommendations",
+    "按约束分层建议",
+    "制約別の推奨分岐",
+    "Anti-narrative regularizers",
+    "反叙事正则项",
+    "反ナラティブ正則化",
 )
 
 
@@ -1987,11 +2453,34 @@ def check_index_framework_refinement(
 
 def missing_framework_dimension_subheadings(body: str, dimensions: list[str]) -> list[str]:
     normalized_subheadings = [normalize_dimension_text(heading) for heading in section_subheadings(body)]
+    deferred = deferred_framework_dimensions(body)
     return [
         dimension
         for dimension in dimensions
         if not any(normalize_dimension_text(dimension) in heading for heading in normalized_subheadings)
+        and normalize_dimension_text(dimension) not in deferred
     ]
+
+
+def deferred_framework_dimensions(body: str) -> set[str]:
+    deferred: set[str] = set()
+    patterns = (
+        r"(?:Deferred dimensions|Unchanged dimensions|Intentionally deferred dimensions)\s*[:：]\s*(.+)",
+        r"(?:暂缓维度|未变化维度|有意暂缓的维度)\s*[:：]\s*(.+)",
+        r"(?:保留する次元|未変更の次元|意図的に後回しにする次元)\s*[:：]\s*(.+)",
+    )
+    for line in body.splitlines():
+        stripped = line.strip()
+        for pattern in patterns:
+            match = re.search(pattern, stripped, flags=re.IGNORECASE)
+            if not match:
+                continue
+            for dimension in split_framework_dimensions(match.group(1)):
+                normalized = normalize_dimension_text(dimension)
+                if normalized:
+                    deferred.add(normalized)
+            break
+    return deferred
 
 
 def validate_framework_dimension_subheadings(
@@ -2078,6 +2567,98 @@ def validate_report_standalone_citations(errors: list[str], text: str) -> None:
         )
 
 
+def safe_read_jsonl(path: Path) -> list[dict[str, object]]:
+    if not path.exists():
+        return []
+    rows: list[dict[str, object]] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        try:
+            value = json.loads(stripped)
+        except json.JSONDecodeError:
+            return []
+        if not isinstance(value, dict):
+            return []
+        rows.append(value)
+    return rows
+
+
+def validate_report_registry_traceability(errors: list[str], text: str, survey_dir: Path) -> None:
+    sources = safe_read_jsonl(survey_dir / "sources.jsonl")
+    evidence = safe_read_jsonl(survey_dir / "evidence.jsonl")
+    claims = safe_read_jsonl(survey_dir / "claims.jsonl")
+    if not sources or not evidence or not claims:
+        return
+
+    evidence_by_id = {
+        item.get("evidence_id"): item
+        for item in evidence
+        if isinstance(item.get("evidence_id"), str)
+    }
+    source_by_id = {
+        source.get("source_id"): source
+        for source in sources
+        if isinstance(source.get("source_id"), str)
+    }
+
+    missing_source_urls: list[str] = []
+    for source in sources:
+        url = source.get("url")
+        if isinstance(url, str) and url and url not in text:
+            source_id = str(source.get("source_id") or url)
+            missing_source_urls.append(source_id)
+    if missing_source_urls:
+        errors.append(
+            "report.md: source appendix must include standalone URLs for registered sources: "
+            + ", ".join(missing_source_urls[:5])
+        )
+
+    evidence_register = ""
+    for heading in ("Appendix: Evidence Register", "附录：证据登记表", "付録: 証拠レジスター"):
+        body = section_body(text, heading)
+        if body:
+            evidence_register = body
+            break
+    if "Decision-Critical Claims" not in evidence_register and "决策关键主张" not in evidence_register and "判断に重要な主張" not in evidence_register:
+        errors.append("report.md: evidence appendix must include a Decision-Critical Claims mapping")
+        return
+
+    missing_claims: list[str] = []
+    for claim in claims:
+        status = str(claim.get("status") or "").lower()
+        if status not in {"supported", "partial", "contested"}:
+            continue
+        claim_text = str(claim.get("claim") or "").strip()
+        if not claim_text:
+            continue
+        if claim_text not in evidence_register and claim_text not in text:
+            missing_claims.append(str(claim.get("claim_id") or claim_text[:40]))
+            continue
+        supporting_ids = claim.get("supporting_evidence_ids")
+        if not isinstance(supporting_ids, list):
+            continue
+        linked_urls: list[str] = []
+        for evidence_id in supporting_ids:
+            linked_evidence = evidence_by_id.get(evidence_id)
+            if not linked_evidence:
+                continue
+            source = source_by_id.get(linked_evidence.get("source_id"))
+            if not source:
+                continue
+            url = source.get("url")
+            if isinstance(url, str) and url:
+                linked_urls.append(url)
+        if linked_urls and not any(url in evidence_register or url in text for url in linked_urls):
+            missing_claims.append(str(claim.get("claim_id") or claim_text[:40]))
+    if missing_claims:
+        errors.append(
+            "report.md: Decision-Critical Claims must map supported/partial/contested claims to standalone source URLs: "
+            + ", ".join(missing_claims[:5])
+        )
+
+
 def validate_dimension_body_depth(
     errors: list[str],
     path_name: str,
@@ -2113,6 +2694,27 @@ def top_level_headings_before_appendix(text: str, appendix_heading: str) -> list
     ]
 
 
+def headings_before_appendix(text: str, appendix_heading: str) -> list[str]:
+    body = report_body_before_appendix(text, appendix_heading)
+    return [
+        match.group(1).strip()
+        for match in re.finditer(r"^#{2,6}\s+(.+?)\s*$", body, flags=re.MULTILINE)
+        if not is_placeholder_dimension(match.group(1).strip())
+    ]
+
+
+def body_for_markdown_heading(text: str, heading: str, appendix_heading: str) -> str:
+    body = report_body_before_appendix(text, appendix_heading)
+    match = re.search(
+        rf"^(?P<marks>#{{2,6}})\s+{re.escape(heading)}\s*$\n(?P<body>.*?)(?=^#{{2,6}}\s+|\Z)",
+        body,
+        flags=re.MULTILINE | re.DOTALL,
+    )
+    if not match:
+        return ""
+    return match.group("body")
+
+
 def validate_report_removed_headings(
     errors: list[str],
     text: str,
@@ -2133,15 +2735,15 @@ def validate_report_framework_dimension_chapters(
         return
 
     appendix_heading = str(label["appendix_start_heading"])
-    top_headings = top_level_headings_before_appendix(text, appendix_heading)
+    body_headings = headings_before_appendix(text, appendix_heading)
     missing = [
         dimension
         for dimension in dimensions
-        if not any(normalize_dimension_text(dimension) in normalize_dimension_text(heading) for heading in top_headings)
+        if not any(normalize_dimension_text(dimension) in normalize_dimension_text(heading) for heading in body_headings)
     ]
     if missing:
         errors.append(
-            "report.md: body must include top-level framework dimension headings: "
+            "report.md: body must include framework dimension sections before appendices: "
             + ", ".join(missing)
         )
         return
@@ -2150,23 +2752,24 @@ def validate_report_framework_dimension_chapters(
         matching_heading = next(
             (
                 heading
-                for heading in top_headings
+                for heading in body_headings
                 if normalize_dimension_text(dimension) in normalize_dimension_text(heading)
             ),
             None,
         )
         if not matching_heading:
             continue
-        dimension_body = section_body(text, matching_heading) or ""
+        dimension_body = body_for_markdown_heading(text, matching_heading, appendix_heading)
         if prose_character_count(dimension_body) < 80:
             errors.append(
-                f"report.md: framework dimension chapter '{dimension}' needs substantive prose, not just a heading or audit note"
+                f"report.md: framework dimension section '{dimension}' needs substantive prose, not just a heading or audit note"
             )
 
 
 def validate_report_quality(
     errors: list[str],
     warnings: list[str],
+    survey_dir: Path,
     report_path: Path,
     index_path: Path,
     label: dict[str, object],
@@ -2197,6 +2800,7 @@ def validate_report_quality(
     validate_report_framework_dimension_chapters(errors, text, label, framework_dimensions)
     validate_report_prose_first(errors, text, label)
     validate_report_standalone_citations(errors, text)
+    validate_report_registry_traceability(errors, text, survey_dir)
 
     appendix_heading = str(label["appendix_start_heading"])
     body_before_appendix = report_body_before_appendix(text, appendix_heading)
@@ -2213,6 +2817,7 @@ def validate_report_quality(
         errors.append(
             "index.md: Final Report Quality Gate must include anti-sycophancy / objective-function integrity"
         )
+    validate_quality_gate_subscores(errors, index_text, score_heading, score)
     if score < pass_score:
         errors.append(f"index.md: {mode} mode requires report score >= {pass_score}")
 
@@ -2387,6 +2992,8 @@ def init_survey(args: argparse.Namespace) -> None:
     framework_refinement_notes = "\n".join(f"- {note}" for note in label["framework_refinement_notes"])
     report_quality_gate_notes = "\n".join(f"- {note}" for note in label["report_quality_gate_notes"])
     wiki_status_notes = "\n".join(f"- {note}" for note in label["wiki_status_notes"])
+    residual_gate_notes = residual_gate_template(language)
+    hard_constraint_gate_notes = hard_constraint_gate_template(language)
     write_once(
         survey_dir / "index.md",
         f"""# {label['index_title']}: {args.topic}
@@ -2434,17 +3041,11 @@ def init_survey(args: argparse.Namespace) -> None:
 
 ## {headings[10]}
 
-- Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3):
-- Any residual at 3: yes / no
-- Highest residual:
-- Residual gate status: pass / fail / pending
-- Next descent direction:
+{residual_gate_notes}
 
 ## {headings[11]}
 
-- Hard constraints satisfied: yes / no
-- Blocking hard constraints:
-- Hard constraint gate status: pass / fail / pending
+{hard_constraint_gate_notes}
 
 ## {headings[12]}
 
@@ -2535,6 +3136,8 @@ def create_evidence_plan_template(survey_dir: Path, label: dict[str, object], la
 - Direct evidence that must be observed:
 - Evidence that is only background:
 - Evidence that cannot substitute for direct proof:
+- Evidence Contract dimension:
+- Profile-specific minimum direct evidence:
 
 ## {headings[4]}
 
@@ -2557,7 +3160,9 @@ def create_evidence_plan_template(survey_dir: Path, label: dict[str, object], la
 
 ## {headings[7]}
 
-- For each dimension from 00-brief.md, add `### <framework dimension>` and write the minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.
+- For each dimension from 00-brief.md, add `### <framework dimension>` and write the dimension weight, veto dimension status, minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.
+- Dimension weight:
+- Veto dimension:
 """,
     )
 
@@ -2954,6 +3559,16 @@ Keep / Narrow / Pivot / Kill / Final
 
 ## {headings[7]}
 
+- Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3):
+- Any residual at 3: yes / no
+- Expected information value of next research:
+- Research cost:
+- VOI greater than cost: yes / no
+- Hard constraints satisfied: yes / no
+- Blocking hard constraints:
+
+## {headings[8]}
+
 -
 """,
     )
@@ -3109,6 +3724,97 @@ def check_brief_framework_dimensions(errors: list[str], brief_path: Path, label:
         return []
     validate_framework_dimension_subheadings(errors, "00-brief.md", framework_heading, body, dimensions)
     return dimensions
+
+
+def adaptive_marker_variants(canonical_label: str) -> tuple[str, ...]:
+    for marker_label, marker_variants in ADAPTIVE_FRAMEWORK_MARKERS:
+        if marker_label == canonical_label:
+            return marker_variants
+    return (canonical_label,)
+
+
+def line_starts_with_adaptive_marker(line: str) -> bool:
+    marker_values = [variant for _, variants in ADAPTIVE_FRAMEWORK_MARKERS for variant in variants]
+    return any(re.match(rf"^\s*[-*]?\s*{re.escape(marker)}\s*[:：]", line) for marker in marker_values)
+
+
+def line_starts_with_adaptive_stop_marker(line: str) -> bool:
+    marker_values = [
+        variant
+        for _, variants in ADAPTIVE_FRAMEWORK_MARKERS
+        for variant in variants
+    ] + list(ADAPTIVE_FRAMEWORK_STOP_MARKERS)
+    return any(re.match(rf"^\s*[-*]?\s*{re.escape(marker)}\s*[:：]", line) for marker in marker_values)
+
+
+def adaptive_field_value_block(body: str, marker_variants: tuple[str, ...]) -> str | None:
+    lines = body.splitlines()
+    for index, line in enumerate(lines):
+        for marker in marker_variants:
+            match = re.match(rf"^\s*[-*]?\s*{re.escape(marker)}\s*[:：]\s*(.*)$", line)
+            if not match:
+                continue
+            values = [match.group(1).strip()]
+            for next_line in lines[index + 1 :]:
+                if (
+                    next_line.startswith("#")
+                    or line_starts_with_adaptive_marker(next_line)
+                    or line_starts_with_adaptive_stop_marker(next_line)
+                ):
+                    break
+                if next_line.strip():
+                    values.append(next_line.strip())
+            return "\n".join(value for value in values if value)
+    return None
+
+
+def adaptive_field_has_substantive_value(value: str | None) -> bool:
+    if value is None:
+        return False
+    stripped = value.strip()
+    normalized = re.sub(r"[\s:：。.!！,，;；]+", " ", stripped).strip().lower()
+    return (
+        bool(normalized)
+        and normalized not in ADAPTIVE_FRAMEWORK_PLACEHOLDER_VALUES
+        and "<" not in stripped
+        and ">" not in stripped
+        and not re.fullmatch(r"[/\-\s]+", stripped)
+    )
+
+
+def check_brief_adaptive_framework_contract(
+    errors: list[str],
+    brief_path: Path,
+    label: dict[str, object],
+    schema_version: int,
+) -> None:
+    if schema_version < REPORT_SCHEMA_VERSION or not brief_path.exists():
+        return
+    text = brief_path.read_text(encoding="utf-8")
+    framework_heading = str(label["brief_headings"][4])
+    body = section_body(text, framework_heading) or ""
+    missing: list[str] = []
+    for canonical_label, marker_variants in ADAPTIVE_FRAMEWORK_MARKERS:
+        if not any(marker in body for marker in marker_variants):
+            missing.append(canonical_label)
+    if missing:
+        errors.append(
+            f"00-brief.md: {framework_heading} must include Adaptive Research Framework fields: "
+            + ", ".join(missing)
+        )
+        return
+    empty_values = [
+        canonical_label
+        for canonical_label in ADAPTIVE_FRAMEWORK_VALUE_MARKERS
+        if not adaptive_field_has_substantive_value(
+            adaptive_field_value_block(body, adaptive_marker_variants(canonical_label))
+        )
+    ]
+    if empty_values:
+        errors.append(
+            f"00-brief.md: {framework_heading} must provide substantive Adaptive Research Framework values for: "
+            + ", ".join(empty_values)
+        )
 
 
 def check_round_framework_dimensions(
@@ -3398,6 +4104,7 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
     check_required_file(errors, brief_path, list(label["brief_headings"]), language)
     check_continuation_policy(errors, brief_path, label)
     framework_dimensions = check_brief_framework_dimensions(errors, brief_path, label)
+    check_brief_adaptive_framework_contract(errors, brief_path, label, schema_version)
     index_path = survey_dir / "index.md"
     check_required_file(errors, index_path, required_index_headings(label, schema_version), language)
     effective_framework_dimensions = check_index_framework_refinement(
@@ -3415,6 +4122,7 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
         validate_report_quality(
             errors,
             warnings,
+            survey_dir,
             report_path,
             index_path,
             label,
@@ -3434,6 +4142,8 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
         quick_path = quick_round_path(survey_dir, round_number)
         if mode == "quick" and quick_path.exists():
             check_required_file(errors, quick_path, list(label["quick_round_headings"]), language)
+            if schema_version >= REPORT_SCHEMA_VERSION:
+                validate_quick_round_stopping_gate(errors, quick_path, label, final=final)
             continue
         evidence_plan_path = survey_dir / f"{prefix}-evidence-plan.md"
         check_required_file(errors, evidence_plan_path, list(label["evidence_plan_headings"]), language)
@@ -3533,7 +4243,7 @@ def append_missing_report_sections(report_path: Path, label: dict[str, object]) 
         return False
     text = report_path.read_text(encoding="utf-8")
     additions: list[str] = []
-    for heading, note in zip(label["report_headings"], label["report_template_notes"], strict=True):
+    for heading, note in zip(label["report_headings"], label["report_template_notes"]):
         if not has_heading(text, str(heading)):
             additions.append(f"## {heading}\n\n- {note}")
     if not additions:
@@ -3548,25 +4258,22 @@ def append_missing_index_v4_sections(index_path: Path, label: dict[str, object])
         return False
     text = index_path.read_text(encoding="utf-8")
     headings = list(label["index_headings"])
+    language = language_from_label(label)
+    residual_gate_notes = residual_gate_template(language)
+    hard_constraint_gate_notes = hard_constraint_gate_template(language)
     additions: list[str] = []
     if not has_heading(text, str(headings[10])):
         additions.append(
             f"""## {headings[10]}
 
-- Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3):
-- Any residual at 3: yes / no
-- Highest residual:
-- Residual gate status: pass / fail / pending
-- Next descent direction:
+{residual_gate_notes}
 """
         )
     if not has_heading(text, str(headings[11])):
         additions.append(
             f"""## {headings[11]}
 
-- Hard constraints satisfied: yes / no
-- Blocking hard constraints:
-- Hard constraint gate status: pass / fail / pending
+{hard_constraint_gate_notes}
 """
         )
     if not additions:

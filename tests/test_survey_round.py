@@ -343,6 +343,15 @@ Can this target customer pay for this workflow?
 
         self.assertIn("## Research Lens", brief)
         self.assertIn("## Research Framework", brief)
+        self.assertIn("Framework Profile Router", brief)
+        self.assertIn("Primary decision archetype", brief)
+        self.assertIn("Selected lens packs", brief)
+        self.assertIn("Domain hints", brief)
+        self.assertIn("Framework Contract", brief)
+        self.assertIn("Evidence Contract", brief)
+        self.assertIn("Profiles considered but rejected", brief)
+        self.assertIn("Veto dimensions", brief)
+        self.assertIn("Chapter weights", brief)
         self.assertIn("## Decision Evidence Standard", brief)
         self.assertIn("## Decision Frame Integrity", brief)
         self.assertIn("Original user frame", brief)
@@ -388,6 +397,10 @@ Can this target customer pay for this workflow?
         self.assertIn("## Decision-Critical Variables", evidence_plan)
         self.assertIn("## Minimum Direct Evidence", evidence_plan)
         self.assertIn("## Framework Evidence Map", evidence_plan)
+        self.assertIn("Evidence Contract dimension", evidence_plan)
+        self.assertIn("Profile-specific minimum direct evidence", evidence_plan)
+        self.assertIn("Dimension weight", evidence_plan)
+        self.assertIn("Veto dimension", evidence_plan)
         self.assertIn("### <framework dimension>", brief)
         self.assertIn("### <framework dimension>", evidence_plan)
         self.assertIn("### <framework dimension>", research)
@@ -493,6 +506,10 @@ Can this target customer pay for this workflow?
 
         self.assertIn("Decision-critical variables", brief)
         self.assertIn("Minimum direct evidence", brief)
+        self.assertIn("Minimum direct evidence by dimension", brief)
+        self.assertIn("Preferred source types by dimension", brief)
+        self.assertIn("Disconfirming evidence by dimension", brief)
+        self.assertIn("Evidence that cannot substitute for direct proof", brief)
         self.assertIn("Decision-Critical Variables", evidence_plan)
         self.assertIn("Minimum Direct Evidence", evidence_plan)
         self.assertIn("Source role", research)
@@ -573,6 +590,155 @@ Can this target customer pay for this workflow?
         self.assertNotIn("Paper methods", skill)
         self.assertNotIn("| 4.1", skill)
         self.assertNotIn("4.1, 4.2", skill)
+
+    def test_docs_define_adaptive_research_framework_without_industry_templates(self) -> None:
+        skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+        contracts = (ROOT / "references" / "artifact-contracts.md").read_text(encoding="utf-8")
+        quality = (ROOT / "references" / "research-quality.md").read_text(encoding="utf-8")
+
+        for text in (skill, contracts, quality):
+            self.assertIn("Adaptive Research Framework", text)
+            self.assertIn("Framework Profile Router", text)
+            self.assertIn("Framework Contract", text)
+            self.assertIn("Evidence Contract", text)
+        self.assertIn("Do not create rigid industry templates", skill)
+        self.assertIn("route by decision type first", quality.lower())
+        self.assertIn("Industry/domain hints may raise the evidence standard", contracts)
+
+    def test_check_requires_adaptive_research_framework_contract_in_brief(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        brief_path = survey_dir / "00-brief.md"
+        brief = re.sub(
+            r"(?ms)^## Research Framework\n\n.*?(?=^## |\Z)",
+            (
+                "## Research Framework\n\n"
+                "Selected framework: product opportunity plus policy-risk framework.\n"
+                "Dimensions to cover: user pain, workflow frequency, willingness to pay, policy constraints, substitutes, distribution, and implementation difficulty.\n"
+                "Why this framework fits the decision: both demand and launch constraints matter.\n\n"
+                "### User Pain\n"
+                "Core question: whether the target workflow is painful enough to motivate change.\n\n"
+                "### Workflow Frequency\n"
+                "Core question: whether the job-search workflow happens often enough for repeated use.\n\n"
+                "### Willingness To Pay\n"
+                "Core question: whether users would pay from a personal budget.\n\n"
+                "### Policy Constraints\n"
+                "Core question: whether platform rules allow the assisted workflow.\n\n"
+                "### Substitutes\n"
+                "Core question: whether low-cost substitutes already solve enough of the problem.\n\n"
+                "### Distribution\n"
+                "Core question: whether the product can reach active job seekers efficiently.\n\n"
+                "### Implementation Difficulty\n"
+                "Core question: whether the workflow can be built reliably and safely.\n\n"
+            ),
+            brief_path.read_text(encoding="utf-8"),
+        )
+        brief_path.write_text(brief, encoding="utf-8")
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("must include Adaptive Research Framework fields", result.stdout)
+        self.assertIn("Framework Profile Router", result.stdout)
+        self.assertIn("Evidence Contract", result.stdout)
+
+    def test_check_requires_substantive_adaptive_research_framework_values(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        brief_path = survey_dir / "00-brief.md"
+        brief = re.sub(
+            r"(?ms)^## Research Framework\n\n.*?(?=^## |\Z)",
+            (
+                "## Research Framework\n\n"
+                "Framework Profile Router:\n"
+                "Primary decision archetype:\n"
+                "Secondary archetypes: policy/trust risk.\n"
+                "Selected lens packs:\n"
+                "Domain hints:\n"
+                "Profiles considered but rejected: pure technical feasibility was rejected because the decision is not only buildability.\n"
+                "Why this profile fits the decision: both demand and launch constraints matter.\n"
+                "Framework Contract:\n"
+                "Dimensions to cover: user pain, workflow frequency, willingness to pay, policy constraints, substitutes, distribution, and implementation difficulty.\n"
+                "Veto dimensions:\n"
+                "Chapter weights:\n"
+                "Dimensions intentionally out of scope: enterprise procurement and recruiter-side workflows.\n\n"
+                "Evidence Contract:\n"
+                "Minimum direct evidence by dimension:\n"
+                "Preferred source types by dimension:\n"
+                "Disconfirming evidence by dimension:\n"
+                "Evidence that cannot substitute for direct proof: general AI enthusiasm cannot substitute for payment or official policy evidence.\n\n"
+                "### User Pain\n"
+                "Core question: whether the target workflow is painful enough to motivate change.\n\n"
+                "### Workflow Frequency\n"
+                "Core question: whether the job-search workflow happens often enough for repeated use.\n\n"
+                "### Willingness To Pay\n"
+                "Core question: whether users would pay from a personal budget.\n\n"
+                "### Policy Constraints\n"
+                "Core question: whether platform rules allow the assisted workflow.\n\n"
+                "### Substitutes\n"
+                "Core question: whether low-cost substitutes already solve enough of the problem.\n\n"
+                "### Distribution\n"
+                "Core question: whether the product can reach active job seekers efficiently.\n\n"
+                "### Implementation Difficulty\n"
+                "Core question: whether the workflow can be built reliably and safely.\n\n"
+            ),
+            brief_path.read_text(encoding="utf-8"),
+        )
+        brief_path.write_text(brief, encoding="utf-8")
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("must provide substantive Adaptive Research Framework values", result.stdout)
+        self.assertIn("Primary decision archetype", result.stdout)
+        self.assertIn("Minimum direct evidence by dimension", result.stdout)
+
+    def test_adaptive_research_framework_value_parser_supports_localized_markers(self) -> None:
+        module = load_survey_round_module()
+        body = (
+            "Framework Profile Router：\n"
+            "主要决策原型：产品机会。\n"
+            "选定 lens packs：用户、工作流、市场。\n"
+            "行业/领域提示：开发者工具。\n"
+        )
+        multiline_body = (
+            "Minimum direct evidence by dimension:\n"
+            "- Policy constraints: official platform policy.\n"
+            "- Willingness to pay: competitor pricing and direct payment signals.\n"
+            "Preferred source types by dimension: official sources and direct measurements.\n"
+        )
+        blank_body = "主要决策原型：\n选定 lens packs：用户、工作流。\n"
+
+        value = module.adaptive_field_value_block(
+            body,
+            module.adaptive_marker_variants("Primary decision archetype"),
+        )
+        multiline_value = module.adaptive_field_value_block(
+            multiline_body,
+            module.adaptive_marker_variants("Minimum direct evidence by dimension"),
+        )
+        blank_value = module.adaptive_field_value_block(
+            blank_body,
+            module.adaptive_marker_variants("Primary decision archetype"),
+        )
+
+        self.assertEqual(value, "产品机会。")
+        self.assertIn("Policy constraints", multiline_value)
+        self.assertIn("Willingness to pay", multiline_value)
+        self.assertNotIn("Preferred source types", multiline_value)
+        self.assertTrue(module.adaptive_field_has_substantive_value(value))
+        self.assertTrue(module.adaptive_field_has_substantive_value(multiline_value))
+        self.assertFalse(module.adaptive_field_has_substantive_value(blank_value))
 
     def test_skill_requires_autonomous_continuation_after_keep_narrow_pivot(self) -> None:
         skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
@@ -966,7 +1132,7 @@ Can this target customer pay for this workflow?
         result = run_cli("check-final", str(survey_dir))
 
         self.assertEqual(result.returncode, 1)
-        self.assertIn("report.md: body must include top-level framework dimension headings", result.stdout)
+        self.assertIn("report.md: body must include framework dimension sections before appendices", result.stdout)
         self.assertIn("user pain", result.stdout)
 
     def test_empty_report_section_is_reported_once(self) -> None:
@@ -1236,11 +1402,10 @@ Thin.
             evolver_evidence_needed="None.",
         )
         index_path = survey_dir / "index.md"
-        index = index_path.read_text(encoding="utf-8").replace(
-            "Anti-sycophancy / objective-function integrity: 18 / 20.\n"
-            "Objective reconstruction quality: clear enough to preserve the original decision.\n"
-            "User-frame challenge quality: the report challenged the prompt without rewriting it into a stronger claim.\n",
+        index = re.sub(
+            r"Anti-sycophancy / objective-function integrity: \d+ / 20\.\n",
             "",
+            index_path.read_text(encoding="utf-8"),
         )
         index_path.write_text(index, encoding="utf-8")
 
@@ -1248,6 +1413,70 @@ Thin.
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("Final Report Quality Gate must include anti-sycophancy / objective-function integrity", result.stdout)
+
+    def test_final_quality_gate_requires_all_structured_subscores(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            report_score=90,
+            continuation_decision="Pass / Continue Decision: stop because the next action is clear.",
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        index_path = survey_dir / "index.md"
+        index = re.sub(
+            r"Source, method, and framework quality: \d+ / 15\.\n",
+            "",
+            index_path.read_text(encoding="utf-8"),
+        )
+        index_path.write_text(index, encoding="utf-8")
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("must include 'Source, method, and framework quality: N / 15'", result.stdout)
+
+    def test_final_quality_gate_rejects_total_that_does_not_match_subscores(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            report_score=90,
+            continuation_decision="Pass / Continue Decision: stop because the next action is clear.",
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        index_path = survey_dir / "index.md"
+        index = index_path.read_text(encoding="utf-8").replace(
+            "Total Score: 90 / 100.",
+            "Total Score: 91 / 100.",
+        )
+        index_path.write_text(index, encoding="utf-8")
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("subscores total 90, but Total Score is 91", result.stdout)
+
+    def test_final_report_requires_source_urls_and_decision_claim_mapping(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            report_score=90,
+            continuation_decision="Pass / Continue Decision: stop because the next action is clear.",
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        report_path = survey_dir / "report.md"
+        report = report_path.read_text(encoding="utf-8")
+        report = report.replace("Decision-Critical Claims", "Evidence Notes")
+        report = report.replace("https://example.com/policy", "policy source URL omitted")
+        report_path.write_text(report, encoding="utf-8")
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("source appendix must include standalone URLs", result.stdout)
+        self.assertIn("evidence appendix must include a Decision-Critical Claims mapping", result.stdout)
 
     def test_round_check_requires_evolver_residual_vector(self) -> None:
         survey_dir = self.init_round()
@@ -1411,6 +1640,15 @@ Thin.
                 "Red-Team Challenge": "The strongest objection is that public evidence is too thin for a high-stakes decision.",
                 "Synthesis": "The directional answer is sufficient for quick mode and can move to a final memo.",
                 "Decision": "Final.",
+                "Stopping Gate": (
+                    "Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3): r_q=0, r_c=1, r_e=1, r_h=1, r_a=1, r_s=1, r_j=0.\n"
+                    "Any residual at 3: no.\n"
+                    "Expected information value of next research: low.\n"
+                    "Research cost: low.\n"
+                    "VOI greater than cost: no.\n"
+                    "Hard constraints satisfied: yes.\n"
+                    "Blocking hard constraints: none."
+                ),
                 "Next Step": "Write the short final report and disclose that this was quick mode.",
             },
         )
@@ -1442,6 +1680,15 @@ Thin.
                 "Red-Team Challenge": "The strongest objection is that public evidence is too thin for a high-stakes decision.",
                 "Synthesis": "The directional answer is sufficient for quick mode and can move to a final memo.",
                 "Decision": "Final.",
+                "Stopping Gate": (
+                    "Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3): r_q=0, r_c=1, r_e=1, r_h=1, r_a=1, r_s=1, r_j=0.\n"
+                    "Any residual at 3: no.\n"
+                    "Expected information value of next research: low.\n"
+                    "Research cost: low.\n"
+                    "VOI greater than cost: no.\n"
+                    "Hard constraints satisfied: yes.\n"
+                    "Blocking hard constraints: none."
+                ),
                 "Next Step": "Write the short final report and disclose that this was quick mode.",
             },
         )
@@ -1450,6 +1697,41 @@ Thin.
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("01-round.md: missing heading '## Evidence Plan'", result.stdout)
+
+    def test_quick_round_requires_stopping_gate_fields(self) -> None:
+        survey_dir = self.init_round(mode="quick")
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            include_wiki_notes=False,
+            evolver_decision="Final.",
+            evolver_evidence_needed="No desk-research target remains.",
+        )
+        for suffix in ("research", "brainstorm", "redteam", "synthesis", "evolver"):
+            path = survey_dir / f"01-{suffix}.md"
+            if path.exists():
+                path.unlink()
+        write_markdown(
+            survey_dir / "01-round.md",
+            "Round 1 Quick Survey",
+            {
+                "Research Question": "Should this be pursued as a direction?",
+                "Evidence Plan": "Test the decision-critical demand and policy variables.",
+                "Evidence And Sources": "S1/E1/C1 support a directional read; source detail remains in JSONL.",
+                "Brainstorming Checkpoint": "The practical next move is to decide whether more desk research would change the answer.",
+                "Red-Team Challenge": "The strongest objection is that public evidence is too thin.",
+                "Synthesis": "The directional answer is sufficient for quick mode.",
+                "Decision": "Final.",
+                "Stopping Gate": "Residuals and hard constraints were considered, but the machine fields are missing.",
+                "Next Step": "Write the short final report.",
+            },
+        )
+
+        result = run_cli("check", str(survey_dir), "--mode", "quick")
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Stopping Gate must record r_q/r_c/r_e/r_h/r_a/r_s/r_j", result.stdout)
+        self.assertIn("Stopping Gate must state 'VOI greater than cost: yes/no'", result.stdout)
 
     def test_localized_raw_decision_label_is_rejected(self) -> None:
         survey_dir = self.init_round()
@@ -1488,6 +1770,15 @@ Thin.
                 "反方挑战": "最大反方是公开资料不足以支持高风险买入行动。",
                 "综合结论": "应升级到标准或深度模式，而不是用 quick 最终交付。",
                 "决策": "Final.",
+                "停止门": (
+                    "Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3): r_q=0, r_c=1, r_e=1, r_h=1, r_a=1, r_s=1, r_j=0.\n"
+                    "Any residual at 3: no.\n"
+                    "Expected information value of next research: low.\n"
+                    "Research cost: low.\n"
+                    "VOI greater than cost: no.\n"
+                    "Hard constraints satisfied: yes.\n"
+                    "Blocking hard constraints: none."
+                ),
                 "下一步": "升级模式并补充正式尽调证据。",
             },
         )
@@ -1826,6 +2117,32 @@ Sources were checked during this round and remain directional.
         self.assertIn("01-synthesis.md: Framework-Based Synthesis must include subheadings", result.stdout)
         self.assertIn("01-evolver.md: Round Evidence Quality Gate must include subheadings", result.stdout)
 
+    def test_round_framework_dimensions_can_be_explicitly_deferred_when_unchanged(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        research_path = survey_dir / "01-research.md"
+        research = re.sub(
+            r"(?ms)^## Framework Coverage\n\n.*?(?=^## |\Z)",
+            (
+                "## Framework Coverage\n\n"
+                "### User Pain\n\n"
+                "Finding: repeated application work creates visible pain. Evidence impact: this remains enough to keep the discovery path open, but it does not settle payment or policy. Confidence: medium.\n\n"
+                "Deferred dimensions: workflow frequency, willingness to pay, policy constraints, substitutes, distribution, and implementation difficulty.\n"
+                "Deferred reason: this round targeted only the user-pain residual; unchanged dimensions remain in the index and prior artifacts.\n\n"
+            ),
+            research_path.read_text(encoding="utf-8"),
+        )
+        research_path.write_text(research, encoding="utf-8")
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_check_uses_evidence_driven_refined_framework_dimensions_from_index(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(
@@ -2028,6 +2345,29 @@ Sources were checked during this round and remain directional.
         quality_decision = continuation_decision or (
             "Pass / Continue Decision: pass; finalize the report because no decision-changing unknown remains desk-researchable, and the evolver next evidence requires external validation through user interviews."
         )
+        quality_maxes = [
+            ("Anti-sycophancy / objective-function integrity", 20),
+            ("Source, method, and framework quality", 15),
+            ("Evidence completeness", 20),
+            ("Analysis and red-team quality", 20),
+            ("Actionability", 15),
+            ("Structure and readability", 10),
+        ]
+        raw_scores = [(label, max_points, report_score * max_points / 100) for label, max_points in quality_maxes]
+        quality_scores = [(label, max_points, int(raw_score)) for label, max_points, raw_score in raw_scores]
+        remainder = report_score - sum(score for _, _, score in quality_scores)
+        fractional_order = sorted(
+            range(len(raw_scores)),
+            key=lambda index: raw_scores[index][2] - int(raw_scores[index][2]),
+            reverse=True,
+        )
+        for index in fractional_order[:remainder]:
+            label_name, max_points, score = quality_scores[index]
+            quality_scores[index] = (label_name, max_points, score + 1)
+        quality_score_lines = "\n".join(
+            f"{label_name}: {score} / {max_points}."
+            for label_name, max_points, score in quality_scores
+        )
         write_markdown(
             survey_dir / "00-brief.md",
             "Survey Brief: AI recruiting agent",
@@ -2037,10 +2377,23 @@ Sources were checked during this round and remain directional.
                 "Decision To Make": "Decide whether to continue.",
                 "Research Lens": "Use a general product opportunity lens with policy and willingness-to-pay checks.",
                 "Research Framework": (
-                    "Selected framework: product opportunity plus policy-risk framework.\n"
+                    "Framework Profile Router: use a product-opportunity profile with policy-risk support.\n"
+                    "Primary decision archetype: product opportunity.\n"
+                    "Secondary archetypes: policy/trust risk.\n"
+                    "Selected lens packs: buyer/user, workflow, market/competitor, policy/trust.\n"
+                    "Domain hints: job-search workflow, platform policy exposure, consumer subscription.\n"
+                    "Profiles considered but rejected: pure technical feasibility was rejected because the decision is not only buildability.\n"
+                    "Why this profile fits the decision: the decision is whether to continue discovery, so both demand and launch constraints matter.\n"
+                    "Framework Contract: active dimensions, veto dimensions, chapter weights, and out-of-scope boundaries are listed below.\n"
                     "Dimensions to cover: user pain, workflow frequency, willingness to pay, policy constraints, substitutes, distribution, and implementation difficulty.\n"
-                    "Why this framework fits the decision: the decision is whether to continue discovery, so both demand and launch constraints matter.\n"
+                    "Veto dimensions: policy constraints.\n"
+                    "Chapter weights: user pain high, willingness to pay high, policy constraints high, substitutes medium, distribution medium, implementation difficulty medium.\n"
                     "Dimensions intentionally out of scope: enterprise procurement and recruiter-side workflows are out of scope for this pass.\n\n"
+                    "Evidence Contract: minimum direct evidence, source preferences, and disconfirming evidence are set by dimension.\n"
+                    "Minimum direct evidence by dimension: complaints for user pain, paid alternatives for payment, official terms for policy.\n"
+                    "Preferred source types by dimension: user evidence, competitor pricing, official platform policy, and direct measurements.\n"
+                    "Disconfirming evidence by dimension: weak pain, no paid substitutes, official policy blocks, or cheap substitutes already solving the job.\n"
+                    "Evidence that cannot substitute for direct proof: general AI enthusiasm cannot substitute for payment or official policy evidence.\n\n"
                     "### User Pain\n"
                     "Core question: whether the target workflow is painful enough to motivate change. Evidence needed: repeated complaints and workaround behavior.\n\n"
                     "### Workflow Frequency\n"
@@ -2116,8 +2469,8 @@ Sources were checked during this round and remain directional.
                 ),
                 "Final Report Quality Gate": (
                     f"Total Score: {report_score} / 100.\n"
-                    "Score Breakdown: objective integrity 18, sources 14, evidence 18, analysis 18, actionability 14, structure 8.\n"
-                    "Anti-sycophancy / objective-function integrity: 18 / 20.\n"
+                    "Score Breakdown: structured subscores below; the helper sums these instead of trusting prose.\n"
+                    f"{quality_score_lines}\n"
                     "Objective reconstruction quality: clear enough to preserve the original decision.\n"
                     "User-frame challenge quality: the report challenged the prompt without rewriting it into a stronger claim.\n"
                     "Residual gate status: pass.\n"
@@ -2201,8 +2554,10 @@ Sources were checked during this round and remain directional.
                         "No live policy review by counsel was performed, so legal risk remains directional."
                     ),
                     "Appendix: Evidence Register": (
-                        "Claim: users repeat the workflow. Evidence: public workflow signals. Confidence: medium. Contradictions: direct payment proof is missing.\n"
-                        "Claim: platform risk matters. Evidence: job boards can restrict automation. Confidence: medium."
+                        "Decision-Critical Claims\n"
+                        "Users repeat this workflow. Source: Example, https://example.com. Confidence: medium. Contradictions: direct payment proof is missing.\n"
+                        "Policy risk matters. Source: Policy Example, https://example.com/policy. Confidence: high. This is a veto dimension.\n"
+                        "Paid willingness remains plausible but unproven. Source: Pricing Example, https://example.com/pricing. Confidence: medium. This limits the build recommendation."
                     ),
                     "Appendix: Method And Source Quality": (
                         "Use current source discovery, official policy pages, competitor pages, and confidence labels.\n"
@@ -2218,7 +2573,9 @@ Sources were checked during this round and remain directional.
                     ),
                     "Appendix: Source Notes": (
                         "Sources were checked during this round and remain directional.\n"
-                        "Future rounds should record URLs, dates checked, and contradictions."
+                        "Example: https://example.com, checked 2026-06-13.\n"
+                        "Policy Example: https://example.com/policy, checked 2026-06-13.\n"
+                        "Pricing Example: https://example.com/pricing, checked 2026-06-13."
                     ),
                 },
             )
