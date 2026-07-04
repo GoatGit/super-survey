@@ -96,6 +96,7 @@ python3 scripts/survey_round.py redteam surveys/2026-06-13-ai採用エージェ�
 python3 scripts/survey_round.py synthesis surveys/2026-06-13-ai採用エージェント 1
 python3 scripts/survey_round.py evolve surveys/2026-06-13-ai採用エージェント 1
 python3 scripts/survey_round.py check surveys/2026-06-13-ai採用エージェント
+python3 scripts/survey_round.py finalize-report surveys/2026-06-13-ai採用エージェント
 python3 scripts/survey_round.py check-final surveys/2026-06-13-ai採用エージェント
 python3 scripts/survey_round.py upgrade-report surveys/2026-06-13-ai採用エージェント
 ```
@@ -115,6 +116,7 @@ python3 scripts/survey_round.py validate-evidence surveys/2026-06-13-ai採用エ
 - `synthesis`: `NN-redteam.md` に実質的な内容が入っている場合だけ `NN-synthesis.md` を作成します。
 - `evolve`: `NN-synthesis.md` に実質的な内容が入っている場合だけ `NN-evolver.md` を作成します。
 - `check`: ラウンド成果物、`index.md`、証拠レジストリ、companion routing 記録、最新エボルバーの生判断を検証します。`report.md` は要求しません。
+- `finalize-report`: 最新エボルバー判断が `Final` または `Kill` で、finalization readiness gate を通過した場合だけ `report.md` を作成します。
 - `check-final`: `check` の内容に加えて、最終 `report.md`、prose-first ルール、`index.md` に記録されたモード別品質スコア、残差ゲート、ハード制約ゲート、最新エボルバー判断が `Final` または `Kill` であることを検証します。
 - `upgrade-report`: 古いレポートに完全な report schema を追加します。古い 6 セクションのレポートは読めますが final gate は通過できません。アップグレード後は新しいセクションを埋めてください。
 - `validate-evidence`: `sources.jsonl`、`claims.jsonl`、`evidence.jsonl` の直接デバッグ専用です。通常のラウンド検証は `check` / `check-final` を使います。

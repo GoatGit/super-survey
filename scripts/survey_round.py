@@ -3108,6 +3108,28 @@ def ensure_previous_stage_complete(survey_dir: Path, prefix: str, stage: str, la
         raise SystemExit(1)
 
 
+def ensure_brief_complete_for_stage(
+    survey_dir: Path,
+    label: dict[str, object],
+    language: str,
+    stage: str,
+) -> None:
+    if stage == "evidence-plan":
+        return
+    errors: list[str] = []
+    brief_path = survey_dir / "00-brief.md"
+    check_required_file(errors, brief_path, list(label["brief_headings"]), language)
+    check_continuation_policy(errors, brief_path, label)
+    check_brief_framework_dimensions(errors, brief_path, label)
+    check_brief_adaptive_framework_contract(errors, brief_path, label, report_schema_version(survey_dir))
+    if not errors:
+        return
+    print(f"ERROR: 00-brief.md incomplete before {stage}:", file=sys.stderr)
+    for error in errors:
+        print(f"- {error}", file=sys.stderr)
+    raise SystemExit(1)
+
+
 def create_evidence_plan_template(survey_dir: Path, label: dict[str, object], language: str, round_number: int, prefix: str) -> None:
     headings = label["evidence_plan_headings"]
     write_once(
@@ -3400,6 +3422,7 @@ def create_evolver_template(survey_dir: Path, label: dict[str, object], language
 def create_stage_template(survey_dir: Path, label: dict[str, object], language: str, round_number: int, stage: str) -> None:
     prefix = f"{round_number:02d}"
     ensure_previous_stage_complete(survey_dir, prefix, stage, language)
+    ensure_brief_complete_for_stage(survey_dir, label, language, stage)
     creators = {
         "evidence-plan": create_evidence_plan_template,
         "research": create_research_template,
@@ -4283,6 +4306,97 @@ def append_missing_report_sections(report_path: Path, label: dict[str, object]) 
     return True
 
 
+def localized_report_title(language: str) -> str:
+    if language == "zh":
+        return "最终报告"
+    if language == "ja":
+        return "最終レポート"
+    return "Final Report"
+
+
+def create_report_template(survey_dir: Path, label: dict[str, object], language: str) -> Path:
+    metadata = read_metadata(survey_dir)
+    topic = str(metadata.get("topic") or survey_dir.name)
+    report_path = survey_dir / "report.md"
+    sections = "\n\n".join(
+        f"## {heading}\n\n- {note}"
+        for heading, note in zip(label["report_headings"], label["report_template_notes"])
+    )
+    report_path.write_text(
+        f"# {localized_report_title(language)}: {topic}\n\n{sections}\n",
+        encoding="utf-8",
+    )
+    return report_path
+
+
+def validate_finalization_readiness(
+    errors: list[str],
+    survey_dir: Path,
+    mode: str,
+    label: dict[str, object],
+) -> None:
+    rounds = detect_rounds(survey_dir)
+    if not rounds:
+        errors.append("finalize-report requires at least one completed round")
+        return
+    latest_decision_path = decision_artifact_path(survey_dir, rounds[-1], mode)
+    latest_decision = parse_evolver_decision(latest_decision_path, label)
+    if latest_decision not in {"Final", "Kill"}:
+        decision_note = latest_decision or f"missing/invalid {latest_decision_path.name}"
+        errors.append(
+            "finalize-report requires the latest evolver decision to be Final or Kill "
+            f"(current: {decision_note})"
+        )
+    validate_index_residual_and_hard_gates(errors, survey_dir / "index.md", label, final=True)
+    if mode == "quick":
+        validate_quick_round_stopping_gate(
+            errors,
+            quick_round_path(survey_dir, rounds[-1]),
+            label,
+            final=True,
+        )
+    else:
+        validate_evolver_residual_and_voi(
+            errors,
+            latest_decision_path,
+            label,
+            final=True,
+        )
+
+
+def finalize_report(args: argparse.Namespace) -> None:
+    survey_dir = Path(args.survey_dir).expanduser().resolve()
+    if not survey_dir.exists():
+        print(f"ERROR: survey directory does not exist: {survey_dir}", file=sys.stderr)
+        raise SystemExit(2)
+    language = read_language(survey_dir, args.language)
+    mode = read_mode(survey_dir, args.mode)
+    label = labels(language)
+    report_path = survey_dir / "report.md"
+    if report_path.exists():
+        print(
+            "ERROR: report.md already exists; run check-final if it is valid, "
+            "or rename/remove the premature draft before finalize-report",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+
+    check_args = argparse.Namespace(survey_dir=str(survey_dir), language=args.language, mode=args.mode)
+    check_survey(check_args, final=False)
+
+    errors: list[str] = []
+    validate_finalization_readiness(errors, survey_dir, mode, label)
+    if errors:
+        print("Super Survey finalize-report failed:")
+        for error in errors:
+            print(f"- {error}")
+        raise SystemExit(1)
+
+    update_metadata(survey_dir, language=language, mode=mode, report_schema_version=REPORT_SCHEMA_VERSION)
+    created_path = create_report_template(survey_dir, label, language)
+    print(f"report.md created: {created_path}")
+
+
 def append_missing_index_v4_sections(index_path: Path, label: dict[str, object]) -> bool:
     if not index_path.exists():
         return False
@@ -4320,6 +4434,14 @@ def upgrade_report(args: argparse.Namespace) -> None:
         raise SystemExit(2)
     language = read_language(survey_dir, args.language)
     label = labels(language)
+    mode = read_mode(survey_dir, None)
+    errors: list[str] = []
+    check_premature_report(errors, survey_dir, detect_rounds(survey_dir), mode, label)
+    if errors:
+        print("Super Survey upgrade-report failed:")
+        for error in errors:
+            print(f"- {error}")
+        raise SystemExit(1)
     report_path = survey_dir / "report.md"
     if not report_path.exists():
         print(f"ERROR: report.md does not exist: {report_path}", file=sys.stderr)
@@ -4380,6 +4502,12 @@ def main() -> None:
     p_check_final.add_argument("--language", choices=LANGUAGES)
     p_check_final.add_argument("--mode", choices=MODES)
     p_check_final.set_defaults(func=check_final)
+
+    p_finalize = sub.add_parser("finalize-report", help="create report.md only after the finalization gates are ready")
+    p_finalize.add_argument("survey_dir")
+    p_finalize.add_argument("--language", choices=LANGUAGES)
+    p_finalize.add_argument("--mode", choices=MODES)
+    p_finalize.set_defaults(func=finalize_report)
 
     p_validate = sub.add_parser("validate-evidence", help="validate sources, claims, and evidence registry files")
     p_validate.add_argument("survey_dir")

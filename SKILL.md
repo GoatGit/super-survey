@@ -281,6 +281,7 @@ file with substantive content before moving to the next node:
 4. `redteam`: create and complete `NN-redteam.md` after `NN-brainstorm.md` is written.
 5. `synthesis`: create and complete `NN-synthesis.md` after `NN-redteam.md` is written.
 6. `evolve`: create and complete `NN-evolver.md` after `NN-synthesis.md` is written.
+7. `finalize-report`: create `report.md` only after the latest raw evolver decision is `Final` or `Kill` and the finalization readiness gates pass.
 
 At each node, read the upstream artifact from disk before writing the downstream
 artifact. The downstream artifact should cite or build on upstream content
@@ -296,9 +297,9 @@ output, and then hands that written output to the next process node.
 
 For quick mode, a single `NN-round.md` can replace the split round artifacts when it contains the same essential thinking: research question, evidence plan, evidence and sources, brainstorming checkpoint, red-team challenge, synthesis, raw decision, and next step.
 
-Create or update `report.md` only after the latest evolver decision is `Final` or `Kill`. While the latest decision is `Keep`, `Narrow`, or `Pivot`, use `index.md` for the current thesis, round summaries, continuation status, next research target, and why the survey is still in progress.
+Create `report.md` through `survey_round.py finalize-report <survey-dir>` only after the latest evolver decision is `Final` or `Kill`. Do not hand-write `report.md` before this command creates it. While the latest decision is `Keep`, `Narrow`, or `Pivot`, use `index.md` for the current thesis, round summaries, continuation status, next research target, and why the survey is still in progress.
 
-After the raw evolver decision is `Final` or `Kill`, draft `report.md` as a complete, standalone report that a user can read smoothly without opening every round artifact. It is not an audit checklist. Put the human-readable argument first and move dense evidence, source, method, red-team, scenario, and scoring material into appendices. Use `references/artifact-contracts.md` for the detailed final report body and appendix contract.
+After the raw evolver decision is `Final` or `Kill`, run `finalize-report`, then expand the created `report.md` into a complete, standalone report that a user can read smoothly without opening every round artifact. It is not an audit checklist. Put the human-readable argument first and move dense evidence, source, method, red-team, scenario, and scoring material into appendices. Use `references/artifact-contracts.md` for the detailed final report body and appendix contract.
 
 Prose-first rule: before the first evidence appendix, `report.md` should read as narrative prose with short lists where helpful. Place Markdown evidence tables, source inventories, claim registers, and audit checklists in appendices or the JSONL registry.
 
@@ -467,7 +468,7 @@ After `survey_round.py check` passes with a continuation warning for `Keep`, `Na
 
 Run `survey_round.py check <survey-dir>` before treating a round as complete. It validates round artifacts, registry links, framework coverage, companion notes when required, and the latest raw evolver gate. Use `validate-evidence` only for focused registry debugging.
 
-Run `survey_round.py check-final <survey-dir>` before presenting the survey as final. If it fails because the report is legacy or thin, run `upgrade-report` when needed, expand the report, or create another round focused on the weakest dimensions.
+Run `survey_round.py finalize-report <survey-dir>` before first creating `report.md`, then run `survey_round.py check-final <survey-dir>` before presenting the survey as final. If finalization is not ready, continue the staged loop. If `check-final` fails because the report is legacy or thin, run `upgrade-report` when needed, expand the report, or create another round focused on the weakest dimensions.
 
 Before final delivery, confirm the essentials: substantive sections, valid registry IDs, framework dimensions carried through the split artifacts or explicitly deferred when unchanged, current-source search notes when needed, standalone report citations with source URLs, a `Decision-Critical Claims` appendix mapping, prose-first body, structured final score in `index.md`, residual vector and residual gate status, hard constraints satisfied and hard-constraint gate status, wiki status fields when persistence was needed, and no premature final report while the evolver says `Keep`, `Narrow`, or `Pivot`.
 
@@ -513,7 +514,8 @@ Use the same language as the user's request unless they ask otherwise. When writ
 - **False graph claim**: index tooling was mentioned but not run. Fix by saying only `index.md` was updated.
 - **Skipped wiki persistence**: the survey ends with only local Markdown when long-term persistence was needed and a suitable wiki/indexer was available. Fix by reading the relevant skill or tool guide, running/performing ingest, and recording the artifact path.
 - **Template theater**: files exist but contain placeholders. Fix before final response.
-- **Index-as-report**: `index.md` is updated but no standalone final report exists. Fix by writing `report.md` before answering.
+- **Index-as-report**: `index.md` is updated but no standalone final report exists. Fix by running `finalize-report`, expanding `report.md`, and passing `check-final` before answering.
+- **Premature report**: `report.md` exists before a `Final` or `Kill` evolver decision. Fix by renaming/removing the premature draft, completing the staged round, then running `finalize-report`.
 - **Thin final report**: `report.md` repeats only a short synthesis and omits methodology, evidence table, red-team critique, scenarios, action plan, or open questions. Fix by expanding it into a standalone report.
 - **Audit-table report**: `report.md` starts with dense source tables, claim registers, or checklist sections and stays hard to read. Fix by writing a narrative body first and moving audit material into appendices.
 - **Registry-ID citations**: `report.md` cites `C1`, `E1`, or similar IDs that require opening JSONL files. Fix by replacing them with source titles, Markdown links, footnotes, and URLs.

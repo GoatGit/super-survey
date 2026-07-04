@@ -88,6 +88,76 @@ class SurveyRoundCliTest(unittest.TestCase):
         self.assertFalse((deep_dir / "report.md").exists())
         self.assertFalse((quick_dir / "report.md").exists())
 
+    def write_substantive_brief(self, survey_dir: Path) -> None:
+        write_markdown(
+            survey_dir / "00-brief.md",
+            "Survey Brief: AI recruiting agent",
+            {
+                "User Question": "Should we build this?",
+                "Superpowers Brainstorming Gate": "Assumed: enough constraints were present for a first evidence pass.",
+                "Decision To Make": "Decide whether another evidence pass can materially change the action.",
+                "Research Lens": "Use a product opportunity lens with policy and willingness-to-pay checks.",
+                "Research Framework": (
+                    "Framework Profile Router: product opportunity with policy-risk support.\n"
+                    "Primary decision archetype: product opportunity.\n"
+                    "Secondary archetypes: policy/trust risk.\n"
+                    "Selected lens packs: buyer/user, workflow, market/competitor, policy/trust.\n"
+                    "Domain hints: job-search workflow and platform policy exposure.\n"
+                    "Profiles considered but rejected: pure technical feasibility is too narrow for the decision.\n"
+                    "Why this profile fits the decision: demand, payment, policy, and implementation constraints all affect the action.\n"
+                    "Framework Contract: active dimensions, veto dimensions, and chapter weights are listed below.\n"
+                    "Dimensions to cover: user pain, workflow frequency, willingness to pay, policy constraints, substitutes, distribution, and implementation difficulty.\n"
+                    "Veto dimensions: policy constraints.\n"
+                    "Chapter weights: user pain high, willingness to pay high, policy constraints high, substitutes medium, distribution medium, implementation difficulty medium.\n"
+                    "Dimensions intentionally out of scope: enterprise procurement and recruiter-side workflows.\n\n"
+                    "Evidence Contract: minimum direct evidence, source preferences, and disconfirming evidence are set by dimension.\n"
+                    "Minimum direct evidence by dimension: complaints for user pain, paid alternatives for payment, official terms for policy.\n"
+                    "Preferred source types by dimension: user evidence, competitor pricing, official platform policy, and direct measurements.\n"
+                    "Disconfirming evidence by dimension: weak pain, no paid substitutes, official policy blocks, or cheap substitutes already solving the job.\n"
+                    "Evidence that cannot substitute for direct proof: general AI enthusiasm cannot substitute for payment or official policy evidence.\n\n"
+                    "### User Pain\nCore question: whether the workflow is painful enough to motivate change.\n\n"
+                    "### Workflow Frequency\nCore question: whether the workflow happens often enough for repeated use.\n\n"
+                    "### Willingness To Pay\nCore question: whether users would pay from a personal budget.\n\n"
+                    "### Policy Constraints\nCore question: whether platform rules allow the assisted workflow.\n\n"
+                    "### Substitutes\nCore question: whether low-cost substitutes already solve enough of the problem.\n\n"
+                    "### Distribution\nCore question: whether the product can reach active users efficiently.\n\n"
+                    "### Implementation Difficulty\nCore question: whether the workflow can be built reliably and safely."
+                ),
+                "Decision Evidence Standard": "Require current direct evidence for policy and payment claims.",
+                "Decision Frame Integrity": (
+                    "Original user frame: should we build this?\n"
+                    "Known facts: the workflow is repeated and policy-sensitive.\n"
+                    "Implicit assumptions: users will pay and platforms allow the workflow.\n"
+                    "Subjective judgments: the idea feels useful but remains unproven.\n"
+                    "Missing information: direct payment, policy boundaries, and acquisition economics.\n"
+                    "Stakeholders: users, platforms, builders, and compliance reviewers.\n"
+                    "Reframed objective: decide whether another evidence pass is justified before implementation.\n"
+                    "Competing objectives: speed, compliance, user value, cost, and reliability.\n"
+                    "What not to optimize for: proving the initial idea or rejecting an exaggerated certainty claim."
+                ),
+                "Decision Optimization Contract": (
+                    "Original question: should we build this?\n"
+                    "Reconstructed objective function: maximize decision quality while limiting policy, cost, and build risk.\n"
+                    "Candidate actions: continue desk research, interview users, build a prototype, wait, or stop.\n"
+                    "Do nothing / wait / continue research option: continue only if evidence value exceeds research cost.\n"
+                    "Hard constraints: platform terms, privacy, budget, and reliability.\n"
+                    "Soft constraints: speed, trust, and implementation simplicity.\n"
+                    "Missing constraints: exact budget and risk tolerance.\n"
+                    "Success criteria: a compliant paid workflow with reachable users.\n"
+                    "Failure criteria: no policy-safe workflow or no credible payment path.\n"
+                    "Opportunity cost: other product discovery work.\n"
+                    "Reversibility: desk research is reversible; implementation is less reversible.\n"
+                    "Implied expectations: users will trust assistance and pay enough.\n"
+                    "Decision-changing evidence: policy blocks, paid commitments, or strong substitute evidence."
+                ),
+                "Target Customer": "Active job seekers.",
+                "Success Criteria": "Evidence supports a paid compliant workflow.",
+                "Disqualifying Conditions": "Platform rules block reliable delivery.",
+                "Initial Assumptions": "Users repeatedly perform the workflow.",
+                "Continuation Policy": "Start with the next research round and continue only after evidence, red-team critique, synthesis, and raw evolver decision are written.",
+            },
+        )
+
     def write_minimal_stage(self, survey_dir: Path, filename: str) -> None:
         sections_by_file = {
             "01-evidence-plan.md": {
@@ -188,7 +258,8 @@ class SurveyRoundCliTest(unittest.TestCase):
         write_markdown(survey_dir / filename, filename.removesuffix(".md"), sections)
 
     def create_stage_template_snapshots(self) -> dict[str, str]:
-        survey_dir = self.init_round()
+        survey_dir = self.init_round(topic="AI recruiting agent snapshots")
+        self.write_substantive_brief(survey_dir)
         snapshots = {"01-evidence-plan.md": (survey_dir / "01-evidence-plan.md").read_text(encoding="utf-8")}
 
         for command, previous_file, current_file in (
@@ -254,6 +325,12 @@ class SurveyRoundCliTest(unittest.TestCase):
         self.assertFalse((survey_dir / "01-research.md").exists())
 
         self.write_minimal_stage(survey_dir, "01-evidence-plan.md")
+        blocked = run_cli("research", str(survey_dir), "1")
+        self.assertNotEqual(blocked.returncode, 0)
+        self.assertIn("00-brief.md incomplete before research", blocked.stderr + blocked.stdout)
+        self.assertFalse((survey_dir / "01-research.md").exists())
+
+        self.write_substantive_brief(survey_dir)
         created = run_cli("research", str(survey_dir), "1")
         self.assertEqual(created.returncode, 0, created.stderr + created.stdout)
         self.assertTrue((survey_dir / "01-research.md").exists())
@@ -1273,6 +1350,12 @@ Sources were checked during this round and remain directional.
 
     def test_upgrade_report_appends_v3_sections_and_metadata(self) -> None:
         survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
         metadata = survey_dir / ".super-survey.json"
         metadata.write_text(
             '{"topic": "AI recruiting agent", "language": "en", "report_schema_version": 1}\n',
@@ -1944,6 +2027,50 @@ Thin.
         result = run_cli("check", str(survey_dir))
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_finalize_report_creates_report_template_after_final_or_kill_round(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+
+        result = run_cli("finalize-report", str(survey_dir))
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        report = (survey_dir / "report.md").read_text(encoding="utf-8")
+        self.assertIn("# Final Report: AI recruiting agent", report)
+        self.assertIn("## Executive Summary", report)
+        self.assertIn("## Appendix: Evidence Register", report)
+
+    def test_finalize_report_rejects_continuing_evolver_decision(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Narrow.",
+            evolver_evidence_needed="Official ToS pages and direct buyer signals.",
+        )
+
+        result = run_cli("finalize-report", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("finalize-report requires the latest evolver decision to be Final or Kill", result.stdout)
+
+    def test_finalize_report_rejects_existing_premature_report(self) -> None:
+        survey_dir = self.init_round()
+        write_markdown(
+            survey_dir / "report.md",
+            "Premature Report",
+            {"Executive Summary": "This report was written before the staged round completed."},
+        )
+
+        result = run_cli("finalize-report", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("report.md already exists", result.stderr)
 
     def test_check_allows_continuation_round_without_forcing_kill(self) -> None:
         survey_dir = self.init_round()

@@ -96,6 +96,7 @@ python3 scripts/survey_round.py redteam surveys/2026-06-13-ai-招聘助手 1
 python3 scripts/survey_round.py synthesis surveys/2026-06-13-ai-招聘助手 1
 python3 scripts/survey_round.py evolve surveys/2026-06-13-ai-招聘助手 1
 python3 scripts/survey_round.py check surveys/2026-06-13-ai-招聘助手
+python3 scripts/survey_round.py finalize-report surveys/2026-06-13-ai-招聘助手
 python3 scripts/survey_round.py check-final surveys/2026-06-13-ai-招聘助手
 python3 scripts/survey_round.py upgrade-report surveys/2026-06-13-ai-招聘助手
 ```
@@ -115,6 +116,7 @@ python3 scripts/survey_round.py validate-evidence surveys/2026-06-13-ai-招聘�
 - `synthesis`：仅在 `NN-redteam.md` 已写入实质内容后创建 `NN-synthesis.md`。
 - `evolve`：仅在 `NN-synthesis.md` 已写入实质内容后创建 `NN-evolver.md`。
 - `check`：检查轮次产物、`index.md`、证据登记、companion routing 记录和最新进化器原始决策。它不要求 `report.md`。
+- `finalize-report`：只有最新进化器决策是 `Final` 或 `Kill` 且最终化就绪门通过后，才创建 `report.md`。
 - `check-final`：在 `check` 的基础上，额外检查最终 `report.md`、正文优先规则、记录在 `index.md` 的对应模式质量分、残差门和硬约束门，以及最新进化器原始决策必须是 `Final` 或 `Kill`。
 - `upgrade-report`：把旧报告追加为完整 report schema。旧的六章节报告可读，但不能通过最终门，升级后还需要补全新章节内容。
 - `validate-evidence`：只用于专项调试 `sources.jsonl`、`claims.jsonl` 和 `evidence.jsonl`；正常轮次校验使用 `check` / `check-final`。

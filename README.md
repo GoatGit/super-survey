@@ -98,6 +98,7 @@ python3 scripts/survey_round.py redteam surveys/2026-06-13-ai-recruiting-agent 1
 python3 scripts/survey_round.py synthesis surveys/2026-06-13-ai-recruiting-agent 1
 python3 scripts/survey_round.py evolve surveys/2026-06-13-ai-recruiting-agent 1
 python3 scripts/survey_round.py check surveys/2026-06-13-ai-recruiting-agent
+python3 scripts/survey_round.py finalize-report surveys/2026-06-13-ai-recruiting-agent
 python3 scripts/survey_round.py check-final surveys/2026-06-13-ai-recruiting-agent
 python3 scripts/survey_round.py upgrade-report surveys/2026-06-13-ai-recruiting-agent
 ```
@@ -117,6 +118,7 @@ Command meanings:
 - `synthesis`: creates `NN-synthesis.md` only after `NN-redteam.md` contains substantive content.
 - `evolve`: creates `NN-evolver.md` only after `NN-synthesis.md` contains substantive content.
 - `check`: validates round artifacts, `index.md`, the evidence registry, companion-routing notes, and the latest raw evolver decision. It does not require `report.md`.
+- `finalize-report`: creates `report.md` only after the latest evolver decision is `Final` or `Kill` and the finalization readiness gates pass.
 - `check-final`: runs the same checks plus final `report.md`, prose-first report rules, the mode-specific quality score recorded in `index.md`, residual and hard-constraint gates, and the requirement that the latest raw evolver decision is `Final` or `Kill`.
 - `upgrade-report`: appends the full report schema to an older report. Older six-section reports are readable but do not pass the final gate; after upgrading, fill the new sections.
 - `validate-evidence`: narrow debugging command for `sources.jsonl`, `claims.jsonl`, and `evidence.jsonl`; normal round validation uses `check` / `check-final`.
