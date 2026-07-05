@@ -34,6 +34,10 @@ Empty templates are not artifacts. A round is incomplete until each file contain
 
 Autonomous continuation is the default. Do not stop and ask the user how to proceed after `Keep`, `Narrow`, or `Pivot`; create the next round immediately and continue the staged workflow. Only pause for checkpoint approval when the user explicitly requested checkpoint approval before the round, a new constraint is required to continue, or a tool/environment blocker prevents meaningful work. Do not say "ready for the next round", "let me know how you would like to proceed", or similar handoff language after a continuing decision. A progress update may state that the next round is starting and name its target.
 
+External tool approval is not checkpoint approval. If current web search, browser access, or another tool requires host/user approval, request the actual tool approval and set `index.md` Continuation Status to `Workflow State: awaiting_tool_approval`, `Pending Approval: <tool and reason>`, and `Resume Action: <exact next stage action>`. After approval is granted, immediately run the approved tool and continue the same stage; do not ask the user to confirm again, do not leave the conversation at "approval received", and do not treat the approval pause as a completed round. If approval is denied or the tool remains unavailable, record the denial/fallback in `NN-research.md` Data Quality Notes and continue with the best available fallback or mark the evidence gap explicitly.
+
+Keep the workflow state consistent with the latest gate. Use `continuing_round` after `Keep`, `Narrow`, or `Pivot`; `ready_to_finalize` after `Final` or `Kill` before `report.md` exists; `final_report_draft` while the final report exists but is not yet delivery-ready; and `final` only when `report.md`, the quality score, residual gate, hard-constraint gate, and `check-final` are ready for delivery. `check-final` requires `Workflow State: final` and `Resume Action: none`.
+
 Use front-loaded guidance to improve research quality before the agent starts collecting evidence. Do not compensate for weak research by raising after-the-fact thresholds. The brief and round templates should surface decision-critical variables, minimum direct evidence, implied-expectation reverse-checks, constraint-specific recommendation branches, and anti-narrative regularizers early enough to guide source selection and synthesis.
 
 ## Workflow
@@ -87,7 +91,7 @@ Use built-in web search or another search tool when one of these conditions appl
 - Tavily returns clearly insufficient results for the needed source type.
 - The task needs a source surface Tavily does not cover well.
 
-When current-source discovery matters, record the search path in `NN-research.md` under Data Quality Notes. Make Tavily use or fallback explicit and auditable.
+When current-source discovery matters, record the search path in `NN-research.md` under Data Quality Notes. Make Tavily use or fallback explicit and auditable. Do not replace this with a user-facing "please approve search and I will continue" message. The correct state transition is `researching -> awaiting_tool_approval -> researching`: approval resumes the search action and the agent continues writing `NN-research.md`.
 
 Record search execution in `NN-research.md`:
 

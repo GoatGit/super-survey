@@ -223,6 +223,10 @@ README 只说明操作形状；完整 agent 检查清单位于 `SKILL.md`。
 
 默认行为是自主继续。`Keep`、`Narrow` 或 `Pivot` 之后应立即创建下一轮并继续阶段化工作流；不要用“已准备好下一轮”或“请告诉我如何继续”把控制权交回用户，除非用户明确要求 checkpoint approval 或存在真实阻塞。
 
+外部工具批准是临时状态，不是 checkpoint。当前来源搜索或浏览器访问需要批准时，在 `index.md` 里记录 `Workflow State: awaiting_tool_approval`、待批准工具和精确的恢复动作。批准一旦通过，就必须立即运行已批准的工具并继续同一阶段；不要再等用户发下一条消息，也不要把批准暂停当作已完成轮次。
+
+工作流状态必须和最新门禁一致：`Keep` / `Narrow` / `Pivot` 后是 `continuing_round`，`Final` / `Kill` 后且 `report.md` 尚不存在时是 `ready_to_finalize`，最终报告仍待最终校验时是 `final_report_draft`，只有 `check-final` 准备通过且 `Resume Action: none` 时才是 `final`。
+
 最终交付使用记录在 `index.md` 中的 100 分质量门：
 
 | 维度 | 分值 |

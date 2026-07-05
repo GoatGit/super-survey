@@ -225,6 +225,10 @@ There are four gates:
 
 Autonomous continuation is the default. After `Keep`, `Narrow`, or `Pivot`, create the next round immediately and continue the staged workflow; do not stop with "ready for the next round" or ask the user how to proceed unless the user explicitly requested checkpoint approval or a real blocker prevents progress.
 
+External tool approval is a transient state, not a checkpoint. If current web search or browser access needs approval, record `Workflow State: awaiting_tool_approval`, the pending tool, and the exact resume action in `index.md`. Once approval is granted, run the approved tool and continue the same stage immediately; do not wait for another user message or treat approval as a completed round.
+
+Workflow state must match the latest gate: `continuing_round` after `Keep` / `Narrow` / `Pivot`, `ready_to_finalize` after `Final` / `Kill` before `report.md`, `final_report_draft` while the report still needs final validation, and `final` only when `check-final` is ready to pass with `Resume Action: none`.
+
 Final delivery uses a 100-point quality gate recorded in `index.md`:
 
 | Dimension | Points |

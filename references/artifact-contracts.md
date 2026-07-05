@@ -105,13 +105,25 @@ the detailed content contract for each staged artifact.
 
 - Current thesis and current evidence-bound conclusion.
 - Round ledger and decision log.
-- Continuation status, next research target, and why the survey is not final yet.
+- Continuation status with machine-readable workflow state, pending approval, resume action, last completed stage, next research target, and why the survey is not final yet.
 - Open questions and source inventory.
 - Framework refinement log.
 - Residual Gate: residual vector, whether any residual is at 3, highest residual, pass/fail/pending status, and the next descent direction.
 - Hard Constraint Gate: whether hard constraints are satisfied, blocking hard constraints, and pass/fail/pending status.
 - Wiki / Graph Index Status.
 - Final Report Quality Gate after `report.md` exists.
+
+`Continuation Status` must distinguish real blockers from transient host/tool
+approval. Use `Workflow State: awaiting_tool_approval` only while an actual tool
+approval is pending, and include `Pending Approval:` plus `Resume Action:`. Once
+approval is granted, resume that action immediately and move the state back to
+the active stage; do not leave the survey parked at approval.
+
+The workflow state must also match the latest gate: `continuing_round` after
+`Keep`, `Narrow`, or `Pivot`; `ready_to_finalize` after `Final` or `Kill` before
+`report.md` exists; `final_report_draft` while a final report exists but still
+needs final checks; and `final` only for delivery-ready surveys with
+`Resume Action: none`.
 
 ## Final Report
 

@@ -223,6 +223,10 @@ README は運用の形だけを示します。完全な agent チェックリス
 
 デフォルトは自律的な継続です。`Keep`、`Narrow`、`Pivot` の後はすぐ次ラウンドを作成し、段階化ワークフローを続けます。「次ラウンドの準備ができました」や「どう進めるか教えてください」で停止しません。ユーザーが明示的に checkpoint approval を求めた場合、または実際のブロッカーがある場合だけ停止します。
 
+外部ツール承認は一時状態であり、checkpoint ではありません。現在情報検索やブラウザアクセスに承認が必要な場合は、`index.md` に `Workflow State: awaiting_tool_approval`、承認待ちのツール、正確な再開アクションを記録します。承認されたら、承認済みツールをすぐ実行し、同じステージを継続してください。次のユーザーメッセージを待ったり、承認待ちを完了済みラウンドとして扱ったりしてはいけません。
+
+Workflow state は最新ゲートと一致している必要があります。`Keep` / `Narrow` / `Pivot` の後は `continuing_round`、`Final` / `Kill` の後で `report.md` がまだない場合は `ready_to_finalize`、最終レポートが最終検証待ちの場合は `final_report_draft`、`check-final` が通過可能で `Resume Action: none` の場合だけ `final` にします。
+
 最終納品では、`index.md` に記録する 100 点の品質ゲートを使います:
 
 | 観点 | 点数 |

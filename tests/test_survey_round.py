@@ -852,6 +852,9 @@ Can this target customer pay for this workflow?
         self.assertIn("create the next round immediately", skill)
         self.assertIn("Only pause for checkpoint approval when the user explicitly requested checkpoint approval", skill)
         self.assertIn("Do not say \"ready for the next round\"", skill)
+        self.assertIn("External tool approval is not checkpoint approval", skill)
+        self.assertIn("Workflow State: awaiting_tool_approval", skill)
+        self.assertIn("After approval is granted, immediately run the approved tool", skill)
 
     def test_stage_artifact_contracts_live_in_reference(self) -> None:
         skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
@@ -2088,6 +2091,144 @@ Thin.
         self.assertIn("start the next round immediately", result.stdout)
         self.assertIn("do not stop to ask the user how to proceed", result.stdout)
 
+    def test_check_rejects_transient_tool_approval_state(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        index_path = survey_dir / "index.md"
+        index = re.sub(
+            r"(?ms)^## Continuation Status\n\n.*?(?=^## |\Z)",
+            (
+                "## Continuation Status\n\n"
+                "Workflow State: awaiting_tool_approval.\n"
+                "Pending Approval: web search for current public sources.\n"
+                "Resume Action: run the approved search, update 01-research.md and JSONL registries, then continue the round.\n"
+                "Last Completed Stage: 01-evidence-plan.md.\n"
+            ),
+            index_path.read_text(encoding="utf-8"),
+        )
+        index_path.write_text(index, encoding="utf-8")
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("awaiting_tool_approval is a transient state", result.stdout)
+        self.assertIn("run the approved tool and continue the same stage", result.stdout)
+
+    def test_check_rejects_informal_waiting_for_approval_language(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        index_path = survey_dir / "index.md"
+        index = re.sub(
+            r"(?ms)^## Continuation Status\n\n.*?(?=^## |\Z)",
+            (
+                "## Continuation Status\n\n"
+                "Workflow State: researching.\n"
+                "Pending Approval: none.\n"
+                "Resume Action: waiting for your approval before external search.\n"
+                "Last Completed Stage: 01-evidence-plan.md.\n"
+            ),
+            index_path.read_text(encoding="utf-8"),
+        )
+        index_path.write_text(index, encoding="utf-8")
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("approval/waiting language must be represented as Workflow State: awaiting_tool_approval", result.stdout)
+
+    def test_workflow_approval_detector_ignores_localized_field_labels(self) -> None:
+        module = load_survey_round_module()
+        label = module.labels("ja")
+        index_path = self.root / "index.md"
+        index_path.write_text(
+            "# Survey Index\n\n"
+            f"## {label['index_headings'][3]}\n\n"
+            "- Workflow State: researching.\n"
+            "- 承認待ち項目: なし.\n"
+            "- 再開アクション: continue the active research stage.\n",
+            encoding="utf-8",
+        )
+        errors: list[str] = []
+
+        module.validate_workflow_state_notes(
+            errors,
+            self.root,
+            index_path,
+            label,
+            module.REPORT_SCHEMA_VERSION,
+            "standard",
+            [],
+            final=False,
+        )
+
+        self.assertFalse(
+            any("approval/waiting language" in error for error in errors),
+            errors,
+        )
+
+    def test_check_rejects_workflow_state_mismatch_with_latest_decision(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            evolver_decision="Narrow.",
+            evolver_evidence_needed="Official ToS pages and direct buyer signals.",
+        )
+        index_path = survey_dir / "index.md"
+        index = re.sub(
+            r"(?ms)^## Continuation Status\n\n.*?(?=^## |\Z)",
+            (
+                "## Continuation Status\n\n"
+                "Workflow State: ready_to_finalize.\n"
+                "Pending Approval: none.\n"
+                "Resume Action: run finalize-report.\n"
+                "Last Completed Stage: 01-evolver.md.\n"
+            ),
+            index_path.read_text(encoding="utf-8"),
+        )
+        index_path.write_text(index, encoding="utf-8")
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Workflow State must be continuing_round", result.stdout)
+
+    def test_check_final_requires_final_workflow_state(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(
+            survey_dir,
+            evolver_decision="Kill.",
+            evolver_evidence_needed="None.",
+        )
+        index_path = survey_dir / "index.md"
+        index = re.sub(
+            r"(?ms)^## Continuation Status\n\n.*?(?=^## |\Z)",
+            (
+                "## Continuation Status\n\n"
+                "Workflow State: final_report_draft.\n"
+                "Pending Approval: none.\n"
+                "Resume Action: run check-final.\n"
+                "Last Completed Stage: report.md.\n"
+            ),
+            index_path.read_text(encoding="utf-8"),
+        )
+        index_path.write_text(index, encoding="utf-8")
+
+        result = run_cli("check-final", str(survey_dir))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("check-final requires Workflow State: final", result.stdout)
+
     def test_check_final_requires_final_report(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(
@@ -2499,6 +2640,16 @@ Sources were checked during this round and remain directional.
         quality_decision = continuation_decision or (
             "Pass / Continue Decision: pass; finalize the report because no decision-changing unknown remains desk-researchable, and the evolver next evidence requires external validation through user interviews."
         )
+        raw_decision = evolver_decision.strip().splitlines()[0].strip(" .。")
+        if raw_decision in {"Final", "Kill"}:
+            workflow_state = "final" if include_report else "ready_to_finalize"
+            resume_action = "Run finalize-report before writing report.md." if not include_report else "None."
+        elif raw_decision in {"Keep", "Narrow", "Pivot"}:
+            workflow_state = "continuing_round"
+            resume_action = "Create the next round immediately and continue the staged workflow."
+        else:
+            workflow_state = "researching"
+            resume_action = "Fix the latest evolver decision and continue the current stage."
         quality_maxes = [
             ("Anti-sycophancy / objective-function integrity", 20),
             ("Source, method, and framework quality", 15),
@@ -2611,7 +2762,13 @@ Sources were checked during this round and remain directional.
                 "Current Thesis": "The thesis is plausible but unproven.",
                 "Current Evidence-Bound Conclusion": "Continue one narrowed round before final reporting.",
                 "Round Ledger": "Round 1 found demand signals.",
-                "Continuation Status": "Continue if the evolver says Narrow, Pivot, or Keep; finalize after Final/Kill plus passing report quality.",
+                "Continuation Status": (
+                    f"Workflow State: {workflow_state}.\n"
+                    "Pending Approval: none.\n"
+                    f"Resume Action: {resume_action}\n"
+                    "Last Completed Stage: 01-evolver.md.\n"
+                    "State Note: external tool approval is transient and resumes the approved tool call, not a checkpoint stop."
+                ),
                 "Next Research Target": "Can policy and pricing evidence support a narrower workflow?",
                 "Why Not Final Yet": "The latest round still needs either a Final/Kill decision or a final report gate.",
                 "Open Questions": "Policy risk remains open.",

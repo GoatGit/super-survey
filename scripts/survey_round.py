@@ -18,6 +18,18 @@ MIN_REPORT_SUBSTANTIVE_LINES = 20
 REPORT_PASS_SCORE = 90
 REPORT_CONDITIONAL_SCORE = 80
 REGISTRY_FILES = ("sources.jsonl", "claims.jsonl", "evidence.jsonl")
+WORKFLOW_STATES = {
+    "planning",
+    "researching",
+    "awaiting_tool_approval",
+    "continuing_round",
+    "ready_to_finalize",
+    "final_report_draft",
+    "final",
+    "blocked",
+}
+CONTINUING_DECISIONS = {"Keep", "Narrow", "Pivot"}
+TERMINAL_ROUND_DECISIONS = {"Final", "Kill"}
 QUALITY_RUBRIC = (
     (
         "Anti-sycophancy / objective-function integrity",
@@ -1557,6 +1569,32 @@ def hard_constraint_gate_template(language: str) -> str:
     )
 
 
+def workflow_state_template(language: str) -> str:
+    if language == "zh":
+        return (
+            "- Workflow State: planning\n"
+            "- Pending Approval: none\n"
+            "- Resume Action: write the current stage artifact; if a tool approval was granted, run the approved tool and continue the same stage immediately\n"
+            "- Last Completed Stage: none\n"
+            "- State Note: awaiting_tool_approval is transient; approval resumes work and is not a checkpoint stop"
+        )
+    if language == "ja":
+        return (
+            "- Workflow State: planning\n"
+            "- Pending Approval: none\n"
+            "- Resume Action: write the current stage artifact; if a tool approval was granted, run the approved tool and continue the same stage immediately\n"
+            "- Last Completed Stage: none\n"
+            "- State Note: awaiting_tool_approval is transient; approval resumes work and is not a checkpoint stop"
+        )
+    return (
+        "- Workflow State: planning\n"
+        "- Pending Approval: none\n"
+        "- Resume Action: write the current stage artifact; if a tool approval was granted, run the approved tool and continue the same stage immediately\n"
+        "- Last Completed Stage: none\n"
+        "- State Note: awaiting_tool_approval is transient; approval resumes work and is not a checkpoint stop"
+    )
+
+
 def language_from_label(label: dict[str, object]) -> str:
     headings = list(label.get("index_headings", []))
     if len(headings) > 10:
@@ -2405,6 +2443,170 @@ def line_value_after_label(body: str, label_patterns: tuple[str, ...]) -> str:
     return ""
 
 
+WORKFLOW_FIELD_PATTERNS = (
+    r"Workflow State",
+    r"工作流状态",
+    r"ワークフロー状態",
+    r"Pending Approval",
+    r"待批准事项",
+    r"承認待ち項目",
+    r"Resume Action",
+    r"恢复动作",
+    r"再開アクション",
+    r"Last Completed Stage",
+    r"上一完成阶段",
+    r"最後に完了したステージ",
+    r"State Note",
+    r"状态说明",
+    r"状態メモ",
+)
+
+
+def approval_detection_text(body: str) -> str:
+    values: list[str] = []
+    for line in body.splitlines():
+        stripped = line.strip().lstrip("-*0123456789.）) ").strip()
+        if not stripped:
+            continue
+        field_value = ""
+        for pattern in WORKFLOW_FIELD_PATTERNS:
+            match = re.match(rf"{pattern}\s*[:：]\s*(.*)$", stripped, flags=re.IGNORECASE)
+            if match:
+                field_value = match.group(1).strip()
+                break
+        values.append(field_value if field_value else stripped)
+    return "\n".join(values)
+
+
+def normalized_field_value(value: str) -> str:
+    return value.strip().lower().strip(".。；; ")
+
+
+def is_none_like(value: str) -> bool:
+    normalized = normalized_field_value(value)
+    return normalized in {"", "none", "no", "not needed", "n/a", "无", "无需", "否", "なし", "不要"}
+
+
+APPROVAL_WAIT_PATTERNS = (
+    r"waiting for (?:tool |external )?approval",
+    r"wait(?:ing)? for (?:your )?(?:confirmation|approval)",
+    r"需要你确认",
+    r"等待你确认",
+    r"等待确认",
+    r"等待批准",
+    r"批准后",
+    r"承認待ち",
+    r"確認待ち",
+)
+
+
+def validate_workflow_state_notes(
+    errors: list[str],
+    survey_dir: Path,
+    index_path: Path,
+    label: dict[str, object],
+    schema_version: int,
+    mode: str,
+    rounds: list[int],
+    *,
+    final: bool,
+) -> None:
+    if schema_version < REPORT_SCHEMA_VERSION or not index_path.exists():
+        return
+    text = index_path.read_text(encoding="utf-8")
+    continuation_heading = str(label["index_headings"][3])
+    body = section_body(text, continuation_heading)
+    if body is None:
+        return
+
+    state = line_value_after_label(body, (r"Workflow State", r"工作流状态", r"ワークフロー状態"))
+    pending_approval = line_value_after_label(body, (r"Pending Approval", r"待批准事项", r"承認待ち項目"))
+    resume_action = line_value_after_label(body, (r"Resume Action", r"恢复动作", r"再開アクション"))
+    last_completed_stage = line_value_after_label(body, (r"Last Completed Stage", r"上一完成阶段", r"最後に完了したステージ"))
+    approval_text = approval_detection_text(body)
+    approval_language_present = any(
+        re.search(pattern, approval_text, flags=re.IGNORECASE)
+        for pattern in APPROVAL_WAIT_PATTERNS
+    )
+
+    if not state:
+        errors.append("index.md: Continuation Status must include 'Workflow State: <state>'")
+        return
+
+    normalized_state = normalized_field_value(state)
+    if normalized_state not in WORKFLOW_STATES:
+        errors.append(
+            "index.md: Workflow State must be one of "
+            + ", ".join(sorted(WORKFLOW_STATES))
+        )
+        return
+
+    if pending_approval == "":
+        errors.append("index.md: Continuation Status must include 'Pending Approval: none' or the pending tool approval")
+    if resume_action == "":
+        errors.append("index.md: Continuation Status must include 'Resume Action: <next action>'")
+    if last_completed_stage == "":
+        errors.append("index.md: Continuation Status must include 'Last Completed Stage: <stage or none>'")
+
+    pending_is_none = is_none_like(pending_approval)
+    resume_is_none = is_none_like(resume_action)
+    if normalized_state == "awaiting_tool_approval":
+        if pending_is_none:
+            errors.append("index.md: awaiting_tool_approval requires a concrete Pending Approval value")
+        if resume_is_none:
+            errors.append("index.md: awaiting_tool_approval requires a concrete Resume Action")
+        errors.append(
+            "index.md: awaiting_tool_approval is a transient state; after approval, run the approved tool and continue the same stage before check/check-final"
+        )
+    elif not pending_is_none:
+        errors.append("index.md: Pending Approval must be none unless Workflow State is awaiting_tool_approval")
+
+    if approval_language_present and normalized_state != "awaiting_tool_approval":
+        errors.append(
+            "index.md: approval/waiting language must be represented as Workflow State: awaiting_tool_approval with a Resume Action, not as an informal stopping point"
+        )
+
+    if normalized_state == "blocked":
+        errors.append("index.md: Workflow State blocked cannot pass check/check-final; resolve the blocker or record a fallback state first")
+
+    if normalized_state == "final" and not resume_is_none:
+        errors.append("index.md: Workflow State final requires Resume Action: none")
+
+    if final and normalized_state != "final":
+        errors.append("index.md: check-final requires Workflow State: final")
+
+    if not rounds:
+        if normalized_state != "planning":
+            errors.append("index.md: Workflow State must be planning before any round artifact exists")
+        return
+
+    latest_decision_path = decision_artifact_path(survey_dir, rounds[-1], mode)
+    latest_decision = parse_evolver_decision(latest_decision_path, label)
+    report_exists = (survey_dir / "report.md").exists()
+    if latest_decision in CONTINUING_DECISIONS and normalized_state != "continuing_round":
+        errors.append(
+            f"index.md: Workflow State must be continuing_round when the latest evolver decision is {latest_decision}"
+        )
+    if (
+        latest_decision in TERMINAL_ROUND_DECISIONS
+        and not report_exists
+        and not final
+        and normalized_state != "ready_to_finalize"
+    ):
+        errors.append(
+            f"index.md: Workflow State must be ready_to_finalize when the latest evolver decision is {latest_decision} and report.md does not exist"
+        )
+    if (
+        latest_decision in TERMINAL_ROUND_DECISIONS
+        and report_exists
+        and not final
+        and normalized_state not in {"final_report_draft", "final"}
+    ):
+        errors.append(
+            f"index.md: Workflow State must be final_report_draft or final when the latest evolver decision is {latest_decision} and report.md exists"
+        )
+
+
 def check_index_framework_refinement(
     errors: list[str],
     index_path: Path,
@@ -2994,6 +3196,7 @@ def init_survey(args: argparse.Namespace) -> None:
     wiki_status_notes = "\n".join(f"- {note}" for note in label["wiki_status_notes"])
     residual_gate_notes = residual_gate_template(language)
     hard_constraint_gate_notes = hard_constraint_gate_template(language)
+    workflow_state_notes = workflow_state_template(language)
     write_once(
         survey_dir / "index.md",
         f"""# {label['index_title']}: {args.topic}
@@ -3012,7 +3215,7 @@ def init_survey(args: argparse.Namespace) -> None:
 
 ## {headings[3]}
 
--
+{workflow_state_notes}
 
 ## {headings[4]}
 
@@ -4189,6 +4392,7 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
     if not rounds:
         errors.append("missing round files: run the 'round' command first")
     check_premature_report(errors, survey_dir, rounds, mode, label)
+    validate_workflow_state_notes(errors, survey_dir, index_path, label, schema_version, mode, rounds, final=final)
 
     for round_number in rounds:
         prefix = f"{round_number:02d}"
