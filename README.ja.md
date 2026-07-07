@@ -151,6 +151,19 @@ python3 scripts/survey_round.py validate-evidence surveys/2026-06-13-ai採用エ
 
 `C1`、`E1` のような registry ID は作業ファイル用です。最終 `report.md` では、それらを情報源タイトル、Markdown リンク、脚注、または URL を含む付録参照に置き換え、JSONL レジストリを開かなくても読める形にします。
 
+## Source Scope
+
+ユーザーがローカルファイル、フォルダ、PDF、既存調査成果物を指定した場合、または指定資料に基づく調査を求めた場合、Super Survey は証拠収集前にソフトな source-scope モードを記録します:
+
+- `local-only`: 指定されたローカル資料と生成された調査成果物だけを使います。外部情報源のために Tavily、web search、ブラウザ web search、web fetch は使いません。
+- `local-first`: ローカルファイルを先に読み、現在事実、欠けている一次証拠、矛盾確認、明示的な検証が必要な場合だけ外部発見を使います。
+- `current-first`: 価格、法律、ポリシー、API、企業開示、市場データ、リポジトリ活動など変化しやすい事実では現在の一次情報源を先に使い、統合前に指定ローカルファイルも読みます。
+- `open`: ローカル境界が指定されていない場合、通常の情報源階層と現在情報源ワークフローを使います。
+
+これはハードな allowlist や sandbox ではなく、プロセスと監査のための約束です。ユーザーが指定したローカルファイルは文脈上の最優先情報です。一方で、変化しやすい事実については公式/現在の一次情報源が最も高い事実権威を持ちます。Tavily と組み込み web search は発見ツールであり、web fetch、ブラウザ閲覧、PDF 抽出、ローカルファイル読み取りは既知または発見済み情報源の reader/verifier です。
+
+`00-brief.md` は Research Framework に選択 scope を記録します。`NN-research.md` は Data Quality Notes に `Source Scope`、`Local Files Read`、`Current Source Discovery`、`External Search Rationale` を記録し、現在情報源発見を使った場合は検索ツール、fallback、クエリ/フィルタ、第三者コンテンツ処理も記録します。
+
 ## skills.sh 収録準備
 
 このリポジトリは、Skills CLI の発見と skills.sh のインデックスに向けた構成になっています:

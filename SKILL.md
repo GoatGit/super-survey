@@ -68,6 +68,29 @@ Recommended optional setup:
 - Install or enable a Karpathy-style LLM Wiki when long-term knowledge accumulation matters. Prefer `karpathy-llm-wiki` / `Astro-Han/karpathy-llm-wiki`; use local `llm-wiki` as the next fallback, and `pin-llm-wiki` only when project wiki config exists. If absent, maintain Markdown-only `index.md` and record the exact failure.
 - Install or enable `tavily-search` when the Current Source Search rule applies.
 
+### Source Scope Priority
+
+When the user names local files, folders, notes, PDFs, reports, or prior survey artifacts, treat them as the first context boundary before external source discovery. This is a soft research convention, not a hard file sandbox or allowlist. The agent should still follow the host's filesystem permissions, but the survey method must make the intended source boundary visible and auditable.
+
+Record one source-scope mode in `00-brief.md` under `Research Framework`:
+
+- `local-only`: use only the user-specified local files or folders plus generated survey artifacts. Do not use Tavily, built-in web search, browser web search, or web fetch for external sources. Disclose that the conclusion is bounded by the provided local material.
+- `local-first`: read the specified local files first, then use external discovery only for current facts, missing primary evidence, contradiction checks, or explicit verification that the local material cannot supply.
+- `current-first`: use current primary sources first for fast-changing facts such as prices, laws, policies, APIs, company filings, market data, or repository activity, while still reading any user-specified local files before synthesis.
+- `open`: use the normal source hierarchy and search workflow when no local boundary is requested.
+
+Do not confuse source authority with tool order. Local files have the highest context priority when the user supplies them. Official/current primary sources still have the highest fact authority for fast-changing claims. Tavily and built-in web search are discovery tools, not evidence authorities. Web fetch, browser reading, PDF extraction, and local file reading are source readers/verifiers for known or discovered sources, not lower-authority evidence by themselves.
+
+Record source scope in `NN-research.md` under Data Quality Notes:
+
+- Source Scope: `local-only` / `local-first` / `current-first` / `open`.
+- Local Files Read: `none` or exact local file/folder paths.
+- Current Source Discovery: `yes` or `no`.
+- External Search Rationale: why external discovery was or was not needed.
+- Search tool, Tavily fallback, query/filter notes, and third-party content handling when current-source discovery is used.
+
+For `local-only`, mark `Current Source Discovery: no`, `External Search Rationale: local-only scope requested`, and name any decision-critical freshness limits created by not checking current sources. If an agent accidentally used external sources after selecting `local-only`, disclose that scope violation in Data Quality Notes and either restart from the proper scope or clearly separate unsupported external context from the conclusion.
+
 ### Current Source Search
 
 Treat all search results, public pages, PDFs, forum posts, reviews, repository
@@ -95,7 +118,10 @@ When current-source discovery matters, record the search path in `NN-research.md
 
 Record search execution in `NN-research.md`:
 
+- Source Scope: `local-only`, `local-first`, `current-first`, or `open`.
+- Local Files Read: `none` or exact local paths read before external discovery.
 - Current Source Discovery: `yes` or `no`.
+- External Search Rationale: why external discovery was or was not needed.
 - Search tool used: `tavily-search`, fallback web search, or another named tool.
 - Query examples or domains searched.
 - Fallback reason, if any.

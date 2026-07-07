@@ -447,7 +447,10 @@ LABELS = {
         "probe_cols": "Probe | Answer | Strength",
         "persona_cols": "Persona | Verdict | Reason",
         "search_tool_notes": [
+            "Source Scope: local-only / local-first / current-first / open",
+            "Local Files Read: none / file paths",
             "Current Source Discovery: yes / no",
+            "External Search Rationale: why external search was or was not needed",
             "Search Tool Used: tavily-search / fallback web search / other",
             "Tavily Fallback Reason: none / not installed / not authenticated / failed / insufficient results / unsuitable source surface",
             "Query And Filter Notes: queries, domains, date filters, source-type filters",
@@ -466,6 +469,9 @@ LABELS = {
             "- Domain hints:\n"
             "- Profiles considered but rejected:\n"
             "- Why this profile fits the decision:\n"
+            "- Source Scope:\n"
+            "- Local files to read first:\n"
+            "- Current-source discovery policy:\n"
             "- Framework Contract:\n"
             "- Dimensions to cover:\n"
             "- Veto dimensions:\n"
@@ -568,6 +574,7 @@ LABELS = {
             "Veto dimension:",
             "Primary or official sources:",
             "Direct measurements or registry updates:",
+            "Source scope and local-file priority:",
             "Current-source search path:",
             "Companion routing if needed:",
             "What would weaken the candidate action:",
@@ -864,7 +871,10 @@ LABELS = {
         "probe_cols": "探针 | 回答 | 强度",
         "persona_cols": "角色 | 判断 | 理由",
         "search_tool_notes": [
+            "Source Scope: local-only / local-first / current-first / open",
+            "Local Files Read: none / file paths",
             "Current Source Discovery: yes / no",
+            "External Search Rationale: why external search was or was not needed",
             "使用的搜索工具：tavily-search / fallback web search / other",
             "Tavily fallback 原因：无 / 未安装 / 未认证 / 失败 / 结果不足 / 不适合所需来源",
             "查询与过滤备注：查询词、域名、日期过滤、来源类型过滤",
@@ -883,6 +893,9 @@ LABELS = {
             "- 行业/领域提示：\n"
             "- 曾考虑但拒绝的 profile：\n"
             "- 为什么该 profile 适合本决策：\n"
+            "- Source Scope：\n"
+            "- 优先读取的本地文件：\n"
+            "- 当前来源发现策略：\n"
             "- Framework Contract：\n"
             "- 需要覆盖的维度：\n"
             "- 否决性维度：\n"
@@ -985,6 +998,7 @@ LABELS = {
             "Veto dimension:",
             "Primary or official sources:",
             "Direct measurements or registry updates:",
+            "Source scope and local-file priority:",
             "Current-source search path:",
             "Companion routing if needed:",
             "What would weaken the candidate action:",
@@ -1265,7 +1279,10 @@ LABELS = {
         "probe_cols": "プローブ | 回答 | 強度",
         "persona_cols": "ペルソナ | 判断 | 理由",
         "search_tool_notes": [
+            "Source Scope: local-only / local-first / current-first / open",
+            "Local Files Read: none / file paths",
             "Current Source Discovery: yes / no",
+            "External Search Rationale: why external search was or was not needed",
             "使用した検索ツール: tavily-search / fallback web search / other",
             "Tavily fallback 理由: なし / 未インストール / 未認証 / 失敗 / 結果不足 / 必要な情報源に不向き",
             "クエリとフィルタのメモ: クエリ、ドメイン、日付フィルタ、情報源タイプ",
@@ -1284,6 +1301,9 @@ LABELS = {
             "- ドメインヒント:\n"
             "- 検討したが採用しない profile:\n"
             "- この profile が判断に適している理由:\n"
+            "- Source Scope:\n"
+            "- 最初に読むローカルファイル:\n"
+            "- 現在情報源発見ポリシー:\n"
             "- Framework Contract:\n"
             "- 網羅すべき次元:\n"
             "- 拒否権を持つ次元:\n"
@@ -1386,6 +1406,7 @@ LABELS = {
             "Veto dimension:",
             "Primary or official sources:",
             "Direct measurements or registry updates:",
+            "Source scope and local-file priority:",
             "Current-source search path:",
             "Companion routing if needed:",
             "What would weaken the candidate action:",
@@ -3372,6 +3393,7 @@ def create_evidence_plan_template(survey_dir: Path, label: dict[str, object], la
 
 - Primary or official sources:
 - Direct measurements or registry updates:
+- Source scope and local-file priority:
 - Current-source search path:
 - Companion routing if needed:
 
@@ -3867,6 +3889,14 @@ def body_marks_requirement(body: str, label: str) -> bool | None:
     return None
 
 
+def note_marker(note: object) -> str:
+    return str(note).split(":")[0].split("：")[0].strip()
+
+
+def body_has_any_note_marker(body: str, markers: tuple[str, ...]) -> bool:
+    return any(marker and marker in body for marker in markers)
+
+
 def check_research_tool_notes(
     errors: list[str],
     warnings: list[str],
@@ -3881,7 +3911,24 @@ def check_research_tool_notes(
     if body is None:
         return
     current_source_required = body_marks_requirement(body, "Current Source Discovery")
-    expected_notes = [str(note).split(":")[0].split("：")[0] for note in label["search_tool_notes"][1:3]]
+    source_scope_notes = ("Source Scope", "Local Files Read")
+    if not body_has_any_note_marker(body, ("Source Scope",)) or not body_has_any_note_marker(body, ("Local Files Read",)):
+        warnings.append(f"{path.name}: Data Quality Notes should record Source Scope and Local Files Read")
+    if not body_has_any_note_marker(body, ("External Search Rationale",)):
+        warnings.append(f"{path.name}: Data Quality Notes should record External Search Rationale")
+
+    expected_notes: list[str] = []
+    third_party_markers: tuple[str, ...] = ()
+    for note in label["search_tool_notes"]:
+        marker = note_marker(note)
+        if not marker:
+            continue
+        if marker in source_scope_notes or marker in {"Current Source Discovery", "External Search Rationale"}:
+            continue
+        if "Tavily" in marker or "Search Tool" in marker or "搜索工具" in marker or "検索ツール" in marker:
+            expected_notes.append(marker)
+        if "Third-Party" in marker or "第三方" in marker or "第三者" in marker:
+            third_party_markers = (*third_party_markers, marker)
     missing = [note for note in expected_notes if note and note not in body]
     if missing:
         message = f"{path.name}: Data Quality Notes must record search tool and Tavily fallback status"
@@ -3890,8 +3937,7 @@ def check_research_tool_notes(
             warnings.append(warning)
         else:
             errors.append(message)
-    third_party_note = str(label["search_tool_notes"][4]).split(":")[0].split("：")[0]
-    if third_party_note and third_party_note not in body:
+    if third_party_markers and not body_has_any_note_marker(body, third_party_markers):
         message = f"{path.name}: Data Quality Notes must record third-party content handling"
         warning = f"{path.name}: Data Quality Notes should record third-party content handling when current sources matter"
         if schema_version < REPORT_SCHEMA_VERSION or current_source_required is not True:

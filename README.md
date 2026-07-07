@@ -153,6 +153,19 @@ Every evidence item must reference an existing source. Every supported, partial,
 
 Registry IDs such as `C1` and `E1` are for working files only. Final `report.md` must replace them with source titles, Markdown links, footnotes, or appendix references that include URLs, so the report can be read without opening the JSONL registry.
 
+## Source Scope
+
+When a user provides local files, folders, PDFs, prior survey artifacts, or asks the survey to rely on specified material, Super Survey records a soft source-scope mode before collecting evidence:
+
+- `local-only`: use only the specified local material and generated survey artifacts; do not use Tavily, web search, browser web search, or web fetch for external sources.
+- `local-first`: read local files first, then use external discovery only for current facts, missing primary evidence, contradiction checks, or explicit verification.
+- `current-first`: use current primary sources first for fast-changing facts, while still reading named local files before synthesis.
+- `open`: use the normal source hierarchy and current-source workflow.
+
+This is not a hard allowlist or sandbox. It is a process and audit convention. Local files have the highest context priority when supplied by the user; official/current primary sources still have the highest fact authority for fast-changing claims. Tavily and built-in web search are discovery tools, while web fetch, browser reading, PDF extraction, and local file reading are source readers/verifiers.
+
+`00-brief.md` records the selected scope in the Research Framework. `NN-research.md` records `Source Scope`, `Local Files Read`, `Current Source Discovery`, and `External Search Rationale` in Data Quality Notes, followed by the search-tool, fallback, query/filter, and third-party-content notes when current-source discovery is used.
+
 ## skills.sh Readiness
 
 This repository is structured for Skills CLI discovery and skills.sh indexing:

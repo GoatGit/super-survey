@@ -13,6 +13,38 @@ Prefer sources in this order:
 3. Reputable secondary sources: established media, analyst reports, credible expert writing.
 4. Community signals: GitHub issues, Reddit, forums, social posts. Treat these as qualitative, not definitive.
 
+## Source Scope Priority
+
+When the user supplies local files, folders, PDFs, notes, prior survey artifacts,
+or says the survey should rely on specified material, choose a source scope
+before source collection. This is a soft method convention, not a hard sandbox:
+the point is to make source priority auditable and to prevent the agent from
+silently replacing the user's provided context with web search.
+
+Use one of four modes:
+
+- `local-only`: use only the named local files/folders and generated survey
+  artifacts. Do not use Tavily, built-in web search, browser web search, or web
+  fetch for external sources. Disclose freshness and coverage limits.
+- `local-first`: read named local files first; use external discovery only for
+  current facts, missing primary evidence, contradiction checks, or explicit
+  verification.
+- `current-first`: for fast-changing facts, use current primary sources first,
+  then integrate any named local files before synthesis.
+- `open`: no local boundary was requested; use the normal source hierarchy and
+  current-source workflow.
+
+Do not treat tool order as source authority. Local files have highest context
+priority when supplied by the user. Official/current primary sources have highest
+fact authority for facts likely to change. Tavily and built-in web search are
+discovery tools. Web fetch, browser reading, PDF extraction, and local file
+reading are source readers/verifiers for known or discovered sources.
+
+Record the selected scope in `00-brief.md` and `NN-research.md`. The research
+Data Quality Notes should include `Source Scope`, `Local Files Read`,
+`Current Source Discovery`, and `External Search Rationale` before the existing
+search-tool, fallback, query/filter, and third-party-content notes.
+
 ## Research Lens And Framework Selection
 
 Use lenses to emphasize evidence needs without turning Super Survey into a fixed set of special cases. Pick 1-3 lenses, or define a custom lens, then keep the same common research loop.

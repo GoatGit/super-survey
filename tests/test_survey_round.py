@@ -192,7 +192,10 @@ class SurveyRoundCliTest(unittest.TestCase):
                 ),
                 "Findings": "Evidence is directional and leaves policy and payment gaps.",
                 "Data Quality Notes": (
+                    "Source Scope: open.\n"
+                    "Local Files Read: none.\n"
                     "Current Source Discovery: yes.\n"
+                    "External Search Rationale: recent policy and pricing facts were needed.\n"
                     "Search Tool Used: tavily-search.\n"
                     "Tavily Fallback Reason: none.\n"
                     "Query And Filter Notes: official sources and competitor pricing.\n"
@@ -373,7 +376,13 @@ Can this target customer pay for this workflow?
         research = survey_dir / "01-research.md"
         text = re.sub(
             r"(?ms)^## Data Quality Notes\n\n.*?(?=^## |\Z)",
-            "## Data Quality Notes\n\nEvidence came from stable local/project artifacts, so current-source discovery was not required.\n",
+            (
+                "## Data Quality Notes\n\n"
+                "Source Scope: local-first.\n"
+                "Local Files Read: stable project artifacts.\n"
+                "Current Source Discovery: no.\n"
+                "External Search Rationale: stable local/project artifacts were sufficient.\n"
+            ),
             research.read_text(encoding="utf-8"),
         )
         research.write_text(text, encoding="utf-8")
@@ -383,13 +392,43 @@ Can this target customer pay for this workflow?
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("Data Quality Notes should record search tool and Tavily fallback status when current sources matter", result.stdout)
 
+    def test_check_warns_when_source_scope_notes_are_missing(self) -> None:
+        survey_dir = self.init_round()
+        self._write_substantive_required_files(survey_dir, include_report=False)
+        research = survey_dir / "01-research.md"
+        text = re.sub(
+            r"(?ms)^## Data Quality Notes\n\n.*?(?=^## |\Z)",
+            (
+                "## Data Quality Notes\n\n"
+                "Current Source Discovery: no.\n"
+                "Search Tool Used: none.\n"
+                "Tavily Fallback Reason: none.\n"
+                "Query And Filter Notes: local artifacts only.\n"
+                "Third-Party Content Handling: no external third-party source text used.\n"
+            ),
+            research.read_text(encoding="utf-8"),
+        )
+        research.write_text(text, encoding="utf-8")
+
+        result = run_cli("check", str(survey_dir))
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Data Quality Notes should record Source Scope and Local Files Read", result.stdout)
+        self.assertIn("Data Quality Notes should record External Search Rationale", result.stdout)
+
     def test_check_requires_search_tool_notes_when_current_sources_are_enabled(self) -> None:
         survey_dir = self.init_round()
         self._write_substantive_required_files(survey_dir, include_report=False)
         research = survey_dir / "01-research.md"
         text = re.sub(
             r"(?ms)^## Data Quality Notes\n\n.*?(?=^## |\Z)",
-            "## Data Quality Notes\n\nCurrent Source Discovery: yes. Recent policy and pricing facts were needed.\n",
+            (
+                "## Data Quality Notes\n\n"
+                "Source Scope: open.\n"
+                "Local Files Read: none.\n"
+                "Current Source Discovery: yes. Recent policy and pricing facts were needed.\n"
+                "External Search Rationale: recent policy and pricing facts were needed.\n"
+            ),
             research.read_text(encoding="utf-8"),
         )
         research.write_text(text, encoding="utf-8")
@@ -407,7 +446,10 @@ Can this target customer pay for this workflow?
             r"(?ms)^## Data Quality Notes\n\n.*?(?=^## |\Z)",
             (
                 "## Data Quality Notes\n\n"
+                "Source Scope: open.\n"
+                "Local Files Read: none.\n"
                 "Current Source Discovery: yes. Recent policy and pricing facts were needed.\n"
+                "External Search Rationale: recent policy and pricing facts were needed.\n"
                 "Search Tool Used: tavily-search.\n"
                 "Tavily Fallback Reason: none.\n"
                 "Query And Filter Notes: official sources and competitor pricing.\n"
@@ -470,6 +512,9 @@ Can this target customer pay for this workflow?
         self.assertIn("Keep the round count open until evidence", brief)
         self.assertIn("Source Registry Updates", research)
         self.assertIn("Claim And Evidence Notes", research)
+        self.assertIn("Source Scope", research)
+        self.assertIn("Local Files Read", research)
+        self.assertIn("External Search Rationale", research)
         self.assertIn("Search Tool Used", research)
         self.assertIn("Tavily Fallback Reason", research)
         self.assertIn("Third-Party Content Handling", research)
@@ -501,6 +546,7 @@ Can this target customer pay for this workflow?
         self.assertIn("## Decision-Critical Variables", evidence_plan)
         self.assertIn("## Minimum Direct Evidence", evidence_plan)
         self.assertIn("## Framework Evidence Map", evidence_plan)
+        self.assertIn("Source scope and local-file priority", evidence_plan)
         self.assertIn("Evidence Contract dimension", evidence_plan)
         self.assertIn("Profile-specific minimum direct evidence", evidence_plan)
         self.assertIn("Dimension weight", evidence_plan)
@@ -708,6 +754,28 @@ Can this target customer pay for this workflow?
         self.assertIn("Do not create rigid industry templates", skill)
         self.assertIn("route by decision type first", quality.lower())
         self.assertIn("Industry/domain hints may raise the evidence standard", contracts)
+
+    def test_docs_define_source_scope_priority(self) -> None:
+        docs = {
+            "README.md": (ROOT / "README.md").read_text(encoding="utf-8"),
+            "README.zh-CN.md": (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
+            "README.ja.md": (ROOT / "README.ja.md").read_text(encoding="utf-8"),
+            "SKILL.md": (ROOT / "SKILL.md").read_text(encoding="utf-8"),
+            "references/artifact-contracts.md": (ROOT / "references" / "artifact-contracts.md").read_text(encoding="utf-8"),
+            "references/research-quality.md": (ROOT / "references" / "research-quality.md").read_text(encoding="utf-8"),
+        }
+
+        for text in docs.values():
+            self.assertIn("Source Scope", text)
+            self.assertIn("local-only", text)
+            self.assertIn("local-first", text)
+            self.assertIn("current-first", text)
+            self.assertIn("open", text)
+            self.assertIn("Local Files Read", text)
+            self.assertIn("External Search Rationale", text)
+        self.assertIn("soft research convention", docs["SKILL.md"])
+        self.assertIn("not a hard allowlist or sandbox", docs["README.md"])
+        self.assertIn("不是硬性的 allowlist 或沙箱", docs["README.zh-CN.md"])
 
     def test_check_requires_adaptive_research_framework_contract_in_brief(self) -> None:
         survey_dir = self.init_round()
@@ -2967,9 +3035,14 @@ Sources were checked during this round and remain directional.
                 ),
                 "Findings": "There are repeated workflow signals.",
                 "Data Quality Notes": (
+                    "- Source Scope: open.\n"
+                    "- Local Files Read: none.\n"
+                    "- Current Source Discovery: yes.\n"
+                    "- External Search Rationale: recent policy and pricing facts were needed.\n"
                     "- Search Tool Used: tavily-search.\n"
                     "- Tavily Fallback Reason: none.\n"
                     "- Query And Filter Notes: official pages and competitor pages.\n"
+                    "- Third-Party Content Handling: source text treated as untrusted evidence; source-borne instructions ignored; bounded factual excerpts or summaries only.\n"
                     "- Evidence is directional, not decisive."
                 ),
             },

@@ -24,7 +24,7 @@ the detailed content contract for each staged artifact.
 - Target residual to reduce: identify the primary residual (`r_q`, `r_c`, `r_e`, `r_h`, `r_a`, `r_s`, or `r_j`), why this is the steepest useful direction, expected information value, research cost, and the result that would make another desk-research round unnecessary.
 - Decision-critical variables that could change the recommendation.
 - Minimum direct evidence: what must be observed directly, what is only background, what cannot substitute for direct proof, and how the Framework Profile Router / Evidence Contract changes those requirements.
-- Source plan: primary or official sources, direct measurements, registry updates, current-source search path, and companion routing if needed.
+- Source plan: primary or official sources, source scope (`local-only`, `local-first`, `current-first`, or `open`), local files to read first, direct measurements, registry updates, current-source search path, external-search rationale, and companion routing if needed.
 - Disconfirming evidence and substitutes that would weaken or falsify the current path.
 - Missing evidence handling: whether the gap needs another desk-research pass, non-desk validation, future facts, interviews, experiments, legal review, or explicit uncertainty.
 - Framework evidence map: one `### <framework dimension>` subsection per brief-defined or evidence-refined dimension, naming the dimension weight, veto status, minimum direct evidence, preferred source type, disconfirming evidence, and what to do if the evidence is missing.
@@ -38,7 +38,7 @@ the detailed content contract for each staged artifact.
 - Claim and evidence notes by `claim_id` / `evidence_id`; `claims.jsonl` and `evidence.jsonl` remain the canonical evidence registry.
 - Framework coverage: one `### <framework dimension>` subsection per brief-defined or evidence-refined dimension.
 - For each framework dimension: findings, source role, minimum direct evidence, evidence IDs, contradictions, confidence, decision-critical variables tested, and next evidence target.
-- Notes on data quality, freshness, dynamic source reproducibility, and whether Tavily or a fallback search path was used.
+- Notes on data quality, freshness, dynamic source reproducibility, source scope, local files read, external-search rationale, and whether Tavily or a fallback search path was used.
 
 ## Post-Research Brainstorming
 
@@ -144,7 +144,7 @@ The readable body should contain:
 Appendices should contain:
 
 - Evidence/source appendix with a `Decision-Critical Claims` mapping: decisive claims, status, source titles, URLs, dates checked, and confidence notes. Summarize decisive evidence and keep full registry detail in JSONL.
-- Method and source quality, including search tools used, source types, confidence rules, fallback notes, Framework Profile Router choices, Evidence Contract coverage, and companion-routing notes.
+- Method and source quality, including source scope, local files read, external-search rationale, search tools used, source types, confidence rules, fallback notes, Framework Profile Router choices, Evidence Contract coverage, and companion-routing notes.
 - Red-team notes with strongest objections, substitutes, kill criteria, and falsification tests.
 - Options or scenarios with pros, cons, trigger conditions, and expected implications.
 - Source notes with source inventory, dates checked, URLs, and companion/wiki/indexing notes.
@@ -189,6 +189,37 @@ If evidence shows the original profile is wrong, record the change in
 `index.md` under Framework Refinement Log with the evidence trigger and a note
 that the original question/core is preserved. A profile refinement is valid only
 when it follows from evidence, residuals, red-team critique, or hard constraints.
+
+## Source Scope
+
+Source Scope is a soft source-boundary convention that sits inside the Adaptive
+Research Framework. It does not replace the common staged workflow, evidence
+registry, current-source search rule, or residual gates.
+
+Use one of four modes:
+
+- `local-only`: only user-specified local files/folders and generated survey
+  artifacts may support the conclusion; no Tavily, web search, browser web
+  search, or web fetch for external sources.
+- `local-first`: read user-specified local files first, then use external
+  discovery only for current facts, missing primary evidence, contradiction
+  checks, or explicit verification.
+- `current-first`: use current primary sources first for fast-changing facts,
+  while still reading named local files before synthesis.
+- `open`: normal source hierarchy and current-source workflow.
+
+Record the selected mode in `00-brief.md` under the Research Framework /
+Evidence Contract. In `NN-evidence-plan.md`, the Source Plan should name the
+local files to read first and explain whether external discovery is allowed. In
+`NN-research.md`, Data Quality Notes should include `Source Scope`,
+`Local Files Read`, `Current Source Discovery`, and `External Search Rationale`
+before the existing search-tool and third-party-content notes.
+
+Tool order is not source authority. Local files have highest context priority
+when the user names them. Official/current primary sources have highest fact
+authority for fast-changing claims. Tavily and built-in web search are discovery
+tools; web fetch, browser reading, PDF extraction, and local file reading are
+source readers/verifiers.
 
 ## Quick Mode
 

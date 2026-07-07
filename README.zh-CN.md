@@ -151,6 +151,19 @@ python3 scripts/survey_round.py validate-evidence surveys/2026-06-13-ai-招聘�
 
 `C1`、`E1` 这类 registry ID 只用于过程文件。最终 `report.md` 必须把它们替换成来源标题、Markdown 链接、脚注，或包含 URL 的附录引用，这样报告不需要打开 JSONL 登记表也能独立阅读。
 
+## Source Scope
+
+当用户提供本地文件、目录、PDF、既有调研产物，或要求只/优先依据指定材料时，Super Survey 会在收集证据前记录一个软性的 source-scope 模式：
+
+- `local-only`：只使用指定本地材料和本次调研生成的过程产物；不使用 Tavily、web search、浏览器网页搜索或 web fetch 获取外部来源。
+- `local-first`：先读本地文件；只有在需要当前事实、缺失的一手证据、矛盾核验或用户明确要求验证时，才使用外部发现。
+- `current-first`：对价格、法律、政策、API、公司披露、市场数据、仓库活跃度等快速变化事实，先用当前一手来源；但在综合前仍必须阅读用户指定的本地文件。
+- `open`：没有本地边界要求时，使用正常来源层级和当前来源工作流。
+
+这不是硬性的 allowlist 或沙箱，而是流程和审计约定。本地文件在用户指定时拥有最高上下文优先级；官方/当前一手来源对快速变化事实仍拥有最高事实权威。Tavily 和内置 web search 是发现工具；web fetch、浏览器阅读、PDF 提取和本地文件读取是已知或已发现来源的阅读/验证工具。
+
+`00-brief.md` 会在研究框架中记录所选 scope。`NN-research.md` 会在数据质量备注中记录 `Source Scope`、`Local Files Read`、`Current Source Discovery` 和 `External Search Rationale`；如果使用了当前来源发现，再补充搜索工具、fallback、查询/过滤和第三方内容处理备注。
+
 ## skills.sh 收录准备
 
 这个仓库已按 Skills CLI 发现和 skills.sh 索引的方式组织：
