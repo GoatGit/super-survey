@@ -84,6 +84,10 @@ class SurveyRoundCliTest(unittest.TestCase):
         self.assertTrue((standard_dir / "01-evidence-plan.md").exists())
         self.assertTrue((deep_dir / "01-evidence-plan.md").exists())
         self.assertTrue((quick_dir / "01-round.md").exists())
+        quick_round = (quick_dir / "01-round.md").read_text(encoding="utf-8")
+        self.assertIn("Source Scope: local-only / local-first / current-first / open", quick_round)
+        self.assertIn("Local Files Read", quick_round)
+        self.assertIn("External Search Rationale", quick_round)
         self.assertFalse((standard_dir / "report.md").exists())
         self.assertFalse((deep_dir / "report.md").exists())
         self.assertFalse((quick_dir / "report.md").exists())
@@ -770,7 +774,7 @@ Can this target customer pay for this workflow?
             self.assertIn("local-only", text)
             self.assertIn("local-first", text)
             self.assertIn("current-first", text)
-            self.assertIn("open", text)
+            self.assertIn("`open`", text)
             self.assertIn("Local Files Read", text)
             self.assertIn("External Search Rationale", text)
         self.assertIn("soft research convention", docs["SKILL.md"])
@@ -1816,7 +1820,13 @@ Thin.
             {
                 "Research Question": "Should this be pursued as a direction?",
                 "Evidence Plan": "Test the decision-critical demand and policy variables before treating the quick scan as final.",
-                "Evidence And Sources": "S1/E1/C1 support a directional read; source detail remains in JSONL.",
+                "Evidence And Sources": (
+                    "Source Scope: open.\n"
+                    "Local Files Read: none.\n"
+                    "Current Source Discovery: yes.\n"
+                    "External Search Rationale: current directional evidence was needed.\n"
+                    "S1/E1/C1 support a directional read; source detail remains in JSONL."
+                ),
                 "Brainstorming Checkpoint": "The practical next move is to decide whether more desk research would change the answer.",
                 "Red-Team Challenge": "The strongest objection is that public evidence is too thin for a high-stakes decision.",
                 "Synthesis": "The directional answer is sufficient for quick mode and can move to a final memo.",
@@ -1838,6 +1848,49 @@ Thin.
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_quick_round_warns_when_source_scope_notes_are_missing(self) -> None:
+        survey_dir = self.init_round(mode="quick")
+        self._write_substantive_required_files(
+            survey_dir,
+            include_report=False,
+            include_wiki_notes=False,
+            evolver_decision="Final.",
+            evolver_evidence_needed="No desk-research target remains.",
+        )
+        for suffix in ("research", "brainstorm", "redteam", "synthesis", "evolver"):
+            path = survey_dir / f"01-{suffix}.md"
+            if path.exists():
+                path.unlink()
+        write_markdown(
+            survey_dir / "01-round.md",
+            "Round 1 Quick Survey",
+            {
+                "Research Question": "Should this be pursued as a direction?",
+                "Evidence Plan": "Test the decision-critical demand and policy variables before treating the quick scan as final.",
+                "Evidence And Sources": "S1/E1/C1 support a directional read; source detail remains in JSONL.",
+                "Brainstorming Checkpoint": "The practical next move is to decide whether more desk research would change the answer.",
+                "Red-Team Challenge": "The strongest objection is that public evidence is too thin for a high-stakes decision.",
+                "Synthesis": "The directional answer is sufficient for quick mode and can move to a final memo.",
+                "Decision": "Final.",
+                "Stopping Gate": (
+                    "Residual vector r_q/r_c/r_e/r_h/r_a/r_s/r_j (0-3): r_q=0, r_c=1, r_e=1, r_h=1, r_a=1, r_s=1, r_j=0.\n"
+                    "Any residual at 3: no.\n"
+                    "Expected information value of next research: low.\n"
+                    "Research cost: low.\n"
+                    "VOI greater than cost: no.\n"
+                    "Hard constraints satisfied: yes.\n"
+                    "Blocking hard constraints: none."
+                ),
+                "Next Step": "Write the short final report and disclose that this was quick mode.",
+            },
+        )
+
+        result = run_cli("check", str(survey_dir), "--mode", "quick")
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("01-round.md: Evidence And Sources should record Source Scope and Local Files Read", result.stdout)
+        self.assertIn("01-round.md: Evidence And Sources should record External Search Rationale", result.stdout)
+
     def test_quick_round_requires_evidence_plan_section(self) -> None:
         survey_dir = self.init_round(mode="quick")
         self._write_substantive_required_files(
@@ -1856,7 +1909,13 @@ Thin.
             "Round 1 Quick Survey",
             {
                 "Research Question": "Should this be pursued as a direction?",
-                "Evidence And Sources": "S1/E1/C1 support a directional read; source detail remains in JSONL.",
+                "Evidence And Sources": (
+                    "Source Scope: open.\n"
+                    "Local Files Read: none.\n"
+                    "Current Source Discovery: yes.\n"
+                    "External Search Rationale: current directional evidence was needed.\n"
+                    "S1/E1/C1 support a directional read; source detail remains in JSONL."
+                ),
                 "Brainstorming Checkpoint": "The practical next move is to decide whether more desk research would change the answer.",
                 "Red-Team Challenge": "The strongest objection is that public evidence is too thin for a high-stakes decision.",
                 "Synthesis": "The directional answer is sufficient for quick mode and can move to a final memo.",
@@ -1898,7 +1957,13 @@ Thin.
             {
                 "Research Question": "Should this be pursued as a direction?",
                 "Evidence Plan": "Test the decision-critical demand and policy variables.",
-                "Evidence And Sources": "S1/E1/C1 support a directional read; source detail remains in JSONL.",
+                "Evidence And Sources": (
+                    "Source Scope: open.\n"
+                    "Local Files Read: none.\n"
+                    "Current Source Discovery: yes.\n"
+                    "External Search Rationale: current directional evidence was needed.\n"
+                    "S1/E1/C1 support a directional read; source detail remains in JSONL."
+                ),
                 "Brainstorming Checkpoint": "The practical next move is to decide whether more desk research would change the answer.",
                 "Red-Team Challenge": "The strongest objection is that public evidence is too thin.",
                 "Synthesis": "The directional answer is sufficient for quick mode.",
@@ -1946,7 +2011,13 @@ Thin.
             {
                 "本轮问题": "小米公司股票是否值得买入？",
                 "证据计划": "验证当前价格、财务质量、估值、风险和用户约束这些会改变行动的变量。",
-                "证据与来源": "S1/E1/C1 支持方向性判断；完整登记在 JSONL。",
+                "证据与来源": (
+                    "Source Scope: current-first.\n"
+                    "Local Files Read: none.\n"
+                    "Current Source Discovery: yes.\n"
+                    "External Search Rationale: 股票调研需要当前价格、财务和估值证据。\n"
+                    "S1/E1/C1 支持方向性判断；完整登记在 JSONL。"
+                ),
                 "Brainstorming 检查点": "比较买入、等待和继续调研。",
                 "反方挑战": "最大反方是公开资料不足以支持高风险买入行动。",
                 "综合结论": "应升级到标准或深度模式，而不是用 quick 最终交付。",

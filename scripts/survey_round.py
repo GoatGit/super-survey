@@ -3785,6 +3785,10 @@ def create_quick_round_template(survey_dir: Path, label: dict[str, object], roun
 ## {headings[2]}
 
 - Registry: sources.jsonl, claims.jsonl, evidence.jsonl
+- Source Scope: local-only / local-first / current-first / open
+- Local Files Read: none / file paths
+- Current Source Discovery: yes / no
+- External Search Rationale: why external search was or was not needed
 - Key source/evidence notes:
 
 ## {headings[3]}
@@ -3897,6 +3901,13 @@ def body_has_any_note_marker(body: str, markers: tuple[str, ...]) -> bool:
     return any(marker and marker in body for marker in markers)
 
 
+def check_source_scope_notes(warnings: list[str], path: Path, body: str, section_label: str = "Data Quality Notes") -> None:
+    if not body_has_any_note_marker(body, ("Source Scope",)) or not body_has_any_note_marker(body, ("Local Files Read",)):
+        warnings.append(f"{path.name}: {section_label} should record Source Scope and Local Files Read")
+    if not body_has_any_note_marker(body, ("External Search Rationale",)):
+        warnings.append(f"{path.name}: {section_label} should record External Search Rationale")
+
+
 def check_research_tool_notes(
     errors: list[str],
     warnings: list[str],
@@ -3911,11 +3922,8 @@ def check_research_tool_notes(
     if body is None:
         return
     current_source_required = body_marks_requirement(body, "Current Source Discovery")
+    check_source_scope_notes(warnings, path, body)
     source_scope_notes = ("Source Scope", "Local Files Read")
-    if not body_has_any_note_marker(body, ("Source Scope",)) or not body_has_any_note_marker(body, ("Local Files Read",)):
-        warnings.append(f"{path.name}: Data Quality Notes should record Source Scope and Local Files Read")
-    if not body_has_any_note_marker(body, ("External Search Rationale",)):
-        warnings.append(f"{path.name}: Data Quality Notes should record External Search Rationale")
 
     expected_notes: list[str] = []
     third_party_markers: tuple[str, ...] = ()
@@ -4445,6 +4453,9 @@ def check_survey(args: argparse.Namespace, *, final: bool = False) -> None:
         quick_path = quick_round_path(survey_dir, round_number)
         if mode == "quick" and quick_path.exists():
             check_required_file(errors, quick_path, list(label["quick_round_headings"]), language)
+            quick_source_body = section_body(quick_path.read_text(encoding="utf-8"), str(label["quick_round_headings"][2]))
+            if quick_source_body is not None:
+                check_source_scope_notes(warnings, quick_path, quick_source_body, str(label["quick_round_headings"][2]))
             if schema_version >= REPORT_SCHEMA_VERSION:
                 validate_quick_round_stopping_gate(errors, quick_path, label, final=final)
             continue
