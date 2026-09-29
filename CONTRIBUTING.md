@@ -11,6 +11,7 @@ Before opening a pull request:
 3. If you change generated templates, update validation tests in `tests/`.
 4. If you change skill behavior, update `SKILL.md` and the relevant README language sections.
 5. Keep runtime dependencies limited to the Python standard library unless there is a strong reason.
+6. Record notable user-facing changes in `CHANGELOG.md` under `Unreleased`.
 
 For documentation changes, keep English, Chinese, and Japanese sections aligned.
 
@@ -25,6 +26,7 @@ For documentation changes, keep English, Chinese, and Japanese sections aligned.
 3. 如果修改模板生成内容，请同步更新 `tests/` 中的校验测试。
 4. 如果修改技能行为，请同步更新 `SKILL.md` 和 README 中相关语言章节。
 5. 除非有充分理由，运行时依赖应保持为 Python 标准库。
+6. 在 `CHANGELOG.md` 的 `Unreleased` 下记录面向用户的重要变更。
 
 文档变更需要保持英文、中文、日文内容一致。
 
@@ -39,5 +41,6 @@ Pull request を作成する前に:
 3. 生成テンプレートを変更した場合は、`tests/` の検証テストも更新してください。
 4. スキルの挙動を変更した場合は、`SKILL.md` と README の該当言語セクションを更新してください。
 5. 強い理由がない限り、実行時依存は Python 標準ライブラリに留めてください。
+6. ユーザーに見える重要な変更は `CHANGELOG.md` の `Unreleased` に記録してください。
 
 ドキュメントを変更する場合は、英語・中国語・日本語の内容を揃えてください。

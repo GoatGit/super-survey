@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.code-review-graph/
+surveys/
+.DS_Store
+.obsidian/
+未命名*.canvas
+未命名*.base

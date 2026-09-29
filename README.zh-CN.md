@@ -2,6 +2,10 @@
 
 语言：[English](README.md) | 中文 | [日本語](README.ja.md)
 
+[![CI](https://github.com/GoatGit/super-survey/actions/workflows/ci.yml/badge.svg)](https://github.com/GoatGit/super-survey/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org)
+
 Super Survey 是一个面向 agent 的通用调研技能，也是一套带约束的决策优化工作流。它不是证券、产品或开源项目的特例模板；同一套循环可以用于产品机会、市场、技术可行性、开源采用、尽调、政策、战略，以及任何需要给读者交付有依据判断而不是链接堆砌的问题。
 
 本项目是 [如何拒绝AI谄媚人类.md](如何拒绝AI谄媚人类.md) 这篇论文的具体实现。论文的核心观点是：开放式调研应被视为带约束的决策优化，而不是直接生成答案。Super Survey 把这个思想落成阶段化工作流：先重建目标函数、约束、隐含假设、证据标准、反方挑战、综合判断和下一轮问题，再产出最终报告。
@@ -54,6 +58,11 @@ surveys/YYYY-MM-DD-topic-slug/
 ├── report.md              # 仅最终产物；停止门通过后创建
 └── .super-survey.json
 ```
+
+## 环境要求
+
+- Python 3.9+（CLI 运行时仅依赖 Python 标准库）。
+- Node.js 仅在使用 Skills CLI 安装时需要。
 
 ## 安装
 
@@ -337,6 +346,15 @@ agents/openai.yaml                # 技能 UI 元数据
 tests/                            # 回归测试
 ```
 
+## 文档与社区
+
+- [SKILL.md](SKILL.md)：完整 agent 技能说明和质量门。
+- [references/](references)：产物契约、进化器流程和研究质量参考。
+- [CHANGELOG.md](CHANGELOG.md)：版本变更记录。
+- [CONTRIBUTING.md](CONTRIBUTING.md)：如何提交 issue 和 PR。
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)：社区行为准则。
+- [SECURITY.md](SECURITY.md)：安全策略和漏洞报告。
+
 ## 许可证
 
-MIT。见 [license.txt](license.txt)。
+MIT。见 [LICENSE](LICENSE)。

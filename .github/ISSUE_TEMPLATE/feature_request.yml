@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest an improvement to the research workflow, gates, or documentation.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Super Survey is intentionally general-purpose. Proposals that turn it into a single-domain template are likely to be declined; explain the decision-quality problem you are trying to solve instead.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What decision-quality gap or friction does this address?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior you want, including any impact on existing artifacts, gates, or the CLI.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: This keeps the skill general-purpose rather than domain-specific.
+        - label: I considered whether existing modes, lenses, or companion routing already cover this.

@@ -2,6 +2,10 @@
 
 言語: [English](README.md) | [中文](README.zh-CN.md) | 日本語
 
+[![CI](https://github.com/GoatGit/super-survey/actions/workflows/ci.yml/badge.svg)](https://github.com/GoatGit/super-survey/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org)
+
 Super Survey は、agent のための汎用調査 skill です。制約付き意思決定最適化ワークフローとして、株式、プロダクト、オープンソース専用のテンプレートではありません。同じループを、プロダクト機会、市場、技術的実現可能性、OSS 採用、デューデリジェンス、政策、戦略、そしてリンク集ではなく根拠ある判断が必要な問いに使えます。
 
 このプロジェクトは、この論文の具体的な実装です。[如何拒绝AI谄媚人类.md](如何拒绝AI谄媚人类.md) の思想をそのまま調査ワークフローに落とし込みます。この論文は、オープンエンドな調査を直接回答生成ではなく、制約付き意思決定最適化として扱うべきだと主張します。Super Survey はその考え方を、目的関数、制約、暗黙の仮定、証拠基準、反論、統合判断、次ラウンドの問いを段階的に作るワークフローに落とし込みます。
@@ -54,6 +58,11 @@ surveys/YYYY-MM-DD-topic-slug/
 ├── report.md              # final-only; 停止ゲート通過後に作成
 └── .super-survey.json
 ```
+
+## 要件
+
+- Python 3.9+（CLI 実行時は Python 標準ライブラリのみ）。
+- Node.js は Skills CLI でのインストール時のみ必要。
 
 ## インストール
 
@@ -337,6 +346,15 @@ agents/openai.yaml                # スキル UI メタデータ
 tests/                            # 回帰テスト
 ```
 
+## ドキュメントとコミュニティ
+
+- [SKILL.md](SKILL.md)：agent skill の完全な指示と品質ゲート。
+- [references/](references)：成果物契約、エボルバー手順、証拠品質リファレンス。
+- [CHANGELOG.md](CHANGELOG.md)：バージョンごとの変更履歴。
+- [CONTRIBUTING.md](CONTRIBUTING.md)：issue と pull request の提出方法。
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)：コミュニティ行動規範。
+- [SECURITY.md](SECURITY.md)：セキュリティポリシーと脆弱性報告。
+
 ## ライセンス
 
-MIT。詳しくは [license.txt](license.txt) を参照してください。
+MIT。詳しくは [LICENSE](LICENSE) を参照してください。

@@ -2,6 +2,10 @@
 
 Language: English | [中文](README.zh-CN.md) | [日本語](README.ja.md)
 
+[![CI](https://github.com/GoatGit/super-survey/actions/workflows/ci.yml/badge.svg)](https://github.com/GoatGit/super-survey/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org)
+
 Super Survey is a general-purpose research skill for agents. It is not a domain-specific stock, product, or open-source template; the same loop can be used for product opportunities, markets, technical feasibility, open-source adoption, diligence, policy, strategy, or any question where a reader needs a grounded judgment rather than a link dump.
 
 The project is a concrete implementation of the paper [Resisting AI Sycophancy in Open-Ended Research](Rejecting-AI-Sycophancy-Toward-Humans.md). The paper argues that open-ended research should be treated as constrained decision optimization, not direct answer generation. Super Survey turns that idea into a staged workflow: rebuild the objective function, constraints, hidden assumptions, evidence standard, counterarguments, synthesis, and next-round question before producing a final report.
@@ -56,6 +60,11 @@ surveys/YYYY-MM-DD-topic-slug/
 ├── report.md              # final-only; created after the stop gate passes
 └── .super-survey.json
 ```
+
+## Requirements
+
+- Python 3.9+ (the CLI runtime uses only the Python standard library).
+- Node.js is needed only for the optional Skills CLI install.
 
 ## Install
 
@@ -339,6 +348,15 @@ agents/openai.yaml                # skill UI metadata
 tests/                            # regression tests
 ```
 
+## Documentation And Community
+
+- [SKILL.md](SKILL.md): full agent skill instructions and quality gates.
+- [references/](references): artifact contracts, evolver process, and research-quality guides.
+- [CHANGELOG.md](CHANGELOG.md): notable changes per release.
+- [CONTRIBUTING.md](CONTRIBUTING.md): how to submit issues and pull requests.
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md): community standards.
+- [SECURITY.md](SECURITY.md): security policy and vulnerability reporting.
+
 ## License
 
-MIT. See [license.txt](license.txt).
+MIT. See [LICENSE](LICENSE).
